@@ -19,4 +19,4 @@ if __name__ == "__main__":
     graph = setup_graph()
     execution_time = timeit.timeit(lambda: run_bfs_performance_test(graph, 1), number=100)
 
-    print(f"Average BFS Performance Test Duration: {execution_time / 100} seconds")
+    print(f"Average BFS Performance Test Duration: {execution_time * 10} ms")
