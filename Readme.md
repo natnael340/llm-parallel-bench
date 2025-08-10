@@ -19,7 +19,7 @@ gather perfomance measure like time it take, to run
 
 ### unittest
 
-`g++ tests/test_bfs.cpp BFS/bfs_seq.cpp -o ./tests/test_bfs`
+`g++ BFS/graph.cpp BFS/bfs_seq.cpp tests/test_bfs.cpp -o ./tests/test_bfs`
 `./tests/test_bfs`
 
 ### Performance test
