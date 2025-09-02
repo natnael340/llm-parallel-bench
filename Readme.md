@@ -9,17 +9,18 @@ gather perfomance measure like time it take, to run
 
 ### unittest
 
-`py -m unittest .\tests\test_bfs.py`
-
-### performance test
-
-`py -m tests.test_bfs_perf`
+`python -m unittest ./tests/python/test_bfs.py`
 
 ## C++
 
-### unittest
+### Build test
 
-`g++ BFS/graph.cpp BFS/bfs_seq.cpp tests/test_bfs.cpp -o ./tests/test_bfs`
+`g++ -O3 BFS/cpp/graph.cpp BFS/cpp/bfs_seq.cpp tests/cpp/test_bfs.cpp -o ./tests/cpp/test_bfs`
+
+### Run tests
+
 `./tests/test_bfs`
 
-### Performance test
+## Go
+
+`go test -v ./tests/go/`
