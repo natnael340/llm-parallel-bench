@@ -1,5 +1,5 @@
 import timeit
-from BFS.bfs_seq import bfs, Graph
+from BFS.python.bfs_seq import bfs, Graph
 
 def setup_graph():
     size = 10000

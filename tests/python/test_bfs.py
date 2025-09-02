@@ -1,5 +1,22 @@
+import logging
+import os
+import timeit
+from typing import Callable
+
 import unittest
-from BFS.bfs_seq import Graph, bfs
+from BFS.python.bfs_seq import Graph, bfs as sbfs
+from llm_written.bfs_parallel import bfs as pbfs
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+ALGOS = {"seq": sbfs, "par": pbfs}
+ALGO_CHOICE = os.environ.get("ALGO_CHOICE", "seq")
+bfs: Callable = ALGOS[ALGO_CHOICE]
+
+logger.info(f"Using BFS algorithm: {ALGO_CHOICE}")
+
 
 class TestBFS(unittest.TestCase):
     def setUp(self):
@@ -131,4 +148,16 @@ class TestBFS(unittest.TestCase):
         self.assertEqual(len(result), size)
         self.assertEqual(result[0], 1)
         self.assertEqual(result[-1], size)
+
+    def test_bfs_performance_speed_test(self):
+        # Create a larger connected graph 
+        size = 100000
+        for i in range(1, size):
+            for j in range(1, 11):
+                self.graph.add_edge(i, i + j if i + j <= size else size - i)
+        
+        execution_time = timeit.timeit(lambda: bfs(self.graph, 1), number=5)
+
+        print(f"Average BFS Performance Test Duration: {execution_time * 10} ms")
+
     
