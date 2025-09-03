@@ -1,9 +1,7 @@
 #include <iostream>
 #include "vector"
 #include "chrono"
-#include "../../BFS/cpp/bfs_seq.hpp"
-#include "../../BFS/cpp/graph.h"
-#include "../../llm_written/bfs_seq.hpp"
+#include "../../llm_written/graph.h"
 #include "../../llm_written/bfs_parallel.hpp"
 
 using std::vector;
@@ -25,7 +23,7 @@ void assertEqual(vector<int>& result, const vector<int>& expected, std::string t
 
 void test_bfs_empty(){
     Graph g;
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
 
     assertEqual(result, {}, "test_bfs_empty");
 }
@@ -33,7 +31,7 @@ void test_bfs_empty(){
 void test_bfs_single_node(){
     Graph g;
     g.add_edge(1, 1);
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     assertEqual(result, {1}, "test_bfs_single_node");
 }
 
@@ -43,7 +41,7 @@ void test_bfs_linear_edge() {
     g.add_edge(2, 3);
     g.add_edge(3, 4);
 
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     assertEqual(result, {1, 2, 3, 4}, "test_bfs_linear_edge");
 }
 
@@ -57,7 +55,7 @@ void test_bfs_complete_graph() {
             }
         }
     }
-    vector<int> result = par::bfs(g, 3);
+    vector<int> result = bfs_parallel(g, 3);
     assertEqual(result, {3, 1, 2, 4}, "test_bfs_complete_graph");
 }
 
@@ -68,7 +66,7 @@ void test_bfs_star_graph() {
     for (int leaf : leaves) {
         g.add_edge(center, leaf);
     }
-    vector<int> result = par::bfs(g, center);
+    vector<int> result = bfs_parallel(g, center);
     vector<int> expected = {center, 2, 3, 4, 5};
     assertEqual(result, expected, "test_bfs_star_graph");
 }
@@ -81,7 +79,7 @@ void test_bfs_cycle() {
         g.add_edge(edge[0], edge[1]);
     }
 
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     vector<int> expected = {1, 2, 4, 3};
     assertEqual(result, expected, "test_bfs_cycle");
 }
@@ -92,7 +90,7 @@ void test_bfs_tree_structure() {
     for (auto& edge : edges) {
         g.add_edge(edge.first, edge.second);
     }
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     vector<int> expected = {1, 2, 3, 4, 5, 6, 7};
     assertEqual(result, expected, "test_bfs_tree_structure");
 }
@@ -106,11 +104,11 @@ void test_bfs_disconnected_components() {
     g.add_edge(4, 5);
     g.add_edge(4, 6);
 
-    vector<int> result1 = par::bfs(g, 1);
+    vector<int> result1 = bfs_parallel(g, 1);
     vector<int> expected1 = {1, 2, 3};
     assertEqual(result1, expected1, "test_bfs_disconnected_components_1");
 
-    vector<int> result2 = par::bfs(g, 4);
+    vector<int> result2 = bfs_parallel(g, 4);
     vector<int> expected2 = {4, 5, 6};
     assertEqual(result2, expected2, "test_bfs_disconnected_components_2");
 }
@@ -121,7 +119,7 @@ void test_bfs_duplicate_edges() {
     g.add_edge(1, 2); // Duplicate
     g.add_edge(2, 3);
 
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     vector<int> expected = {1, 2, 3};
     assertEqual(result, expected, "test_bfs_duplicate_edges");
 }
@@ -130,7 +128,7 @@ void test_bfs_nonexistent_start_vertex() {
     Graph g;
     g.add_edge(1, 2);
 
-    vector<int> result = par::bfs(g, 999);
+    vector<int> result = bfs_parallel(g, 999);
     vector<int> expected = {};
     assertEqual(result, expected, "test_bfs_nonexistent_start_vertex");
 }
@@ -144,7 +142,7 @@ void test_bfs_complex_graph() {
     for (auto& edge : edges) {
         g.add_edge(edge.first, edge.second);
     }
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     vector<int> expected = {1, 2, 3, 4, 8, 5, 7, 6};
     assertEqual(result, expected, "test_bfs_complex_graph");
 }
@@ -154,10 +152,10 @@ void test_bfs_order_consistency() {
     g.add_edge(1, 3);
     g.add_edge(1, 2); // Added after 3
 
-    vector<int> first_result = par::bfs(g, 1);
+    vector<int> first_result = bfs_parallel(g, 1);
     bool consistent = true;
     for (int i = 0; i < 5; ++i) {
-        vector<int> result = par::bfs(g, 1);
+        vector<int> result = bfs_parallel(g, 1);
         if (result != first_result) {
             consistent = false;
             break;
@@ -176,7 +174,7 @@ void test_bfs_performance_stress_test() {
     for (int i = 1; i < size; ++i) {
         g.add_edge(i, i + 1);
     }
-    vector<int> result = par::bfs(g, 1);
+    vector<int> result = bfs_parallel(g, 1);
     bool passed = (result.size() == size) && (result[0] == 1) && (result[size - 1] == size);
     if (passed) {
         std::cout << "test_bfs_performance_stress_test passed" << std::endl;
@@ -197,7 +195,7 @@ void test_bfs_performance_speed_test(){
 
     for(int i = 0; i < 100; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        par::bfs(g, 1);
+        bfs_parallel(g, 1);
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
         timings.push_back(double(duration));

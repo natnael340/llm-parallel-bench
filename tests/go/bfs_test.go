@@ -11,7 +11,7 @@ import (
 
 func TestBFSEmptyGraph(t *testing.T) {
 	g := bfsgo.Graph{}
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	if !reflect.DeepEqual(result, []int{}) {
 		t.Errorf("Expected %v, but got %v", []int{}, result)
 	}
@@ -20,7 +20,7 @@ func TestBFSEmptyGraph(t *testing.T) {
 func TestBFSSingleNode(t *testing.T) {
 	g := bfsgo.Graph{}
 	g.AddEdge(1, 1)
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -32,7 +32,7 @@ func TestBFSLinearEdge(t *testing.T) {
 	g.AddEdge(1, 2)
 	g.AddEdge(2, 3)
 	g.AddEdge(3, 4)
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 3, 4}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -49,7 +49,7 @@ func TestBFSCompleteGraph(t *testing.T) {
 			}
 		}
 	}
-	result := bfsgo.BfsParallel(g, 3)
+	result := bfsgo.Bfs(g, 3)
 	expected := []int{3, 1, 2, 4}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -63,7 +63,7 @@ func TestBFSStarGraph(t *testing.T) {
 	for _, leaf := range leaves {
 		g.AddEdge(center, leaf)
 	}
-	result := bfsgo.BfsParallel(g, center)
+	result := bfsgo.Bfs(g, center)
 	expected := append([]int{center}, leaves...)
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -76,7 +76,7 @@ func TestBFSCycle(t *testing.T) {
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 4, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -89,7 +89,7 @@ func TestBFSTreeStructure(t *testing.T) {
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 3, 4, 5, 6, 7}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -102,12 +102,12 @@ func TestBFSDisconnectedComponents(t *testing.T) {
 	g.AddEdge(2, 3)
 	g.AddEdge(4, 5)
 	g.AddEdge(4, 6)
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
 	}
-	result2 := bfsgo.BfsParallel(g, 4)
+	result2 := bfsgo.Bfs(g, 4)
 	expected2 := []int{4, 5, 6}
 	if !reflect.DeepEqual(result2, expected2) {
 		t.Errorf("Expected %v, but got %v", expected2, result2)
@@ -119,7 +119,7 @@ func TestBFSDuplicateEdges(t *testing.T) {
 	g.AddEdge(1, 2)
 	g.AddEdge(1, 2) // Duplicate
 	g.AddEdge(2, 3)
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -129,7 +129,7 @@ func TestBFSDuplicateEdges(t *testing.T) {
 func TestBFSNonexistentStartVertex(t *testing.T) {
 	g := bfsgo.Graph{}
 	g.AddEdge(1, 2)
-	result := bfsgo.BfsParallel(g, 999)
+	result := bfsgo.Bfs(g, 999)
 	expected := []int{}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -145,7 +145,7 @@ func TestBFSComplexGraph(t *testing.T) {
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	expected := []int{1, 2, 3, 4, 8, 5, 7, 6}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -158,7 +158,7 @@ func TestBFSOrderConsistency(t *testing.T) {
 	g.AddEdge(1, 2)
 	var results [][]int
 	for i := 0; i < 5; i++ {
-		results = append(results, bfsgo.BfsParallel(g, 1))
+		results = append(results, bfsgo.Bfs(g, 1))
 	}
 	for i := 1; i < len(results); i++ {
 		if !reflect.DeepEqual(results[0], results[i]) {
@@ -173,7 +173,7 @@ func TestBFSPerformanceStressTest(t *testing.T) {
 	for i := 1; i < size; i++ {
 		g.AddEdge(i, i+1)
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := bfsgo.Bfs(g, 1)
 	if len(result) != size {
 		t.Errorf("Expected length %d, got %d", size, len(result))
 	}
@@ -201,7 +201,7 @@ func TestBFSSpeed(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		start := time.Now()
-		bfsgo.BfsParallel(g, 1)
+		bfsgo.Bfs(g, 1)
 		duration := time.Since(start)
 		times = append(times, duration.Milliseconds())
 	}
