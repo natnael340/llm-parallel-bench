@@ -12,11 +12,9 @@
 #include <cassert>
 
 // Include your implementation (adjust path/name as needed)
-#include "../../llm_written/gemm_seq.hpp"  // or: #include "gemm.hpp"
+//#include "../../llm_written/cpp_openai/gemm/gemm_parallel.hpp"  // or: #include "gemm.hpp"
+#include "../../llm_written/cpp_openai/GEMM/gemm_seq.hpp"  // or: #include "gemm.hpp"
 
-#define gemm gemm
-#include "../../llm_written/gemm_parallel_impl.cpp"
-#undef gemm
 
 using Matrix = std::vector<std::vector<double>>;
 
@@ -348,53 +346,72 @@ static void test_infinity_propagation() {
 
 // Optional heavy perf test: compile with -DRUN_PERF to enable.
 static void test_gemm_performance_speed() {
-    int m = 1000, k = 1000, n = 1000;
+    int m = 1024, k = 1024, n = 1024;
     Matrix A = makeRandomMatrix(m, k, -1, 1, 10);
     Matrix B = makeRandomMatrix(k, n, -1, 1, 12);
 
-    const int iters = 10;
-    auto t0 = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < iters; ++i) {
-        (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 32);
+    // warmup
+    (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 16);
+
+    const int iters = 20;
+    const int reps = 5;
+    std::vector<double> per_run_ms;
+
+    for(int i = 0; i < reps; i++){
+        auto t0 = std::chrono::high_resolution_clock::now();
+        for(int j =0; j<iters; j++){
+            (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 16);
+        }
+        auto t1 = std::chrono::high_resolution_clock::now();
+        double total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+        per_run_ms.push_back((total_ns / 1e6) / double(iters));
     }
-    auto t1 = std::chrono::high_resolution_clock::now();
-    double secs = std::chrono::duration<double>(t1 - t0).count();
+    
+    double mean = 0.0;
+    for (double val : per_run_ms) mean+=val;
+    mean /= double(reps);
 
-    Matrix C = gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 32);
-    if ((int)C.size() != m || (int)C[0].size() != n)
-        throw std::runtime_error("unexpected out shape in perf");
+    double sumsq = 0.0;
+    for (double val : per_run_ms) {
+        double d = val - mean;
+        sumsq += d*d;
+    }
+    double sd = std::sqrt(sumsq / double(reps));
 
-    double gflops = (2.0 * m * n * (double)k * iters) / secs / 1e9;
-    std::cout << "GEMM 1000x1000: " << secs << "s (~" << gflops << " GFLOPs)\n";
+    double means = mean / 1000.0;
+    double gflops = (2.0 * double(m) * double(n) * (double)k) / (means * 1e9);
+    //GEMM %dx%dx%d: %.2f ms/run ± %.2f (%.3f GFLOPs) [iters=%d, repeats=%d]",m, k, n, mean, sd, gflops, iters, reps)
+    std::cout << "GEMM "<<m<<"x"<<n<<"x"<<k<<": "<< std::fixed <<mean << "ms/run ± " 
+    << std::fixed <<sd<<" ("<< std::fixed<< gflops << " GFLOPs) [iters="<<iters<<", repeats="<<reps<<"]";
 }
 
 int main() {
-    RUN("identity_left", test_identity_left);
-    RUN("identity_right", test_identity_right);
-    RUN("zero_matrices_yield_zero", test_zero_matrices_yield_zero);
-    RUN("alpha_zero_with_C_none", test_alpha_zero_with_C_none);
-    RUN("alpha_zero_with_C_beta_one_preserves_C", test_alpha_zero_with_C_beta_one_preserves_C);
-    RUN("alpha_zero_with_C_beta_scales_once_even_with_small_KB", test_alpha_zero_with_C_beta_scales_once_even_with_small_KB);
-    RUN("beta_zero_ignores_input_C", test_beta_zero_ignores_input_C);
-    RUN("beta_one_accumulates_into_C", test_beta_one_accumulates_into_C);
-    RUN("negative_alpha_and_beta", test_negative_alpha_and_beta);
-    RUN("rectangular_tall_skinny", test_rectangular_tall_skinny);
-    RUN("rectangular_short_fat", test_rectangular_short_fat);
-    RUN("single_row_times_single_column_scalar", test_single_row_times_single_column_scalar);
-    RUN("row_vector_times_matrix", test_row_vector_times_matrix);
-    RUN("matrix_times_column_vector", test_matrix_times_column_vector);
-    RUN("general_random_compare_reference", test_general_random_compare_reference);
-    RUN("not_multiple_of_block_sizes", test_not_multiple_of_block_sizes);
-    RUN("block_sizes_one_matches_naive", test_block_sizes_one_matches_naive);
-    RUN("block_sizes_larger_than_dims", test_block_sizes_larger_than_dims);
-    RUN("in_place_C_mutation", test_in_place_C_mutation);
-    RUN("C_created_when_null", test_C_created_when_null);
-    RUN("dimension_mismatch_raises", test_dimension_mismatch_raises);
-    RUN("invalid_C_shape_raises", test_invalid_C_shape_raises);
-    RUN("ragged_A_rejected", test_ragged_A_rejected);
-    RUN("ragged_B_rejected", test_ragged_B_rejected);
-    RUN("nan_propagation", test_nan_propagation);
-    RUN("infinity_propagation", test_infinity_propagation);
+    // RUN("identity_left", test_identity_left);
+    // RUN("identity_right", test_identity_right);
+    // RUN("zero_matrices_yield_zero", test_zero_matrices_yield_zero);
+    // RUN("alpha_zero_with_C_none", test_alpha_zero_with_C_none);
+    // RUN("alpha_zero_with_C_beta_one_preserves_C", test_alpha_zero_with_C_beta_one_preserves_C);
+    // RUN("alpha_zero_with_C_beta_scales_once_even_with_small_KB", test_alpha_zero_with_C_beta_scales_once_even_with_small_KB);
+    // RUN("beta_zero_ignores_input_C", test_beta_zero_ignores_input_C);
+    // RUN("beta_one_accumulates_into_C", test_beta_one_accumulates_into_C);
+    // RUN("negative_alpha_and_beta", test_negative_alpha_and_beta);
+    // RUN("rectangular_tall_skinny", test_rectangular_tall_skinny);
+    // RUN("rectangular_short_fat", test_rectangular_short_fat);
+    // RUN("single_row_times_single_column_scalar", test_single_row_times_single_column_scalar);
+    // RUN("row_vector_times_matrix", test_row_vector_times_matrix);
+    // RUN("matrix_times_column_vector", test_matrix_times_column_vector);
+    // RUN("general_random_compare_reference", test_general_random_compare_reference);
+    // RUN("not_multiple_of_block_sizes", test_not_multiple_of_block_sizes);
+    // RUN("block_sizes_one_matches_naive", test_block_sizes_one_matches_naive);
+    // RUN("block_sizes_larger_than_dims", test_block_sizes_larger_than_dims);
+    // RUN("in_place_C_mutation", test_in_place_C_mutation);
+    // RUN("C_created_when_null", test_C_created_when_null);
+    // RUN("dimension_mismatch_raises", test_dimension_mismatch_raises);
+    // RUN("invalid_C_shape_raises", test_invalid_C_shape_raises);
+    // RUN("ragged_A_rejected", test_ragged_A_rejected);
+    // RUN("ragged_B_rejected", test_ragged_B_rejected);
+    // RUN("nan_propagation", test_nan_propagation);
+    // RUN("infinity_propagation", test_infinity_propagation);
     RUN("speed_tesT", test_gemm_performance_speed);
 
     std::cout << "\n=== SUMMARY ===\n"

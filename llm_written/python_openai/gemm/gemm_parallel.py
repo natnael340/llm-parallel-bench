@@ -87,7 +87,7 @@ def gemm(
 
     A is (m x k), B is (k x n), C is (m x n). If C is None, a zero matrix is used.
     """
-    from llm_written.gemm_seq import gemm as seq_gemm  # for small-input fast path
+    from llm_written.python_openai.gemm.gemm_seq import gemm as seq_gemm  # for small-input fast path
 
     validate_matrix(A, "A")
     validate_matrix(B, "B")

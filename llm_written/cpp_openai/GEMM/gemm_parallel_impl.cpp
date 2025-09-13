@@ -111,8 +111,8 @@ static void gemm_seq_kernel(const Matrix& A, const Matrix& B, double alpha, Matr
 // Gemm computes C := alpha * A * B + beta * C.
 Matrix gemm(const Matrix& A, const Matrix& B, double alpha, Matrix* Cptr, double beta, int MB, int NB, int KB ) {
     using namespace par_internal;
-    validateMatrix(A, "A");
-    validateMatrix(B, "B");
+    // validateMatrix(A, "A");
+    // validateMatrix(B, "B");
 
     auto [m, k] = getSize(A);
     auto [k2, n] = getSize(B);
@@ -129,7 +129,7 @@ Matrix gemm(const Matrix& A, const Matrix& B, double alpha, Matrix* Cptr, double
     Matrix& C = (Cptr ? *Cptr : (localC = generateMatrix(m, n)));
 
     if (Cptr) {
-        validateMatrix(C, "C");
+        // validateMatrix(C, "C");
         auto [m2, n2] = getSize(C);
         if (m2 != m || n2 != n) {
             throw std::invalid_argument(

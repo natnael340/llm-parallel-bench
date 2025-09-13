@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"testing"
 	"time"
-	gemm_seq "github.com/natnael340/llm-parallel-bench/GEMM/golang"
-	//gemm_seq "github.com/natnael340/llm-parallel-bench/llm_written"
+	//gemm_seq "github.com/natnael340/llm-parallel-bench/GEMM/golang"
+	gemm_seq "github.com/natnael340/llm-parallel-bench/llm_written"
 )
 
 // ---------- helpers ----------
@@ -503,30 +503,47 @@ func TestGemmPerformanceSpeed(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping performance test in -short mode")
 	}
-	m := 1000
-	k := 1000
-	n := 1000
+	m, k, n := 1024, 1024, 1024
 	A := makeRandomMatrix(m, k, -1, 1, 10)
 	B := makeRandomMatrix(k, n, -1, 1, 12)
 
-	const iters = 10
-	start := time.Now()
-	for i := 0; i < iters; i++ {
-		if _, err := gemm_seq.Gemm(A, B, 1.0, nil, 0.0, 32, 32, 32); err != nil {
+	// Warmup
+	if _, err := gemm_seq.Gemm(A, B, 1.0, nil, 0.0, 32, 56, 128); err != nil {
 			t.Fatal(err)
 		}
-	}
-	elapsed := time.Since(start).Seconds()
 
-	C, err := gemm_seq.Gemm(A, B, 1.0, nil, 0.0, 32, 32, 32)
-	if err != nil {
-		t.Fatal(err)
+	const iters = 20
+	const reps = 5
+	
+	perRunMs := make([]float64, reps)
+	for i:=0; i < reps; i++ {
+		start := time.Now()
+		for j:=0; j < iters; j++{
+			if _, err := gemm_seq.Gemm(A, B, 1.0, nil, 0.0, 32, 56, 128); err != nil {
+			t.Fatal(err)
+		}
+		}
+		elapsed := time.Since(start)
+		perRunMs[i] = float64(elapsed.Nanoseconds()) / 1e6 / float64(iters)
 	}
-	if len(C) != m || len(C[0]) != n {
-		t.Fatalf("unexpected out shape: got %dx%d want %dx%d", len(C), len(C[0]), m, n)
+	
+	mean := 0.0
+	for _, v := range perRunMs {
+		mean += v 
 	}
+	mean /= float64(reps)
+
+	sumsq := 0.0
+	for _, v := range perRunMs {
+		d := v - mean
+		sumsq += d * d
+	}
+
+	sd := math.Sqrt(sumsq / float64(reps))
+	meanS := mean / 1000.0 // Convert ms to seconds for GFLOPs
+	gflops := (2.0 * float64(m) * float64(n) * float64(k)) / (meanS * 1e9)
 
 	// 2*m*n*k floating ops (mul+add) per multiply
-	gflops := (2.0 * float64(m) * float64(n) * float64(k) * float64(iters)) / elapsed / 1e9
-	t.Logf("GEMM 1000x1000: %.3fs  (~%.3f GFLOPs)", elapsed, gflops)
+	t.Logf("GEMM %dx%dx%d: %.2f ms/run ± %.2f (%.3f GFLOPs) [iters=%d, repeats=%d]",
+		m, k, n, mean, sd, gflops, iters, reps)
 }

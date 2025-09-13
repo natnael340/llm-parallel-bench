@@ -9,11 +9,9 @@ def get_size(matrix: List[List[float]]) -> Tuple[int, int]:
 
 def validate_matrix(matrix: List[List[float]], name: str = "Matrix"):
     """Validate matrix is a non-empty rectangular list-of-lists of numbers."""
-    if matrix is None or not isinstance(matrix, list):
+    if matrix is None or not isinstance(matrix, list) or not matrix:
         raise ValueError(f"{name} must be a non-empty list of rows.")
-    if len(matrix) == 0:
-        raise ValueError(f"{name}  must have at least one row.")
-    if not isinstance(matrix[0], list) or len(matrix[0]) == 0:
+    if not isinstance(matrix[0], list) or not matrix[0]:
         raise ValueError(f"{name} must have at least one column.")
     
     cols = len(matrix[0])
@@ -26,7 +24,7 @@ def validate_matrix(matrix: List[List[float]], name: str = "Matrix"):
             if not isinstance(v, numbers.Real):
                 raise ValueError(f"{name}[{r}][{c}] is not a real number: {v!r}")
         
-def generate_matrix(rows: int, cols: int) -> List[List[float]]:
+def zeros(rows: int, cols: int) -> List[List[float]]:
     return [[0.0] * cols for _ in range(rows)]
 
 
@@ -39,12 +37,15 @@ def partial_matmul(
         n0: int,
         kb: int,
 ) -> None:
+    C_loc = C # localize lookup
     for i_off, Aik in enumerate(A):
-        Ci = C[m0 + i_off]
+        Ci = C_loc[m0 + i_off]
+        A_loc = Aik
         for j_off, Bjk in enumerate(B):
+            B_loc = Bjk
             s = 0.0
             for k in range(kb):
-                s+= Aik[k] * Bjk[k]
+                s+= A_loc[k] * B_loc[k]
             Ci[n0 + j_off] += alpha * s
 
 
@@ -68,8 +69,13 @@ def gemm(
 ):
     """
     Compute C := alpha * A * B + beta * C.
-
-    A is (m x k), B is (k x n), C is (m x n). If C is None, a zero matrix is used.
+    :param A: m x k
+    :param B: k x n
+    :param alpha: multiplier for A*B
+    :param C: optional m x n accumulation buffer (created if None)
+    :param beta: multiplier for existing C (applied only if C is provided)
+    :param MB,NB,KB: tile sizes
+    :return: m x n result (C)
     """
     validate_matrix(A, "A")
     validate_matrix(B, "B")
@@ -80,7 +86,9 @@ def gemm(
     if k != k2:
         raise ValueError(f"Shape mismatch: A is ({m},{k}), B is ({k2},{n}).")
     
-    if C is not None:
+    if C is None:
+        C = zeros(m, n)
+    else:
         validate_matrix(C, "C")
         m2, n2 = get_size(C) 
         if m2 != m or n2 != n:
@@ -89,8 +97,6 @@ def gemm(
             for i in range(m):
                 for j in range(n):
                     C[i][j] *= beta  
-    else:
-        C = generate_matrix(m, n)
 
     if alpha == 0.0:
         return C

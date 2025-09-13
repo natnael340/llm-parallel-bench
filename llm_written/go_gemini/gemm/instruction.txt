@@ -1,0 +1,10 @@
+You have go.mod file in the parent directory, so DO NOT CREATE OR WRITE GO.MOD FILE
+
+
+Here is the content of the go.mod file in the parent directory for your reference
+
+==============================Content======================================
+
+module github.com/natnael340/llm-parallel-bench
+
+go 1.18

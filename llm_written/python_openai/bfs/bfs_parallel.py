@@ -1,5 +1,6 @@
-from typing import List, Dict, Iterable, Tuple
+from typing import List, Dict, Iterable, Tuple, Deque
 import os
+from collections import deque
 from concurrent.futures import ProcessPoolExecutor
 
 class Graph:
@@ -45,7 +46,7 @@ def bfs(graph: Graph, start_vertex: int) -> list[int]:
 
     visited = set()
     result: list[int] = []
-    queue: list[int] = [start_vertex]
+    queue: Deque[int] = deque([start_vertex])
 
     # Parallelism controls
     max_workers = max(1, min((os.cpu_count() or 1), 32))
@@ -58,7 +59,7 @@ def bfs(graph: Graph, start_vertex: int) -> list[int]:
     
     try:
         while queue:
-            current = queue.pop(0)
+            current = queue.popleft()
             if current not in visited:
                 visited.add(current)
                 result.append(current)

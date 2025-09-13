@@ -343,24 +343,43 @@ static void test_infinity_propagation() {
 
 // Optional heavy perf test: compile with -DRUN_PERF to enable.
 static void test_gemm_performance_speed() {
-    int m = 1000, k = 1000, n = 1000;
+    int m = 1024, k = 1024, n = 1024;
     Matrix A = makeRandomMatrix(m, k, -1, 1, 10);
     Matrix B = makeRandomMatrix(k, n, -1, 1, 12);
 
-    const int iters = 10;
-    auto t0 = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < iters; ++i) {
-        (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 32);
+    // warmup
+    (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 16);
+
+    const int iters = 20;
+    const int reps = 5;
+    std::vector<double> per_run_ms;
+
+    for(int i = 0; i < reps; i++){
+        auto t0 = std::chrono::high_resolution_clock::now();
+        for(int j =0; j<iters; j++){
+            (void)gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 16);
+        }
+        auto t1 = std::chrono::high_resolution_clock::now();
+        double total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+        per_run_ms.push_back((total_ns / 1e6) / double(iters));
     }
-    auto t1 = std::chrono::high_resolution_clock::now();
-    double secs = std::chrono::duration<double>(t1 - t0).count();
+    
+    double mean = 0.0;
+    for (double val : per_run_ms) mean+=val;
+    mean /= double(reps);
 
-    Matrix C = gemm(A, B, 1.0, nullptr, 0.0, 32, 32, 32);
-    if ((int)C.size() != m || (int)C[0].size() != n)
-        throw std::runtime_error("unexpected out shape in perf");
+    double sumsq = 0.0;
+    for (double val : per_run_ms) {
+        double d = val - mean;
+        sumsq += d*d;
+    }
+    double sd = std::sqrt(sumsq / double(reps));
 
-    double gflops = (2.0 * m * n * (double)k * iters) / secs / 1e9;
-    std::cout << "GEMM 1000x1000: " << secs << "s (~" << gflops << " GFLOPs)\n";
+    double means = mean / 1000.0;
+    double gflops = (2.0 * double(m) * double(n) * (double)k) / (means * 1e9);
+    //GEMM %dx%dx%d: %.2f ms/run ± %.2f (%.3f GFLOPs) [iters=%d, repeats=%d]",m, k, n, mean, sd, gflops, iters, reps)
+    std::cout << "GEMM "<<m<<"x"<<n<<"x"<<k<<": "<< std::fixed <<mean << "ms/run ± " 
+    << std::fixed <<sd<<" ("<< std::fixed<< gflops << " GFLOPs) [iters="<<iters<<", repeats="<<reps<<"]";
 }
 
 int main() {

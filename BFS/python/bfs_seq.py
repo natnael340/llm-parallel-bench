@@ -1,3 +1,5 @@
+from collections import deque
+
 class Graph:
     def __init__(self) -> None:
         self.vertices: dict[int, list[int]] = {}
@@ -17,9 +19,9 @@ def bfs(graph: Graph, start_vertex: int) -> list[int]:
     
     visited = set()
     result = []
-    queue = [start_vertex]
+    queue = deque([start_vertex])
     while queue:
-        current = queue.pop(0)
+        current = queue.popleft()
         if current not in visited:
             visited.add(current)
             result.append(current)

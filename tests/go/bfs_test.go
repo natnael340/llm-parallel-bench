@@ -4,6 +4,7 @@ import (
 	"testing"
 	"reflect"
 	"time"
+	"fmt"
 	"math"
 	//"github.com/natnael340/llm-parallel-bench/BFS/bfsgo"
 	bfsgo "github.com/natnael340/llm-parallel-bench/llm_written"
@@ -190,26 +191,50 @@ func TestBFSSpeed(t *testing.T) {
 	// Create a large graph for benchmarking
 
 	g := bfsgo.Graph{}
-	size := 100000
+	size := 2000
 	for i := 1; i <= size; i++ {
-		for j := 1; j <= 10; j++ {
-			g.AddEdge(i, int(math.Min(float64(i+j), float64(size-i))))
+		for j := i + 1; j <= size; j++ {
+			g.AddEdge(i, j)
+			g.AddEdge(j, i)
 		}
 	}
 
-	times := []int64{}
+	bfsgo.Bfs(g, 1)
 
-	for i := 0; i < 100; i++ {
+	reps := 5
+	iters := 20
+
+	perRunMs := make([]float64, reps)
+	for r := 0; r < reps; r++{
 		start := time.Now()
-		bfsgo.Bfs(g, 1)
-		duration := time.Since(start)
-		times = append(times, duration.Milliseconds())
-	}
-	// calculate average
-	var total float64
-	for _, t := range times {
-		total += float64(t)
+		for k:=0; k < iters; k++ {
+			bfsgo.Bfs(g, 1)
+		}
+		total := time.Since(start)
+		// per-run in milliseconds (use ns to avoid integer truncation)
+		perRunMs[r] = float64(total.Nanoseconds()) / 1e6 / float64(iters)
 	}
 	
-	t.Logf("BFS took %v ms.", total / 100.0)
+	mean := 0.0
+	for _, v := range perRunMs {
+		mean += v 
+	}
+	mean /= float64(reps)
+
+	sumsq := 0.0
+	for _, v := range perRunMs {
+		d := v - mean
+		sumsq += d * d
+	}
+
+	sd := math.Sqrt(sumsq / float64(reps))
+
+	undirected := int64(size) * (int64(size) - 1) / 2
+	directed := int64(size) * (int64(size) - 1)
+
+	msg := fmt.Sprintf(
+		"BFS complete graph | nodes=%d, undirected edges≈%d (directed≈%d) | %.2f ms/run ± %.2f (n=%d)",
+		size, undirected, directed, mean, sd, reps,
+	)
+	t.Logf(msg)
 }

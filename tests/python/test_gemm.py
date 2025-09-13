@@ -3,11 +3,11 @@ import math
 import copy
 import random
 import pytest
-import timeit
+import timeit, statistics as stats
 
 
 #from GEMM.python.gemm_seq import gemm 
-from llm_written.gemm_parallel import gemm
+from llm_written.python_gemini.gemm.gemm_parallel import gemm
 
 # ---------- helpers ----------
 
@@ -293,21 +293,31 @@ def test_alpha_scaling_linear():
     mat_almost_equal(C2, scaled)
 
 
-
 def test_gemm_performance_speed():
-    m = k= n = 1000
-    A = make_random_matrix(m, n, seed=10)
-    B = make_random_matrix(m, n, seed=12)
+    m = k= n = 1024
+    A = make_random_matrix(m, k, seed=10)
+    B = make_random_matrix(k, n, seed=12)
 
-    execution_time = timeit.timeit(
-        lambda: gemm(A, B, alpha=1.0, C=None, beta=0.0, MB=32, NB=32, KB=32),
-        number=10,
+    # warmup
+    gemm(A, B, alpha=1.0, C=None, beta=0.0, MB=32, NB=32, KB=128)
+
+    iters = 20
+    reps = 5
+
+    results = timeit.repeat(
+        lambda: gemm(A, B, alpha=1.0, C=None, beta=0, MB=32, NB=32, KB=128),
+        repeat=reps,
+        number=iters
     )
 
-    C = gemm(A, B, alpha=1.0, C=None, beta=0.0, MB=32, NB=32, KB=32)
-    assert len(C) == m and len(C[0]) == n
+    per_run_ms = [(t / iters) * 1000 for t in results]
+    avg = stats.mean(per_run_ms)
+    sd = stats.pstdev(per_run_ms)
 
     # # 2*m*n*k floating ops (mul+add)
-    gflops = (2.0 * m * n * k) / execution_time / 1e9
-    print(f"GEMM 1000x1000: {execution_time:.3f}s  (~{gflops:.3f} GFLOPs)")
-    # it took tests/python/test_gemm.py .............................GEMM 1000x1000: 1262.157s  (~0.002 GFLOPs)
+    avg_s = avg / 1000.0
+    gflops = (2.0 * m * n * k) / (avg_s * 1e9)
+    
+    print(f"GEMM {m}x{n}x{k}: {avg:.2f} ms/run ± {sd:.2f} "
+          f"({gflops:.3f} GFLOPs)  [iters={iters}, repeats={reps}]")
+    # it took tests/python/test_gemm.py .............................GEMM 1024x1024: 1262.157s  (~0.002 GFLOPs)

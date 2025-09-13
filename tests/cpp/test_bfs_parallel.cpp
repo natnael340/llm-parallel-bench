@@ -1,5 +1,6 @@
 #include <iostream>
 #include "vector"
+#include "math.h"
 #include "chrono"
 #include "../../llm_written/graph.h"
 #include "../../llm_written/bfs_parallel.hpp"
@@ -185,28 +186,51 @@ void test_bfs_performance_stress_test() {
 
 void test_bfs_performance_speed_test(){
     Graph g;
-    int size = 100000;
+    int size = 2000;
     for (int i = 1; i <= size; ++i) {
-        for (int j=1; j<=10; j++){
-            g.add_edge(i, (i + j) > size ? size-i : (i + j));
+        for (int j=i + 1; j<=size; j++){
+            g.add_edge(i,j);
+            g.add_edge(j,i);
         }
     }
-    vector<int> timings;
+    
+    // warm-up
+    bfs_parallel(g, 1);
 
-    for(int i = 0; i < 100; i++){
+    int reps =5, iters = 20;
+
+    vector<double> per_run_ms;
+
+    for(int i = 0; i < reps; i++){
         auto start = std::chrono::high_resolution_clock::now();
-        bfs_parallel(g, 1);
+        for (int k=0; k<iters; k++) bfs_parallel(g, 1);
         auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-        timings.push_back(double(duration));
+        double total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+        per_run_ms.push_back((total_ns / 1e6) / double(iters));
     }
     
-    double sum = 0;
-    for (double val : timings){
-        sum += val;
+    double mean = 0.0;
+    for (double val : per_run_ms) mean+=val;
+    mean /= double(reps);
+
+    double sumsq = 0.0;
+    for (double val : per_run_ms) {
+        double d = val - mean;
+        sumsq += d*d;
     }
-    double average = timings.empty() ? 0.0 : sum / timings.size();
-    std::cout << "test_bfs_performance_speed_test " << average << " ms." << std::endl;
+    double sd = std::sqrt(sumsq / double(reps));
+    
+    long long undirected = 1LL * size * (size - 1) / 2;
+    long long directed   = 1LL * size * (size - 1);
+
+    
+    std::cout << "BFS complete graph | nodes=" << size
+         << ", undirected edges≈" << undirected
+         << " (directed≈" << directed << ") | "
+         << std::fixed<< mean << " ms/run ± "
+         << std::fixed<< sd << " (n=" << reps << ")"
+         << std::endl;
+
 }
 
 

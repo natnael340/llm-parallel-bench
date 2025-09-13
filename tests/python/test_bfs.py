@@ -1,11 +1,11 @@
 import logging
 import os
-import timeit
+import timeit, gc, statistics as stats
 from typing import Callable
 
 import unittest
 from BFS.python.bfs_seq import Graph, bfs as sbfs
-from llm_written.bfs_parallel import bfs as pbfs
+from llm_written.python_gemini.bfs.bfs_parallel import bfs as pbfs
 
 
 logging.basicConfig(level=logging.INFO)
@@ -151,13 +151,26 @@ class TestBFS(unittest.TestCase):
 
     def test_bfs_performance_speed_test(self):
         # Create a larger connected graph 
-        size = 100000
-        for i in range(1, size):
-            for j in range(1, 11):
-                self.graph.add_edge(i, i + j if i + j <= size else size - i)
-        
-        execution_time = timeit.timeit(lambda: bfs(self.graph, 1), number=5)
+        size = 2000
+        for i in range(1, size+1):
+            for j in range(i+1, size+1):
+                self.graph.add_edge(i, j)
+                self.graph.add_edge(j, i)
+    
+        #warm-up
+        bfs(self.graph, 1)
 
-        print(f"Average BFS Performance Test Duration: {execution_time * 10} ms")
+        reps=5
+        iters = 20
+
+        results = timeit.repeat(lambda: bfs(self.graph, 1), repeat=reps, number=iters)
+        
+        
+        per_run_ms = [(t / iters) * 1000 for t in results]
+        avg = stats.mean(per_run_ms)
+        sd = stats.pstdev(per_run_ms)
+    
+        print(f"BFS complete graph | nodes={size}, undirected edges≈{size*(size-1)//2:,} "
+          f"(directed≈{size*(size-1):,}) | {avg:.2f} ms/run ± {sd:.2f} (n={reps})")
 
     
