@@ -1,0 +1,6 @@
+Performance (single run):
+threads=16
+seq_time_s=0.056
+par_time_s=0.062
+speedup=0.90
+note=On this synthetic random graph and small runtime, overhead dominates; speedup expected only for larger SCC counts/sizes.

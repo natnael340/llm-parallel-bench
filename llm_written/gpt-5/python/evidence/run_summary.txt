@@ -1,0 +1,6 @@
+empty: pass
+single: pass
+sample: pass, edges=10 hash=34f41a3ddf838d91fb994c950d4a2f84c27542f4f74f8cd9bb40c4046a09eb95
+chain20x5: pass, edges=160 hash=da4f1d958db1c68b0b6a6a1d03d8cc72a4ab1becaaf8bf735c8416568140dfef
+determinism-hash: da4f1d958db1c68b0b6a6a1d03d8cc72a4ab1becaaf8bf735c8416568140dfef
+perf: N_scc=60 t_seq=0.0028s t_par=0.1548s speedup=0.02x cores=16

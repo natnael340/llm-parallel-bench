@@ -1,0 +1,11 @@
+RESULT: OK
+[OK]   empty: outputs match (0 edges)
+[OK]   empty: parallel deterministic (hash e3b0c442)
+[OK]   single_no_edges: outputs match (0 edges)
+[OK]   single_no_edges: parallel deterministic (hash e3b0c442)
+[OK]   line3: outputs match (0 edges)
+[OK]   line3: parallel deterministic (hash e3b0c442)
+[OK]   one_scc5: outputs match (8 edges)
+[OK]   one_scc5: parallel deterministic (hash 464d11ce)
+[OK]   rand_med: outputs match (292 edges)
+[OK]   rand_med: parallel deterministic (hash 3ae0ac19)

@@ -1,0 +1,1 @@
+LargeN: |V|=7200, SCCs=24, t_seq=29.708285ms, t_par=14.536016ms, speedup=2.04x, workers<=16
