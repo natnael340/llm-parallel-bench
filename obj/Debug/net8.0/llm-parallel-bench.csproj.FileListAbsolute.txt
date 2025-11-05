@@ -1,0 +1,15 @@
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.GeneratedMSBuildEditorConfig.editorconfig
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.AssemblyInfoInputs.cache
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.AssemblyInfo.cs
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.csproj.CoreCompileInputs.cache
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.sourcelink.json
+/home/malik/projects/llm-parallel-bench/bin/Debug/net8.0/llm-parallel-bench
+/home/malik/projects/llm-parallel-bench/bin/Debug/net8.0/llm-parallel-bench.deps.json
+/home/malik/projects/llm-parallel-bench/bin/Debug/net8.0/llm-parallel-bench.runtimeconfig.json
+/home/malik/projects/llm-parallel-bench/bin/Debug/net8.0/llm-parallel-bench.dll
+/home/malik/projects/llm-parallel-bench/bin/Debug/net8.0/llm-parallel-bench.pdb
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.dll
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/refint/llm-parallel-bench.dll
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.pdb
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/llm-parallel-bench.genruntimeconfig.cache
+/home/malik/projects/llm-parallel-bench/obj/Debug/net8.0/ref/llm-parallel-bench.dll

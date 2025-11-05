@@ -1,83 +1,89 @@
-import streamlit as st
-import json
-import os
-import logging
-from uuid import uuid4
 
-from app.state import State
-from app.graph import agent_executor
+import json
+from uuid import uuid4
+from dataclasses import asdict
+from typing import List
+
+import streamlit as st
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
-from app.utils import content_to_text
 
-
-def _short(obj, n=800):
-    s = obj if isinstance(obj, str) else json.dumps(obj, ensure_ascii=False)
-    return s if len(s) <= n else s[: n//2] + " … " + s[- n//2 :]
+from app.state import TokenUsage, File, Todo, Session
+from app.graph import get_agent
+    
 
 def app() -> None:
     """Run the Streamlit application."""
-    st.title("Sequential to Parallel Code Converter")
+    st.title("Sequential to Parallel Algo Converter")
+    if "session" not in st.session_state:
+        st.session_state.session = Session()
 
-    # Ensure session state exists for chat messages
-    if "messages" not in st.session_state:
-        st.session_state.messages: List[dict] = []  # type: ignore
+    with st.sidebar:
+        st.subheader("Model")
+        model = st.selectbox("Choose model:", ["GPT-5", "Claude 4.5 Sonnet", "Gemini 2.5 Pro"])
+        model_map = {"GPT-5": "openai:gpt-5", "Claude 4.5 Sonnet": "anthropic:claude-sonnet-4-5-20250929", "Gemini 2.5 Pro": "google-gemini:gemini-2.5-pro"}
+        st.subheader("TODOS")
+        for item in st.session_state.session.todos:
+            todo_icons = {"completed": "✅", "in_progress": "⚒️", "pending": "⬜"}       
+            
+            st.write(f"{todo_icons.get(item['status'], '⬜')} {item['content']}")
 
-    if "thread_id" not in st.session_state:
-        st.session_state.thread_id = str(uuid4())
+        st.divider()
+        st.subheader("FILES")
+        for f in st.session_state.session.files:
+            st.write(f"📄 {f['file_name']} - {f['size']}")
+        st.divider()
+
+        st.subheader("USAGE")
+        st.write(f"**Input tokens:** {st.session_state.session.usage.input_tokens}")
+        st.write(f"**Output tokens:** {st.session_state.session.usage.output_tokens}")
+        st.write(f"**Total tokens:** {st.session_state.session.usage.total_token}")
+
+    config = {"configurable": {"thread_id": st.session_state.session.thread_id}, "recursion_limit": 50}
+
     
-    
-    config = {"configurable": {"thread_id": st.session_state.thread_id}, "recursion_limit": 50}
-
     # Display existing chat history
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+    # for message in st.session_state.messages:
+    #     with st.chat_message(message["role"]):
+    #         st.markdown(message["content"])
 
     # Prompt the user for input
-    user_input = st.chat_input("Enter your sequential algorithm here and press enter...")
+    user_input = st.chat_input(f"Enter your sequential algorithm here and press enter...")
     if user_input:
+        agent = get_agent(model_map.get(model))
         # Append the user's message to the session history
-        st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.session.messages.append({"role": "user", "content": user_input})
         # Display the user message immediately
         with st.chat_message("user"):
-            st.markdown(user_input)
+            st.code(user_input, language=None)
 
-        message: State = {
+        message = {
             "messages": [("user", f"Parallelize the following sequential algorithm and write a test for it\n\n{user_input} Also give me a brief justification for the parallelization")],
         }
+               
 
         with st.chat_message("assistant"):
-            text_ph = st.empty()
-            acc = ""
-            
-            with st.status("Tool calls...", state="running") as status:
-                logs = st.container()
-                
-                for mode, chunk in agent_executor.stream(message, stream_mode=["updates", "messages"], config=config):
-                    if mode == "messages":
-                        msg, _meta = chunk
-                        delta = getattr(msg, "content", None)
+            for state in agent.stream(message, config=config, stream_usage=True, stream_mode="values"):
+                latest_message = state["messages"][-1]
+                st.session_state.session.todos = state.get("todos", [])
+                st.session_state.session.files = state.get("files", [])
 
-                        if delta:
-                            acc += content_to_text(msg)
-                            text_ph.markdown(acc)
-                        continue
-                        
-                    elif mode == "updates":
-                        update = chunk
-                        for node, patch in update.items():
-                            msgs = patch.get("messages", []) or []
-                            for m in msgs:
-                                
-                                if isinstance(m, AIMessage) and m.tool_calls:
-                                    with logs.expander(f"🧠 LLM tool calls @ {node}", expanded=True):
-                                        st.code(_short(m.tool_calls), language="json")
-                                # Tool finished and returned output
-                                if isinstance(m, ToolMessage):
-                                    with logs.expander(f"🔧 Tool result @ {node} ({m.name})"):
-                                        st.code(_short(m.content), language="json")
-            status.update(label="Done", state="complete", expanded=False)
+                st.session_state.session.messages.append(latest_message)
+                if isinstance(latest_message, AIMessage):
+                    st.session_state.session.usage.update(latest_message.response_metadata["token_usage"])
+                    if latest_message.content:
+                        st.markdown(latest_message.content)
+                            
+                    if latest_message.tool_calls:
+                        for tool_call in latest_message.tool_calls:
+                            with st.expander(f"🧠 LLM Tool Call • {tool_call['name']}", expanded=False):
+                                st.code(json.dumps(tool_call["args"], indent=2), language="json")
+                            
+                            
+                elif isinstance(latest_message, ToolMessage):
+                    with st.expander(f"🔧 Tool Result • {latest_message.name}", expanded=False):
+                        st.code(latest_message.content)
+                    
             
 
 
