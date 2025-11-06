@@ -13,6 +13,7 @@ from app.tools import (
     compile_code,
     run_code,
     ls,
+    rm,
     think_tool,
 )
 from app.consts import MONO_AGENT
@@ -20,7 +21,7 @@ from app.state import State
 
 
 
-TOOLS = [write_file, read_file, run_code, compile_code, ls, write_todos, read_todos, think_tool]
+TOOLS = [write_file, read_file, run_code, compile_code, ls, write_todos, read_todos, think_tool, rm]
 
 def get_agent(model: str, checkpointer: Optional[BaseCheckpointSaver] = None):
     load_dotenv(".env")

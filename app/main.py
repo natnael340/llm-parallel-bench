@@ -21,7 +21,8 @@ def app() -> None:
     with st.sidebar:
         st.subheader("Model")
         model = st.selectbox("Choose model:", ["GPT-5", "Claude 4.5 Sonnet", "Gemini 2.5 Pro"])
-        model_map = {"GPT-5": "openai:gpt-5", "Claude 4.5 Sonnet": "anthropic:claude-sonnet-4-5-20250929", "Gemini 2.5 Pro": "google-gemini:gemini-2.5-pro"}
+        model_map = {"GPT-5": "openai:gpt-5", "Claude 4.5 Sonnet": "anthropic:claude-sonnet-4-5-20250929", "Gemini 2.5 Pro": "google_genai:gemini-2.5-pro"}
+        
         st.subheader("TODOS")
         for item in st.session_state.session.todos:
             todo_icons = {"completed": "✅", "in_progress": "⚒️", "pending": "⬜"}       
@@ -39,7 +40,7 @@ def app() -> None:
         st.write(f"**Output tokens:** {st.session_state.session.usage.output_tokens}")
         st.write(f"**Total tokens:** {st.session_state.session.usage.total_token}")
 
-    config = {"configurable": {"thread_id": st.session_state.session.thread_id}, "recursion_limit": 50}
+    config = {"configurable": {"thread_id": st.session_state.session.thread_id}, "recursion_limit": 100}
 
     
     # Display existing chat history
@@ -50,7 +51,13 @@ def app() -> None:
     # Prompt the user for input
     user_input = st.chat_input(f"Enter your sequential algorithm here and press enter...")
     if user_input:
-        agent = get_agent(model_map.get(model))
+        model_key = model_map.get(model)
+        if "agent" not in  st.session_state:
+            st.session_state.agent = {model_key: get_agent(model_key, MemorySaver())}
+        elif model_key not in st.session_state.agent:
+            st.session_state.agent[model_key] = get_agent(model_key, MemorySaver())
+
+        agent = st.session_state.agent[model_key]
         # Append the user's message to the session history
         st.session_state.session.messages.append({"role": "user", "content": user_input})
         # Display the user message immediately
@@ -58,11 +65,12 @@ def app() -> None:
             st.code(user_input, language=None)
 
         message = {
-            "messages": [("user", f"Parallelize the following sequential algorithm and write a test for it\n\n{user_input} Also give me a brief justification for the parallelization")],
+            "messages": [("user", f"{user_input}")],
         }
                
 
         with st.chat_message("assistant"):
+            print("no streaming")
             for state in agent.stream(message, config=config, stream_usage=True, stream_mode="values"):
                 latest_message = state["messages"][-1]
                 st.session_state.session.todos = state.get("todos", [])
@@ -70,7 +78,8 @@ def app() -> None:
 
                 st.session_state.session.messages.append(latest_message)
                 if isinstance(latest_message, AIMessage):
-                    st.session_state.session.usage.update(latest_message.response_metadata["token_usage"])
+                    # TODO: update metadata checking(different metadata for different models)
+                    #st.session_state.session.usage.update(latest_message.response_metadata["token_usage"])
                     if latest_message.content:
                         st.markdown(latest_message.content)
                             

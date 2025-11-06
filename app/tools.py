@@ -16,6 +16,7 @@ from app.prompts import WRITE_TODO_TOOL_DESC, WRITE_FILE_TOOL_DESC
 from app.state import Todo, State
 
 BASE_DIR = Path("~/projects/llm-parallel-bench/llm_written").expanduser().resolve()
+CSHARP_PROJECT_DIR = Path("~/projects/llm-parallel-bench/llm_written/llm_written.csproj").expanduser().resolve()
 TIMEOUT_SEC = 60
 MAX_OUTPUT_BYTES = 300_000
 
@@ -79,13 +80,124 @@ def write_file(filename: str, content: str)-> str:
     
 
 @tool
-def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
+def run_code(filename: str, language: Literal['python', 'go', 'cpp', 'csharp']):
     """
     Run a program and capture stdout/stderr.
 
     Args: 
         filename: Program entry file or binary.
-        language: One of 'python' | 'go' | 'cpp'.
+        language: One of 'python' | 'go' | 'cpp' | 'csharp'.
+
+    Returns: dict with keys:
+        - status: "successful" | "error"
+        - returncode: int | None
+        - stdout: str (truncated if large)
+        - stderr: str (truncated if large)
+        - duration_sec: float
+        - cmd: list[str] (actual command executed)
+        - path: str (resolved path used)
+        - note: str (optional details)
+    """
+    start = time.monotonic()
+    try:
+        path = _safe_path(filename)
+
+        if language == "python":
+            cmd = [sys.executable, str(path)]
+        elif language == "go":
+            cmd = ["go", "run", str(path)]
+        elif language == "cpp":
+            cmd = [str(path)]
+        elif language == "csharp":
+            cmd = ["dotnet", "run", "--project", str(CSHARP_PROJECT_DIR), str(path)]
+        else:
+            return {
+                "status": "error",
+                "returncode":None,
+                "stdout": "",
+                "stderr": f"Unsupported language (f{language})",
+                "duration_sec": duration,
+                "cmd": "",
+                "path": str(path),
+            }
+        
+        proc = subprocess.run(
+            cmd,
+            cwd=str(BASE_DIR),
+            capture_output=True,
+            text=True,
+            timeout=TIMEOUT_SEC
+        )
+
+        duration = round(time.monotonic() - start, 6)
+
+        return {
+            "status": "successful" if proc.returncode == 0 else "error",
+            "returncode": proc.returncode,
+            "stdout": _truncate(proc.stdout),
+            "stderr": _truncate(proc.stderr),
+            "duration_sec": duration,
+            "cmd": cmd,
+            "path": str(path),
+        }
+    except subprocess.TimeoutExpired as e:
+        duration = round(time.monotonic() - start, 6)
+        out = e.stdout.decode("utf-8", errors="replace") if isinstance(e.stdout, (bytes, bytearray)) else (e.stdout or "")
+        err = e.stderr.decode("utf-8", errors="replace") if isinstance(e.stderr, (bytes, bytearray)) else (e.stderr or "")
+
+        return {
+            "status": "error",
+            "returncode": None,
+            "stdout": _truncate(out),
+            "stderr": _truncate(err) + "\n[Timeout]",
+            "duration_sec": duration,
+            "cmd": getattr(e, "cmd", []),
+            "path": filename,
+        }
+    
+    except FileNotFoundError as e:
+        duration = round(time.monotonic() - start, 6)
+        return {
+            "status": "error",
+            "returncode": None,
+            "stdout": "",
+            "stderr": str(e),
+            "duration_sec": duration,
+            "cmd": [],
+            "path": filename,
+        }
+    except PermissionError as e:
+        duration = round(time.monotonic() - start, 6)
+        return {
+            "status": "error",
+            "returncode": None,
+            "stdout": "",
+            "stderr": f"Permission error: {e}",
+            "duration_sec": duration,
+            "cmd": [],
+            "path": filename,
+        }
+    except Exception as e:
+        duration = round(time.monotonic() - start, 6)
+        return {
+            "status": "error",
+            "returncode": None,
+            "stdout": "",
+            "stderr": f"Unexpected error: {e}",
+            "duration_sec": duration,
+            "cmd": [],
+            "path": filename,
+        }
+
+
+@tool
+def run_code_2(filename: str, language: Literal['python', 'go', 'cpp', 'csharp']):
+    """
+    Run a program and capture stdout/stderr.
+
+    Args: 
+        filename: Program entry file or binary.
+        language: One of 'python' | 'go' | 'cpp' | 'csharp'.
 
     Returns: dict with keys:
         - status: "successful" | "error"
@@ -107,6 +219,8 @@ def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
             cmd = ["go", "test", "-v", "."]
         elif language == "cpp":
             cmd = [str(path)]
+        elif language == "csharp":
+            cmd = ["dotnet", "run", "--project", str(path)]
         else:
             return {
                 "status": "error",
@@ -341,7 +455,8 @@ def read_file(filename: str):
     """
 
     try:
-        path = _safe_path(filename)
+        candidate = BASE_DIR / filename
+        path = _safe_path(str(candidate))
         if not path.exists():
             return {"status": "error", "content": "", "stderr": "File does not exist"}
         elif path.is_dir():
@@ -448,3 +563,24 @@ def think_tool(reflection: str) -> str:
         Confirmation that reflection was recorded for decision-making
     """
     return f"Reflection recorded: {reflection}"
+
+
+@tool
+def rm(filename: str) -> str:
+    """
+    Remove a file from the working directory.
+
+    Args:
+        filename: Name of the file to remove
+    """
+    try:
+        path = _safe_path(filename)
+        if not path.exists():
+            return f"❌ ERROR: File '{filename}' does not exist."
+        if path.is_dir():
+            return f"❌ ERROR: '{filename}' is a directory."
+
+        path.unlink()
+        return f"✅ SUCCESS: File '{filename}' removed."
+    except Exception as e:
+        return f"❌ ERROR: {str(e)}"

@@ -10,6 +10,7 @@ Tools You May Call
 - ls() / list_files() / read_file(path) / write_file(path, content)
 - run_code(cmd, args?) / compile_code(lang, paths?, flags?)
 - think_tool(reflection)  # internal brief reflection only (keep tiny)
+- rm(filename)  # remove file
 
 Operating Contract
 1) TODO MANAGEMENT
@@ -61,6 +62,9 @@ Operating Contract
    C++:
      - Use OpenMP pragmas (`parallel for`, `reduction`, `schedule` explicit).
      - Avoid false sharing; document schedules; fixed tree reductions for determinism.
+   C#:
+     - Use Task Parallel Library (TPL) with bounded concurrency.
+     - Preserve order if required; avoid data races; avoid global shared state.
 
 6) DETERMINISM & RESOURCES
    - Fixed partitioning and reduction order. Seed any randomness; avoid it if possible.
