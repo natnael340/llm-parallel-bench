@@ -1,0 +1,6 @@
+Sequential Time: 228 ms
+Parallel Time (Run 1): 168 ms
+Parallel Time (Run 2): 92 ms
+Speedup: 1.36x
+Cores: Not explicitly set, TPL default
+N: 5000 vertices, 20000 edges

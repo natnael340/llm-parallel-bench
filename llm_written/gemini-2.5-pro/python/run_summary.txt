@@ -1,0 +1,21 @@
+# Run Summary
+
+This file contains the correctness and determinism results from the test runner.
+
+| Test Case     | Correctness (Seq vs Par) | Determinism (Par1 vs Par2) |
+|---------------|--------------------------|----------------------------|
+| empty         | ✅ PASS                  | ✅ PASS                    |
+| single_node   | ✅ PASS                  | ✅ PASS                    |
+| small_dag     | ✅ PASS                  | ✅ PASS                    |
+| small_scc     | ✅ PASS                  | ✅ PASS                    |
+| medium        | ✅ PASS                  | ✅ PASS                    |
+| large         | ✅ PASS                  | ✅ PASS                    |
+| huge_sccs     | ✅ PASS                  | ✅ PASS                    |
+
+## Determinism Hashes
+
+To verify determinism, the parallel implementation was run twice on each input. The output hashes must match exactly.
+
+- **huge_sccs**:
+  - Run 1 Hash: eb2409813b48d76f115216ee1e9bc67b4a03114f3adaffa59c2299a9a6762bff
+  - Run 2 Hash: eb2409813b48d76f115216ee1e9bc67b4a03114f3adaffa59c2299a9a6762bff

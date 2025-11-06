@@ -1,0 +1,11 @@
+# Performance Analysis
+
+This file contains the performance benchmarks comparing the sequential and parallel implementations. The parallel version did not achieve a speedup due to the overhead of process creation and data serialization, which outweighed the benefits of parallel computation for this specific task.
+
+| Test Case     | Sequential Time (s) | Parallel Time (s) | Speedup | Cores |
+|---------------|---------------------|-------------------|---------|-------|
+| medium        | 0.0194              | 0.1887            | 0.10x   | 4     |
+| large         | 0.0861              | 0.8181            | 0.11x   | 4     |
+| huge_sccs     | 0.1674              | 3.7013            | 0.05x   | 4     |
+
+**Note:** Speedup is calculated as `Sequential Time / Parallel Time`. A value less than 1.0x indicates a slowdown. The number of cores was determined by `os.cpu_count()`.
