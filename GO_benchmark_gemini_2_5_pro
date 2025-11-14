@@ -1,0 +1,56 @@
+goos: linux
+goarch: amd64
+pkg: github.com/natnael340/llm-parallel-bench/scc/scssgo
+cpu: AMD Ryzen 7 5700U with Radeon Graphics         
+BenchmarkGraph-16    	       3	 475944039 ns/op
+BenchmarkGraph-16    	       2	 536685864 ns/op
+BenchmarkGraph-16    	       2	 508159776 ns/op
+BenchmarkGraph-16    	       2	 529543203 ns/op
+BenchmarkGraph-16    	       2	 527399767 ns/op
+BenchmarkGraph-16    	       2	 549842879 ns/op
+BenchmarkGraph-16    	       2	 585078138 ns/op
+BenchmarkGraph-16    	       2	 654371192 ns/op
+BenchmarkGraph-16    	       2	 548969062 ns/op
+BenchmarkGraph-16    	       2	 536799015 ns/op
+BenchmarkGraph-16    	       2	 533153268 ns/op
+BenchmarkGraph-16    	       2	 512528804 ns/op
+BenchmarkGraph-16    	       2	 526570164 ns/op
+BenchmarkGraph-16    	       3	 466788215 ns/op
+BenchmarkGraph-16    	       3	 448853680 ns/op
+BenchmarkGraph-16    	       3	 496618889 ns/op
+BenchmarkGraph-16    	       3	 458044648 ns/op
+BenchmarkGraph-16    	       2	 544862030 ns/op
+BenchmarkGraph-16    	       3	 477378680 ns/op
+BenchmarkGraph-16    	       3	 470077560 ns/op
+BenchmarkGraph-16    	       3	 482386162 ns/op
+BenchmarkGraph-16    	       3	 443085803 ns/op
+BenchmarkGraph-16    	       3	 534004196 ns/op
+BenchmarkGraph-16    	       2	 517594813 ns/op
+BenchmarkGraph-16    	       3	 469075551 ns/op
+BenchmarkGraph-16    	       3	 447971028 ns/op
+BenchmarkGraph-16    	       3	 464287635 ns/op
+BenchmarkGraph-16    	       3	 499756408 ns/op
+BenchmarkGraph-16    	       3	 457920907 ns/op
+BenchmarkGraph-16    	       3	 451667865 ns/op
+BenchmarkGraph-16    	       3	 434083502 ns/op
+BenchmarkGraph-16    	       3	 488275173 ns/op
+BenchmarkGraph-16    	       3	 466665583 ns/op
+BenchmarkGraph-16    	       3	 469946659 ns/op
+BenchmarkGraph-16    	       3	 491426345 ns/op
+BenchmarkGraph-16    	       3	 468591566 ns/op
+BenchmarkGraph-16    	       2	 502420621 ns/op
+BenchmarkGraph-16    	       3	 472248259 ns/op
+BenchmarkGraph-16    	       3	 474598539 ns/op
+BenchmarkGraph-16    	       3	 472898199 ns/op
+BenchmarkGraph-16    	       3	 476668425 ns/op
+BenchmarkGraph-16    	       3	 456376940 ns/op
+BenchmarkGraph-16    	       3	 462993666 ns/op
+BenchmarkGraph-16    	       3	 477363252 ns/op
+BenchmarkGraph-16    	       3	 472013270 ns/op
+BenchmarkGraph-16    	       3	 465422515 ns/op
+BenchmarkGraph-16    	       3	 457917188 ns/op
+BenchmarkGraph-16    	       3	 498838755 ns/op
+BenchmarkGraph-16    	       3	 467341362 ns/op
+BenchmarkGraph-16    	       3	 477354817 ns/op
+PASS
+ok  	github.com/natnael340/llm-parallel-bench/scc/scssgo	125.034s

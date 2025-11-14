@@ -1,11 +1,10 @@
-package scc_parallel
+package main
 
 import (
 	"fmt"
-	"runtime"
-	"sync"
 )
 
+// Edge represents a directed edge u -> v.
 type Edge struct {
 	U, V int
 }
@@ -36,7 +35,7 @@ func (g *Graph) AddEdge(v, w int) {
 	g.RevAdj[w] = append(g.RevAdj[w], v) // reverse graph for later use
 }
 
-// ---------- Tarjan's SCC (O(V+E)) ----------
+// ---------- Tarjan’s SCC (O(V+E)) ----------
 
 func (g *Graph) tarjanDFS(
 	u int,
@@ -47,7 +46,7 @@ func (g *Graph) tarjanDFS(
 	timeRef *int,
 	sccList *[][]int,
 ) {
-	*timeRef++
+	*timeRef += 1
 	disc[u] = *timeRef
 	low[u] = *timeRef
 	*stack = append(*stack, u)
@@ -149,85 +148,20 @@ func (g *Graph) buildSpanningTree(start int, graph [][]int, nodes map[int]bool) 
 	return spanning
 }
 
-// ReduceEdges parallelizes per-SCC edge minimization with bounded workers
 func (g *Graph) ReduceEdges() []Edge {
 	sccs := g.FindSCCs()
 	if g.Verbose {
 		fmt.Printf("Found %d SCC(s).\n", len(sccs))
 	}
 
-	// Sequential fallback for small number of SCCs
-	const threshold = 4
-	if len(sccs) < threshold {
-		reduced := make([]Edge, 0)
-		for _, scc := range sccs {
-			minEdges := g.MinimizeEdgesInSCC(scc)
-			reduced = append(reduced, minEdges...)
-		}
-		if g.Verbose {
-			fmt.Printf("Reduced SCC edges: %d\n", len(reduced))
-		}
-		return reduced
-	}
-
-	// Parallel processing with bounded workers
-	numWorkers := runtime.NumCPU()
-	if numWorkers > len(sccs) {
-		numWorkers = len(sccs)
-	}
-
-	// Job queue and result collector
-	type job struct {
-		index int
-		scc   []int
-	}
-	type result struct {
-		index int
-		edges []Edge
-	}
-
-	jobs := make(chan job, len(sccs))
-	results := make(chan result, len(sccs))
-
-	// Launch workers
-	var wg sync.WaitGroup
-	for w := 0; w < numWorkers; w++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for j := range jobs {
-				edges := g.MinimizeEdgesInSCC(j.scc)
-				results <- result{index: j.index, edges: edges}
-			}
-		}()
-	}
-
-	// Dispatch jobs
-	for i, scc := range sccs {
-		jobs <- job{index: i, scc: scc}
-	}
-	close(jobs)
-
-	// Wait for all workers to finish, then close results
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
-	// Collect results in original order (deterministic)
-	resultMap := make(map[int][]Edge, len(sccs))
-	for r := range results {
-		resultMap[r.index] = r.edges
-	}
-
-	// Reconstruct in order
 	reduced := make([]Edge, 0)
-	for i := 0; i < len(sccs); i++ {
-		reduced = append(reduced, resultMap[i]...)
+	for _, scc := range sccs {
+		minEdges := g.MinimizeEdgesInSCC(scc)
+		reduced = append(reduced, minEdges...)
 	}
 
 	if g.Verbose {
-	fmt.Printf("Reduced SCC edges: %d\n", len(reduced))
+		fmt.Printf("Reduced SCC edges: %d\n", len(reduced))
 	}
 	return reduced
 }

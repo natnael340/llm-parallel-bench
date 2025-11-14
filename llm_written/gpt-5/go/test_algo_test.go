@@ -1,4 +1,4 @@
-package main
+package scc_parallel
 
 import (
 	"os"

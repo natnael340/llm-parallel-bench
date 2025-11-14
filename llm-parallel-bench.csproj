@@ -8,4 +8,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Exclude all .cs files in subdirectories -->
+    <Compile Remove="**\*.cs" />
+    <!-- Re-include only files in the root folder -->
+    <Compile Include="scc/C#/*.cs" />
+  </ItemGroup>
+
 </Project>
