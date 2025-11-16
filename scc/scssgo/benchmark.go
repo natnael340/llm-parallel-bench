@@ -80,11 +80,12 @@ func main() {
     noClusterInGroup := 3
 
 	iterations := *iter
+	warmups := 20
 
     graph := buildGraph(graphSize, clusterSize, noClusterInGroup)
 
     // Warm-up
-    for i := 0; i < 5; i++ {
+    for i := 0; i < warmups; i++ {
         graph.FindSCCs()
     }
 
@@ -92,7 +93,7 @@ func main() {
 	durations := make([]float64, 0, 100)
 	var totalMs float64 = 0.0
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < iterations; i++ {
         start := time.Now()
         graph.FindSCCs()
         elapsed := float64(time.Since(start).Milliseconds()) // ms
