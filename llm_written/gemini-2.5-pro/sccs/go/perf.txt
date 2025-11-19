@@ -1,0 +1,21 @@
+Performance Test (`-v 20000 -e 100000 -seed 42 -perf`)
+------------------------------------------------------------------
+Performance check enabled.
+Generating graph with 20000 vertices, 100000 edges, seed 42
+
+--- Running Correctness Check ---
+Sequential implementation took: 122.284858ms
+Parallel implementation (run 1) took: 110.786688ms
+✅ SUCCESS: Correctness check passed.
+
+--- Running Determinism Check ---
+Parallel implementation (run 2) took: 104.697593ms
+Hash of parallel run 1: 05244a3311892978385a478b059ef561233261a293690d028a3424422fd8936a
+Hash of parallel run 2: 05244a3311892978385a478b059ef561233261a293690d028a3424422fd8936a
+✅ SUCCESS: Determinism check passed.
+
+--- Running Performance Check ---
+Speedup: 2.12x
+✅ SUCCESS: Performance check passed.
+
+All checks passed.

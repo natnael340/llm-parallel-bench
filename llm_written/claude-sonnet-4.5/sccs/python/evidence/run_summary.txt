@@ -1,0 +1,39 @@
+============================================================
+TARJAN SCC PARALLELIZATION TEST EVIDENCE
+============================================================
+
+TEST CASE: empty (5 vertices, 0 edges)
+  Sequential result: 0 edges
+  Parallel result:   0 edges
+  Match: ✓ PASS
+
+TEST CASE: single_scc (3 vertices, 3 edges)
+  Sequential result: 4 edges
+  Parallel result:   4 edges
+  Match: ✓ PASS
+
+TEST CASE: multiple_sccs (50 vertices, 5 SCCs)
+  Sequential result: 90 edges
+  Parallel result:   90 edges
+  Match: ✓ PASS
+  Determinism check:
+    Run 1 hash: 2a3cfa09561422d0
+    Run 2 hash: 2a3cfa09561422d0
+    Deterministic: ✓ PASS
+
+TEST CASE: large_graph (1000 vertices, 20 SCCs)
+  Graph: 1000 vertices, 1480 edges
+  Sequential result: 1960 edges in 0.0065s
+  Parallel result:   1960 edges in 0.1937s
+  Match: ✓ PASS
+  Speedup: 0.03x
+  Note: Process pool overhead exceeds work time for fast graph operations.
+        Parallel execution is only beneficial for very large or complex SCCs.
+
+============================================================
+SUMMARY
+============================================================
+✓ All correctness tests passed
+✓ Determinism verified (multiple runs produce same hash)
+⚠ Performance: Process pool overhead significant for small per-SCC work
+  Recommendation: Use sequential fallback or increase threshold

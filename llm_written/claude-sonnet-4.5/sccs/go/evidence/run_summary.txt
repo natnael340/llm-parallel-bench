@@ -1,0 +1,67 @@
+
+=== Test: Edge_Empty ===
+Correctness: true (seq=0 edges, par=0 edges)
+Determinism: true
+  Run1 hash: e3b0c44298fc1c14
+  Run2 hash: e3b0c44298fc1c14
+Performance: seq=2.665µs, par1=361ns (skipped: small N)
+✅ PASS
+
+=== Test: Edge_Single ===
+Correctness: true (seq=0 edges, par=0 edges)
+Determinism: true
+  Run1 hash: e3b0c44298fc1c14
+  Run2 hash: e3b0c44298fc1c14
+Performance: seq=7.024µs, par1=1.443µs (skipped: small N)
+✅ PASS
+
+=== Test: Small_Chain_5 ===
+Correctness: true (seq=0 edges, par=0 edges)
+Determinism: true
+  Run1 hash: e3b0c44298fc1c14
+  Run2 hash: e3b0c44298fc1c14
+Performance: seq=15.008µs, par1=303.478µs (skipped: small N)
+✅ PASS
+
+=== Test: Small_Cycle_5 ===
+Correctness: true (seq=8 edges, par=8 edges)
+Determinism: true
+  Run1 hash: 67abdc6bc545a9b5
+  Run2 hash: 67abdc6bc545a9b5
+Performance: seq=48.944µs, par1=7.845µs (skipped: small N)
+✅ PASS
+
+=== Test: Medium_4SCCs_10each ===
+Correctness: true (seq=72 edges, par=72 edges)
+Determinism: true
+  Run1 hash: 9a6f6c8137b6f2bf
+  Run2 hash: 9a6f6c8137b6f2bf
+Performance: seq=146.861µs, par1=830.493µs, par2=315.021µs, speedup=0.18x
+✅ PASS
+
+=== Test: Medium_20SCCs_5each ===
+Correctness: true (seq=160 edges, par=160 edges)
+Determinism: true
+  Run1 hash: 01c1e6d64e9d4dd1
+  Run2 hash: 01c1e6d64e9d4dd1
+Performance: seq=239.397µs, par1=1.159402ms, par2=484.75µs, speedup=0.21x
+✅ PASS
+
+=== Test: Large_50SCCs_20each ===
+Correctness: true (seq=1900 edges, par=1900 edges)
+Determinism: true
+  Run1 hash: 7d1adc6f77b947f8
+  Run2 hash: 7d1adc6f77b947f8
+Performance: seq=2.903226ms, par1=1.639101ms, par2=1.780827ms, speedup=1.77x
+✅ PASS
+
+=== Test: Large_Complete_50 ===
+Correctness: true (seq=98 edges, par=98 edges)
+Determinism: true
+  Run1 hash: e3c3a7d75d3cfa75
+  Run2 hash: e3c3a7d75d3cfa75
+Performance: seq=581.718µs, par1=562.142µs, par2=437.425µs, speedup=1.03x
+✅ PASS
+
+=== SUMMARY ===
+Total: 8 | Pass: 8 | Fail: 0

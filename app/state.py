@@ -1,34 +1,44 @@
 
-from typing import List, Literal, Annotated
+from uuid import uuid4
+from typing import List, Literal, NotRequired, Dict
 from typing_extensions import TypedDict
-import operator
+from dataclasses import dataclass, field
 
-from langgraph.graph import StateGraph, END
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, SystemMessage
-from langgraph.graph.message import add_messages
-from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, Field
+from langchain.agents import AgentState
 
 
-class ReviewModel(BaseModel):
-    verdict: Literal["DONE", "REVISE"]
-    issues: List[str] = Field(default_factory=list)            # short bullets
-    required_changes: List[str] = Field(default_factory=list)
+
+class Todo(TypedDict):
+    content: str
+    status: Literal['pending', 'in_progress', 'completed']
 
 
-class ReviewState(TypedDict):
-    verdict: Literal["DONE", "REVISE"]
-    issues: List[str]
-    required_changes: List[str]
+class File(TypedDict):
+    file_name: str
+    file_path: str
+    size: int
+
+class State(AgentState):
+    todos: NotRequired[List[Todo]]
+    files: NotRequired[List[File]]
 
 
-class ManualTestSummary(BaseModel):
-    issues: List[str] = []
-    required_changes: List[str] = []
+@dataclass
+class TokenUsage:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_token: int = 0
 
-class State(TypedDict):
-    messages: Annotated[list, add_messages]
-    original_src: str
-    last_candidate: str
-    review: ReviewState
-    k: Annotated[int, operator.add]
+    def update(self, usage: Dict[str, int]):
+        self.input_tokens = usage.get("prompt_tokens", 0)
+        self.output_tokens = usage.get("completion_tokens", 0)
+        self.total_tokens = usage.get("total_tokens", 0)
+
+
+@dataclass
+class Session:
+    thread_id: str = field(default_factory=lambda: uuid4().hex)
+    messages: List[Dict] = field(default_factory=list)
+    todos: List[Todo] = field(default_factory=list)
+    files: List[File] = field(default_factory=list)
+    usage: TokenUsage = field(default_factory=TokenUsage)

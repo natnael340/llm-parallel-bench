@@ -1,0 +1,5 @@
+Large Test Case Performance
+  Num Cores: 16
+  Sequential Time (s): 0.0458744
+  Parallel Time (s):   0.0467142
+  Speedup: 0.982023x

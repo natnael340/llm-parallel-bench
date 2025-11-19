@@ -1,0 +1,6 @@
+Differential tests summary:
+- Edge cases: empty, single node, simple 3-cycle: PASS
+- Random graphs:
+  * V=10, E=20: parity PASS, determinism PASS, edges=10, hash=6512465999549054097
+  * V=100, E=300: parity PASS, determinism PASS, edges=172, hash=5143115335552209406
+  * V=1000, E=4000: parity PASS, determinism PASS, edges=1910, hash=8755160769614958505

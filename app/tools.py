@@ -2,23 +2,23 @@ import time
 import sys
 import subprocess
 import shutil
-from langchain_core.tools import tool
-from typing import Literal, List, Dict
+from typing import Literal, List
+from typing_extensions import Annotated
+
+from langchain_core.tools import tool, InjectedToolCallId
+from langgraph.prebuilt import InjectedState
+from langgraph.types import Command
+from langchain_core.messages import ToolMessage
+
 from pathlib import Path
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field
+from app.prompts import WRITE_TODO_TOOL_DESC, WRITE_FILE_TOOL_DESC
+from app.state import Todo, State
 
 BASE_DIR = Path("~/projects/llm-parallel-bench/llm_written").expanduser().resolve()
+CSHARP_PROJECT_DIR = Path("~/projects/llm-parallel-bench/llm_written/llm_written.csproj").expanduser().resolve()
 TIMEOUT_SEC = 60
 MAX_OUTPUT_BYTES = 300_000
-
-
-class WriteCodeArgs(BaseModel):
-    filename: str = Field(
-        ..., description="Target file path to write. Include extension, e.g. 'main.cpp'.", min_length=1, strip_whitespace=True
-    )
-    content: str = Field(
-        ..., description="The FULL file contents to write (overwrite).", min_length=1
-    )
 
 
 def _safe_path(filename: str) -> Path:
@@ -49,8 +49,8 @@ def _truncate(s: str, limit: int = MAX_OUTPUT_BYTES) -> str:
     return (b[:head] + b"\n...\n" + b[-tail:]).decode("utf-8", errors="replace")
 
 
-@tool("write_code", args_schema=WriteCodeArgs)
-def write_code(filename: str, content: str)-> Dict:
+@tool("write_file", description=WRITE_FILE_TOOL_DESC)
+def write_file(filename: str, content: str)-> str:
     """
     Write code block into a file and save it.
 
@@ -61,38 +61,32 @@ def write_code(filename: str, content: str)-> Dict:
     try:
         safe_name = Path(filename).name
         if not safe_name:
-            return {"status": "error", "error": "Empty filename"}
+            return "❌ ERROR: Invalid filename."
+        
         path = (BASE_DIR / safe_name).resolve()
 
-        if BASE_DIR not in path.parents and path != BASE_DIR / safe_name:
-            return {"status": "error", "error": "Invalid path"}
+        if path.parent != BASE_DIR:
+            return "❌ ERROR: Invalid filepath."
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
         with path.open("w", encoding="utf-8", newline="\n") as f:
             n = f.write(content)
 
-        extra = {}
-        if safe_name.endswith(".go"):
-            extra["go_module"] = "github.com/natnael340/llm-parallel-bench"
-
-        result = {"status": "successful", "bytes_written": n, "path": str(path)}
-        result.update(extra)
-
-        return result
+        return f"✅ SUCCESS: File '{safe_name}' written ({n} bytes) at {path}."
     
     except Exception as e:
-        return {"status": "error", "error": str(e)}
+        return f"❌ ERROR: {str(e)}"
     
 
 @tool
-def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
+def run_code(filename: str, language: Literal['python', 'go', 'cpp', 'csharp']):
     """
     Run a program and capture stdout/stderr.
 
     Args: 
         filename: Program entry file or binary.
-        language: One of 'python' | 'go' | 'cpp'.
+        language: One of 'python' | 'go' | 'cpp' | 'csharp'.
 
     Returns: dict with keys:
         - status: "successful" | "error"
@@ -104,7 +98,6 @@ def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
         - path: str (resolved path used)
         - note: str (optional details)
     """
-    print("run_code", filename)
     start = time.monotonic()
     try:
         path = _safe_path(filename)
@@ -112,9 +105,11 @@ def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
         if language == "python":
             cmd = [sys.executable, str(path)]
         elif language == "go":
-            cmd = ["go", "test", "-v", "."]
+            cmd = ["go", "run", str(path)]
         elif language == "cpp":
             cmd = [str(path)]
+        elif language == "csharp":
+            cmd = ["dotnet", "run", "--project", str(CSHARP_PROJECT_DIR), str(path)]
         else:
             return {
                 "status": "error",
@@ -193,6 +188,7 @@ def run_code(filename: str, language: Literal['python', 'go', 'cpp']):
             "cmd": [],
             "path": filename,
         }
+
 
 @tool
 def compile_code(source_files: List[str], output_file: str, openmp: Literal["on", "off"] = "off"):
@@ -333,28 +329,6 @@ def compile_code(source_files: List[str], output_file: str, openmp: Literal["on"
             "source_paths": [str(path) for path in src_paths],
             "output_path": str(out_path),
         }
-    
-
-@tool
-def list_files():
-    """
-    List files in current directory.
-
-    Returns:
-        status: successful | error
-        files: List[str] filenames in current directory
-        stderr(optional): error report if an error occurred
-    """
-    try:
-        files = sorted(
-            [p.name for p in BASE_DIR.iterdir() if p.is_file()],
-            key=str.lower,
-        )
-        return {"status": "successful", "files": files}
-    except PermissionError as e:
-        return {"status": "error", "files": [], "stderr": f"Permission error: {e}"}
-    except Exception as e:
-        return {"status": "error", "files": [], "stderr": f"Unexpected error: {e}"}
 
 
 @tool
@@ -371,7 +345,8 @@ def read_file(filename: str):
     """
 
     try:
-        path = _safe_path(filename)
+        candidate = BASE_DIR / filename
+        path = _safe_path(str(candidate))
         if not path.exists():
             return {"status": "error", "content": "", "stderr": "File does not exist"}
         elif path.is_dir():
@@ -386,3 +361,116 @@ def read_file(filename: str):
     except Exception as e:
         return {"status": "error", "path": str(path), "stderr": f"Unexpected error: {e}"}
     
+
+@tool(description=WRITE_TODO_TOOL_DESC)
+def  write_todos(todos: list[Todo], tool_call_id: Annotated[str, InjectedToolCallId]):
+    """
+    Create or update the agent's TODO list for task planning and tracking.
+
+    Args:
+        todos: List of Todo items with content and status
+        tool_call_id: Tool call identifier for message response
+
+    Returns:
+        Command to update agent state with new TODO list
+    """
+
+    return Command(
+        update={
+            "todos": todos,
+            "messages": [
+                ToolMessage(f"Updated TODO list to {todos}.", tool_call_id=tool_call_id)
+            ]
+        }
+    )
+
+@tool(parse_docstring=True)
+def read_todos(state: Annotated[State, InjectedState], tool_call_id: Annotated[str, InjectedToolCallId]):
+    """Read the current TODO list from the agent state.
+
+    This tool allows the agent to retrieve and review the current TODO list
+    to stay focused on remaining tasks and track progress through complex workflows.
+
+    Args:
+        state: Injected agent state containing the current TODO list
+        tool_call_id: Injected tool call identifier for message tracking
+
+    Returns:
+        Formatted string representation of the current TODO list
+    """
+    todos = state.get("todos", [])
+    if not todos:
+        return "No todos currently in the list."
+    
+    result = "Current TODO list:\n"
+    status_emoji = {"pending": "⏳", "in_progress": "🔄", "completed": "✅"}
+    for idx, todo in enumerate(todos, start=1):
+        emoji = status_emoji.get(todo["status"], "❓")
+        result += f"{idx}. {emoji} {todo['content']} ({todo['status']})\n"
+    
+    return result.strip()
+
+@tool(parse_docstring=True)
+def ls():
+    """
+    List all files in the working directory.
+    """
+    file_list = [p.name for p in BASE_DIR.iterdir() if p.is_file()]
+    if not file_list:
+        return "No files found in the working directory."
+    
+    result = "Current files in working directory:\n"
+    for fname in file_list:
+        result += f"📁 {fname}\n"
+    
+    return result.strip()
+
+
+@tool(parse_docstring=True)
+def think_tool(reflection: str) -> str:
+    """Tool for strategic reflection on research progress and decision-making.
+
+    Use this tool after each search to analyze results and plan next steps systematically.
+    This creates a deliberate pause in the research workflow for quality decision-making.
+
+    When to use:
+    - After receiving search results: What key information did I find?
+    - Before deciding next steps: Do I have enough to answer comprehensively?
+    - When assessing research gaps: What specific information am I still missing?
+    - Before concluding research: Can I provide a complete answer now?
+    - How complex is the question: Have I reached the number of search limits?
+
+    Reflection should address:
+    1. Analysis of current findings - What concrete information have I gathered?
+    2. Gap assessment - What crucial information is still missing?
+    3. Quality evaluation - Do I have sufficient evidence/examples for a good answer?
+    4. Strategic decision - Should I continue searching or provide my answer?
+
+    Args:
+        reflection: Your detailed reflection on research progress, findings, gaps, and next steps
+
+    Returns:
+        Confirmation that reflection was recorded for decision-making
+    """
+    return f"Reflection recorded: {reflection}"
+
+
+@tool
+def rm(filename: str) -> str:
+    """
+    Remove a file from the working directory.
+
+    Args:
+        filename: Name of the file to remove
+    """
+    try:
+        path = _safe_path(filename)
+        if not path.exists():
+            return f"❌ ERROR: File '{filename}' does not exist."
+        if path.is_dir():
+            return f"❌ ERROR: '{filename}' is a directory."
+
+        path.unlink()
+        return f"✅ SUCCESS: File '{filename}' removed."
+    except Exception as e:
+        return f"❌ ERROR: {str(e)}"

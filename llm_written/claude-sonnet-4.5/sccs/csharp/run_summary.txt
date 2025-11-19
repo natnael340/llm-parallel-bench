@@ -1,0 +1,37 @@
+=== SCC Edge Reduction Differential Tests ===
+Processors available: 16
+
+TEST RESULTS:
+
+1. Edge Case - Single Vertex:
+   - Sequential: 0 edges
+   - Parallel: 0 edges
+   - Match: TRUE ✓
+
+2. Small Graph - 5 vertices, 2 SCCs:
+   - Sequential: 6 edges
+   - Parallel: 6 edges
+   - Match: TRUE ✓
+   - Note: Uses sequential fallback (< 4 SCCs)
+
+3. Medium Graph - 20 vertices, 5 SCCs:
+   - Sequential: 30 edges
+   - Parallel: 30 edges
+   - Match: TRUE ✓
+   - Note: Triggers parallel processing
+
+4. Large Graph - 200 vertices, 40 SCCs:
+   - Sequential: 320 edges
+   - Parallel Run 1: 320 edges
+   - Parallel Run 2: 320 edges
+   - Correctness Match: TRUE ✓
+   - Determinism (hash match): TRUE ✓
+   - Hash (all runs): 9BFC403F8B3DD74C
+
+DETERMINISM VERIFICATION:
+  Two parallel runs on identical input produced identical outputs
+  Hash1: 9BFC403F8B3DD74C
+  Hash2: 9BFC403F8B3DD74C
+  Match: TRUE ✓
+
+OVERALL: ALL TESTS PASSED ✓
