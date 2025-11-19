@@ -8,7 +8,7 @@ import (
 	"os"
 	"math"
 	"math/rand"
-	// "github.com/natnael340/llm-parallel-bench/llm_written/gpt-5/go"
+	//baseline "github.com/natnael340/llm-parallel-bench/llm_written/baseline-sonnet-4.5/go"
 	//baseline "github.com/natnael340/llm-parallel-bench/scc/scssgo"
 )
 
@@ -86,7 +86,7 @@ func main() {
 
     // Warm-up
     for i := 0; i < warmups; i++ {
-        graph.FindSCCs()
+        graph.ReduceEdges()
     }
 
 
@@ -95,7 +95,7 @@ func main() {
 
 	for i := 0; i < iterations; i++ {
         start := time.Now()
-        graph.FindSCCs()
+        graph.ReduceEdges()
         elapsed := float64(time.Since(start).Milliseconds()) // ms
         durations = append(durations, elapsed)
 		totalMs += elapsed
