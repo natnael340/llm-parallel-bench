@@ -222,7 +222,7 @@ class RustHandler(LanguageHandler):
 
         # cargo run doesn't need file paths - they're specified in Cargo.toml
         return {
-            "cmd": ["cargo", "run", "--manifest-path", str(self.manifest_path)],
+            "cmd": ["cargo", "run"],
             "cwd": str(self.base_dir),
         }
 

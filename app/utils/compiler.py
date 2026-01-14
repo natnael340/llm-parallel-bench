@@ -3,7 +3,7 @@ import time
 import shutil
 import subprocess
 from abc import ABC, abstractmethod
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Optional, Set, Tuple, Literal
 from pathlib import Path
 
 
@@ -118,7 +118,7 @@ class BaseCompiler(ABC):
                 )
         return True, ""
 
-    def resolve_output_path(self, output_path: Path) -> Path:
+    def resolve_output_path(self, output_path: Path, language_name: Literal["C++", "Java"]) -> Path:
         """
         Resolve and prepare output path.
 
@@ -131,6 +131,9 @@ class BaseCompiler(ABC):
         Returns:
             Resolved output path
         """
+        if language_name == "Java":
+            return output_path  # Java outputs .class files in the same dir
+
         out = output_path.with_suffix("")
         if sys.platform.startswith("win"):
             out = out.with_suffix(".exe")
@@ -187,7 +190,8 @@ class BaseCompiler(ABC):
                 )
 
             # Resolve output path
-            resolved_output = self.resolve_output_path(output_path)
+            
+            resolved_output = self.resolve_output_path(output_path, self.language_name)
 
             # Build compilation command
             cmd = self.build_compile_command(source_paths, resolved_output, **options)
@@ -387,10 +391,10 @@ class CompilerRegistry:
                 self.max_output_bytes
             )
             # Register by language name in lowercase
-            language_key = compiler.language_name.lower().replace("+", "p")
-            self._compilers[language_key] = compiler
+            language_name = compiler.language_name
+            self._compilers[language_name] = compiler
 
-    def get_compiler(self, language: str) -> Optional[BaseCompiler]:
+    def get_compiler(self, language: Literal["C++", "Java"]) -> Optional[BaseCompiler]:
         """
         Get compiler for the specified language.
 
@@ -400,7 +404,7 @@ class CompilerRegistry:
         Returns:
             BaseCompiler instance or None if not supported
         """
-        return self._compilers.get(language.lower())
+        return self._compilers.get(language)
 
     def supported_languages(self) -> List[str]:
         """Get list of supported languages."""
@@ -408,7 +412,7 @@ class CompilerRegistry:
 
     def compile(
         self,
-        language: str,
+        language: Literal["C++", "Java"],
         source_paths: List[Path],
         output_path: Path,
         **options

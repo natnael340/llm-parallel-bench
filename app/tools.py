@@ -94,7 +94,17 @@ def write_file(filename: str, content: str)-> str:
         safe_name = Path(filename).name
         if not safe_name:
             return "❌ ERROR: Invalid filename."
-        
+
+        # Restrict writing to configuration files
+        restricted_files = {"cargo.toml", "go.mod"}
+        restricted_extensions = {".csproj"}
+
+        if safe_name.lower() in restricted_files:
+            return f"❌ ERROR: Cannot modify configuration file '{safe_name}'. Configuration files like Cargo.toml, go.mod, and .csproj are managed by the system."
+
+        if Path(safe_name).suffix.lower() in restricted_extensions:
+            return f"❌ ERROR: Cannot modify .csproj files. Configuration files are managed by the system."
+
         path = (BASE_DIR / safe_name).resolve()
 
         if path.parent != BASE_DIR:
@@ -106,7 +116,7 @@ def write_file(filename: str, content: str)-> str:
             n = f.write(content)
 
         return f"✅ SUCCESS: File '{safe_name}' written ({n} bytes) at {path}."
-    
+
     except Exception as e:
         return f"❌ ERROR: {str(e)}"
     
@@ -140,8 +150,8 @@ def run_code(filenames: List[str], language: Literal['python', 'go', 'cpp', 'csh
     runner = get_runner()
     return runner.run(filenames, language)
 
-@tool("compile_code_v0", description=COMPILE_CODE_TOOL_DESC)
-def compile_code_v0(source_files: List[str], output_file: str, language: Literal["C++", "Java"], openmp: Literal["on", "off"] = "off"):
+@tool("compile_code", description=COMPILE_CODE_TOOL_DESC)
+def compile_code(source_files: List[str], output_file: str, language: Literal["C++", "Java"], openmp: Literal["on", "off"] = "off"):
     """
     Compiler tool to compile C++ and Java program into binary file and bytecode.
 
@@ -150,7 +160,7 @@ def compile_code_v0(source_files: List[str], output_file: str, language: Literal
         output_file: Output binary name
         language: C++ or Java
         openmp: Force OpenMP on/off only for C++
-    
+
     Returns: dict with keys:
         - status: "successful" | "error"
         - returncode: int | None
@@ -163,10 +173,17 @@ def compile_code_v0(source_files: List[str], output_file: str, language: Literal
     """
 
     compiler = get_compiler()
-    compiler.compile(language, source_files, output_file, openmp=openmp)
+    # Convert string paths to Path objects
+    src_paths = [_safe_path(src_file) for src_file in source_files]
+    # For Java, output_file can be empty string (generates .class files in source directory)
+    out_path = BASE_DIR if output_file == "" else _safe_path(output_file)
+
+    result =  compiler.compile(language, src_paths, out_path, openmp=openmp)
+
+    return result.to_dict()
 
 @tool
-def compile_code(source_files: List[str], output_file: str, openmp: Literal["on", "off"] = "off"):
+def compile_code_v0(source_files: List[str], output_file: str, openmp: Literal["on", "off"] = "off"):
     """
     Compile C++ program into binary file.
 
@@ -280,7 +297,7 @@ def compile_code(source_files: List[str], output_file: str, openmp: Literal["on"
             "duration_sec": round(time.monotonic() - start, 6),
             "cmd": [],
             "source_paths": [str(path) for path in src_paths],
-            "output_path": str(out_path),
+            "output_path": str(out_path) if out_path else "",
         }
     except PermissionError as e:
         return {

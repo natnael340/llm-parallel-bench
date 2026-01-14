@@ -1226,6 +1226,103 @@ sys.exit(42)
 
 
 # ============================================================================
+# Write File Tests
+# ============================================================================
+
+class TestWriteFile:
+    """Test write_file tool restrictions."""
+
+    def test_write_file_blocks_cargo_toml(self):
+        """Test that write_file blocks writing to Cargo.toml."""
+        from app.tools import write_file, BASE_DIR
+
+        if hasattr(write_file, 'func'):
+            result = write_file.func(
+                filename="Cargo.toml",
+                content="[package]\nname = \"test\""
+            )
+        else:
+            result = write_file("Cargo.toml", "[package]\nname = \"test\"")
+
+        assert "ERROR" in result
+        assert "Cannot modify configuration file" in result
+        assert not (BASE_DIR / "Cargo.toml").exists()
+
+    def test_write_file_blocks_cargo_toml_case_insensitive(self):
+        """Test that write_file blocks Cargo.toml case-insensitively."""
+        from app.tools import write_file
+
+        if hasattr(write_file, 'func'):
+            result = write_file.func(
+                filename="cargo.toml",
+                content="[package]\nname = \"test\""
+            )
+        else:
+            result = write_file("cargo.toml", "[package]\nname = \"test\"")
+
+        assert "ERROR" in result
+        assert "Cannot modify configuration file" in result
+
+    def test_write_file_blocks_go_mod(self):
+        """Test that write_file blocks writing to go.mod."""
+        from app.tools import write_file, BASE_DIR
+
+        if hasattr(write_file, 'func'):
+            result = write_file.func(
+                filename="go.mod",
+                content="module test\n\ngo 1.21"
+            )
+        else:
+            result = write_file("go.mod", "module test\n\ngo 1.21")
+
+        assert "ERROR" in result
+        assert "Cannot modify configuration file" in result
+        assert not (BASE_DIR / "go.mod").exists()
+
+    def test_write_file_blocks_csproj(self):
+        """Test that write_file blocks writing to .csproj files."""
+        from app.tools import write_file, BASE_DIR
+
+        if hasattr(write_file, 'func'):
+            result = write_file.func(
+                filename="test.csproj",
+                content="<Project>...</Project>"
+            )
+        else:
+            result = write_file("test.csproj", "<Project>...</Project>")
+
+        assert "ERROR" in result
+        assert "Cannot modify .csproj files" in result
+        assert not (BASE_DIR / "test.csproj").exists()
+
+    def test_write_file_allows_normal_files(self, temp_workspace):
+        """Test that write_file allows writing normal source files."""
+        from app.tools import write_file, BASE_DIR
+
+        # Test various allowed file types
+        test_files = [
+            ("test_write_py.py", "print('hello')"),
+            ("test_write_cpp.cpp", "#include <iostream>"),
+            ("test_write_java.java", "public class Test {}"),
+            ("test_write_rs.rs", "fn main() {}"),
+            ("test_write_go.go", "package main"),
+        ]
+
+        for filename, content in test_files:
+            if hasattr(write_file, 'func'):
+                result = write_file.func(filename=filename, content=content)
+            else:
+                result = write_file(filename, content)
+
+            assert "SUCCESS" in result
+            # write_file uses BASE_DIR, not temp_workspace
+            assert (BASE_DIR / filename).exists()
+
+            # Clean up
+            (BASE_DIR / filename).unlink()
+
+
+# ============================================================================
 # Run Tests
 # ============================================================================
 
