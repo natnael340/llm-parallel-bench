@@ -2,8 +2,9 @@ import time
 import sys
 import subprocess
 import shutil
-from typing import Literal, List
+from typing import Literal, List, Optional
 from typing_extensions import Annotated
+from datetime import datetime
 
 from langchain_core.tools import tool, InjectedToolCallId
 from langgraph.prebuilt import InjectedState
@@ -12,13 +13,44 @@ from langchain_core.messages import ToolMessage
 
 from pathlib import Path
 from pydantic import BaseModel, Field
-from app.prompts import WRITE_TODO_TOOL_DESC, WRITE_FILE_TOOL_DESC
+from app.prompts import WRITE_TODO_TOOL_DESC, WRITE_FILE_TOOL_DESC, COMPILE_CODE_TOOL_DESC
 from app.state import Todo, State
+from app._utils import CodeRunner
+from app.utils.compiler import CompilerRegistry
 
 BASE_DIR = Path("~/projects/llm-parallel-bench/llm_written").expanduser().resolve()
-CSHARP_PROJECT_DIR = Path("~/projects/llm-parallel-bench/llm_written/llm_written.csproj").expanduser().resolve()
-TIMEOUT_SEC = 60
+SETUP_DIR = BASE_DIR / ".setup"
+CSHARP_PROJECT_DIR = SETUP_DIR / "llm_written.csproj"
+GO_MOD_DIR = SETUP_DIR
+TIMEOUT_SEC = 180
 MAX_OUTPUT_BYTES = 300_000
+
+
+_global_runner: Optional[CodeRunner] = None
+_global_compiler: Optional[CompilerRegistry] = None
+
+def get_runner() -> CodeRunner:
+    """Get or create the global runner instance."""
+    global _global_runner
+    if _global_runner is None:
+        _global_runner = CodeRunner()
+    return _global_runner
+
+def get_compiler() -> CompilerRegistry:
+    global _global_compiler
+    if _global_compiler is None:
+        _global_compiler = CompilerRegistry(BASE_DIR, TIMEOUT_SEC, MAX_OUTPUT_BYTES)
+    
+    return _global_compiler
+
+def configure_runner(
+    base_dir: Optional[Path] = None,
+    timeout_sec: int = 30,
+    max_output_length: int = 10000
+):
+    """Configure the global runner instance."""
+    global _global_runner
+    _global_runner = CodeRunner(base_dir, timeout_sec, max_output_length)
 
 
 def _safe_path(filename: str) -> Path:
@@ -80,13 +112,19 @@ def write_file(filename: str, content: str)-> str:
     
 
 @tool
-def run_code(filename: str, language: Literal['python', 'go', 'cpp', 'csharp']):
+def run_code(filenames: List[str], language: Literal['python', 'go', 'cpp', 'csharp', 'java', "rust"]):
     """
     Run a program and capture stdout/stderr.
 
-    Args: 
-        filename: Program entry file or binary.
-        language: One of 'python' | 'go' | 'cpp' | 'csharp'.
+    Args:
+        filenames: List of program entry files or binaries.
+                   - Python: Single .py file (list should have 1 element)
+                   - Go: One or more .go files to compile and run together
+                   - C++: Single compiled binary (list should have 1 element)
+                   - C#: One or more .cs files (validated, but all .cs in BASE_DIR are compiled)
+                   - Java: One or more .java files
+                   - Rust:  One or more .rs files (validated, but only the entry file `main.rs` will be run)
+        language: One of 'python' | 'go' | 'cpp' | 'csharp' | 'java' | 'rust.
 
     Returns: dict with keys:
         - status: "successful" | "error"
@@ -98,97 +136,34 @@ def run_code(filename: str, language: Literal['python', 'go', 'cpp', 'csharp']):
         - path: str (resolved path used)
         - note: str (optional details)
     """
-    start = time.monotonic()
-    try:
-        path = _safe_path(filename)
-
-        if language == "python":
-            cmd = [sys.executable, str(path)]
-        elif language == "go":
-            cmd = ["go", "run", str(path)]
-        elif language == "cpp":
-            cmd = [str(path)]
-        elif language == "csharp":
-            cmd = ["dotnet", "run", "--project", str(CSHARP_PROJECT_DIR), str(path)]
-        else:
-            return {
-                "status": "error",
-                "returncode":None,
-                "stdout": "",
-                "stderr": f"Unsupported language (f{language})",
-                "duration_sec": duration,
-                "cmd": "",
-                "path": str(path),
-            }
-        
-        proc = subprocess.run(
-            cmd,
-            cwd=str(BASE_DIR),
-            capture_output=True,
-            text=True,
-            timeout=TIMEOUT_SEC
-        )
-
-        duration = round(time.monotonic() - start, 6)
-
-        return {
-            "status": "successful" if proc.returncode == 0 else "error",
-            "returncode": proc.returncode,
-            "stdout": _truncate(proc.stdout),
-            "stderr": _truncate(proc.stderr),
-            "duration_sec": duration,
-            "cmd": cmd,
-            "path": str(path),
-        }
-    except subprocess.TimeoutExpired as e:
-        duration = round(time.monotonic() - start, 6)
-        out = e.stdout.decode("utf-8", errors="replace") if isinstance(e.stdout, (bytes, bytearray)) else (e.stdout or "")
-        err = e.stderr.decode("utf-8", errors="replace") if isinstance(e.stderr, (bytes, bytearray)) else (e.stderr or "")
-
-        return {
-            "status": "error",
-            "returncode": None,
-            "stdout": _truncate(out),
-            "stderr": _truncate(err) + "\n[Timeout]",
-            "duration_sec": duration,
-            "cmd": getattr(e, "cmd", []),
-            "path": filename,
-        }
     
-    except FileNotFoundError as e:
-        duration = round(time.monotonic() - start, 6)
-        return {
-            "status": "error",
-            "returncode": None,
-            "stdout": "",
-            "stderr": str(e),
-            "duration_sec": duration,
-            "cmd": [],
-            "path": filename,
-        }
-    except PermissionError as e:
-        duration = round(time.monotonic() - start, 6)
-        return {
-            "status": "error",
-            "returncode": None,
-            "stdout": "",
-            "stderr": f"Permission error: {e}",
-            "duration_sec": duration,
-            "cmd": [],
-            "path": filename,
-        }
-    except Exception as e:
-        duration = round(time.monotonic() - start, 6)
-        return {
-            "status": "error",
-            "returncode": None,
-            "stdout": "",
-            "stderr": f"Unexpected error: {e}",
-            "duration_sec": duration,
-            "cmd": [],
-            "path": filename,
-        }
+    runner = get_runner()
+    return runner.run(filenames, language)
 
+@tool("compile_code_v0", description=COMPILE_CODE_TOOL_DESC)
+def compile_code_v0(source_files: List[str], output_file: str, language: Literal["C++", "Java"], openmp: Literal["on", "off"] = "off"):
+    """
+    Compiler tool to compile C++ and Java program into binary file and bytecode.
+
+    Args:
+        source_files: List of source filenames.
+        output_file: Output binary name
+        language: C++ or Java
+        openmp: Force OpenMP on/off only for C++
+    
+    Returns: dict with keys:
+        - status: "successful" | "error"
+        - returncode: int | None
+        - stdout: str (truncated if large)
+        - stderr: str (truncated if large)
+        - duration_sec: float
+        - cmd: list[str] (actual command executed)
+        - source_paths: list[str] (resolved source paths used)
+        - output_path: str (resolved output path used)
+    """
+
+    compiler = get_compiler()
+    compiler.compile(language, source_files, output_file, openmp=openmp)
 
 @tool
 def compile_code(source_files: List[str], output_file: str, openmp: Literal["on", "off"] = "off"):
@@ -452,6 +427,10 @@ def think_tool(reflection: str) -> str:
     Returns:
         Confirmation that reflection was recorded for decision-making
     """
+    # if the file don't exist we create it, the dir always exist dont worry
+    
+    with open(BASE_DIR / ".logs/reflections.log", "a", encoding="utf-8") as f:
+        f.write(f"[{datetime.now().isoformat()}] {reflection}\n---\n")
     return f"Reflection recorded: {reflection}"
 
 
@@ -474,3 +453,6 @@ def rm(filename: str) -> str:
         return f"✅ SUCCESS: File '{filename}' removed."
     except Exception as e:
         return f"❌ ERROR: {str(e)}"
+
+
+configure_runner(base_dir=BASE_DIR, timeout_sec=TIMEOUT_SEC, max_output_length=MAX_OUTPUT_BYTES)

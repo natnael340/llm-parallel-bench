@@ -65,3 +65,51 @@ Create and save files of any type by writing provided content into a specified f
 ## Returns
 A status message string indicating whether the action was successful or not.
 """
+
+COMPILE_CODE_TOOL_DESC = """
+Compile C++ or Java source files into a runnable output (C++) or bytecode (.class) (Java).
+
+## When to Use
+- When you need to compile existing C++ or Java source files before running/testing
+- To compile multiple C++ files into one executable
+- To compile one or more Java files into .class files
+
+## Structure
+- Each call compiles the provided `source_files` using the selected `language`
+- All source files must exist and have extensions valid for that language
+- Output behavior depends on language:
+  - C++: produces a single executable at `output_file` (adds .exe on Windows)
+  - Java: produces `.class` files **in the same directory as each `.java` source file**; `output_file` is **not used**
+
+## Best Practices
+- Use clear, descriptive filenames with correct extensions:
+  - C++: .cpp, .cc, .cxx, .c++
+  - Java: .java
+- Keep `language` consistent with the file extensions in `source_files`
+- Use `openmp="on"` only for C++ code that uses OpenMP; otherwise keep it "off"
+- Do not rely on `output_file` to control Java output; Java outputs `.class` files via `javac -d <base_dir>`
+
+## Progress Updates
+- Re-run CompileCode after changing any source file to rebuild outputs
+- If compilation fails, fix the sources and retry
+- Use `stderr` and `returncode` to guide fixes; `stdout` may include compiler notes/warnings
+
+## Parameters
+- source_files: List of source filenames to compile (e.g., ["main.cpp", "utils.cc"] or ["BFS.java"])
+- output_file:
+  - C++: destination executable name/path (e.g., "bfs", "bin/bfs")
+  - Java: accepted but ignored (output is `.class` files in the base directory)
+- language: "C++" or "Java"
+- openmp: "on" | "off" (C++ only; ignored for Java)
+
+## Returns
+A dictionary with:
+- status: "successful" | "error"
+- returncode: int | None
+- stdout: str (truncated if large)
+- stderr: str (truncated if large)
+- duration_sec: float
+- cmd: list[str] (actual command executed)
+- source_paths: list[str] (resolved source paths used)
+- output_path: str (resolved output path used)
+"""

@@ -65,6 +65,13 @@ Operating Contract
    C#:
      - Use Task Parallel Library (TPL) with bounded concurrency.
      - Preserve order if required; avoid data races; avoid global shared state.
+   Java:
+      - Use ForkJoinPool or parallel streams with bounded parallelism.
+      - Preserve order if required
+   Rust:
+      - Use Rayon with bounded thread pool.
+      - Preserve order if required; avoid data races; avoid global shared state.
+
 
 6) DETERMINISM & RESOURCES
    - Fixed partitioning and reduction order. Seed any randomness; avoid it if possible.
