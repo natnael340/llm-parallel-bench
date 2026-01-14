@@ -1,0 +1,3 @@
+Correctness+determinism passed on 11 cases.
+Perf: N=512, seq≈0.2381s, par≈0.1024s, speedup≈2.33x.
+Tests: see test_smith_waterman.py and run_smith_waterman.py.

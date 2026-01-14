@@ -1,0 +1,2 @@
+Largest N: |q|=2000, |r|=2500
+seq=244.81 ms, par=306.74 ms, speedup=0.80x, cores=16

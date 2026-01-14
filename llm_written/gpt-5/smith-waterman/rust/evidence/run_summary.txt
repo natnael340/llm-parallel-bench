@@ -1,0 +1,9 @@
+Case 0: parity=true determinism=true
+Case 1: parity=true determinism=true
+Case 2: parity=true determinism=true
+Case 3: parity=true determinism=true
+Case 4: parity=true determinism=true
+Case 5: parity=true determinism=true
+Case 6: parity=true determinism=true
+Case 7: parity=true determinism=true
+Perf N=4000x4000: t_seq=5.808s t_par=28.536s speedup=0.20x
