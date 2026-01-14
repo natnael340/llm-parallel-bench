@@ -1,0 +1,51 @@
+--- Differential Test Summary ---
+
+--- Case: Empty ---
+Query: '', Reference: ''
+Correctness: PASS
+Determinism: PASS (Hash1: 11094109183903604560, Hash2: 11094109183903604560)
+
+--- Case: Empty B ---
+Query: 'A', Reference: ''
+Correctness: PASS
+Determinism: PASS (Hash1: 11094109183903604560, Hash2: 11094109183903604560)
+
+--- Case: Empty A ---
+Query: '', Reference: 'B'
+Correctness: PASS
+Determinism: PASS (Hash1: 11094109183903604560, Hash2: 11094109183903604560)
+
+--- Case: Single Match ---
+Query: 'A', Reference: 'A'
+Correctness: PASS
+Determinism: PASS (Hash1: 14624640770234555709, Hash2: 14624640770234555709)
+
+--- Case: Single Mismatch ---
+Query: 'A', Reference: 'B'
+Correctness: PASS
+Determinism: PASS (Hash1: 11094109183903604560, Hash2: 11094109183903604560)
+
+--- Case: Small Exact ---
+Query: 'AGCT', Reference: 'AGCT'
+Correctness: PASS
+Determinism: PASS (Hash1: 12206450416140554764, Hash2: 12206450416140554764)
+
+--- Case: Small Mismatch ---
+Query: 'AGCT', Reference: 'TGCA'
+Correctness: PASS
+Determinism: PASS (Hash1: 11094379151211886795, Hash2: 11094379151211886795)
+
+--- Case: Medium ---
+Query: 'GATTACA', Reference: 'GCATGCU'
+Correctness: PASS
+Determinism: PASS (Hash1: 17303139115577313922, Hash2: 17303139115577313922)
+
+--- Case: Longer ---
+Query: 'THISISALONGERSEQUENCE', Reference: 'THISISABETTERSEQUENCE'
+Correctness: PASS
+Determinism: PASS (Hash1: 9367145570207049383, Hash2: 9367145570207049383)
+
+--- Case: Large ---
+Query: 'THEQUICKBROWNFOXJUMPSOVERTHELAZYDOG', Reference: 'THEFASTREDFOXJUMPSOVERTHELAZYCAT'
+Correctness: PASS
+Determinism: PASS (Hash1: 11049450632170736596, Hash2: 11049450632170736596)

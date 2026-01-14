@@ -1,0 +1,5 @@
+- **Input Size (Large):** query=1500 chars, reference=1600 chars
+- **Sequential Time:** 134.51 ms
+- **Parallel Time:** 68.99 ms
+- **Speedup:** 1.95x
+- **Cores:** 2

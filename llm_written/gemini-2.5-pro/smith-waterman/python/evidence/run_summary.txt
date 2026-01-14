@@ -1,0 +1,9 @@
+Test Case            | Status     | Details
+------------------------------------------------------------
+empty                | PASS       | Seq: 0.0000s, Par: 0.0000s. Hashes: c62d3ce7 == c62d3ce7
+edge_case_1          | PASS       | Seq: 0.0000s, Par: 0.0000s. Hashes: c62d3ce7 == c62d3ce7
+edge_case_2          | PASS       | Seq: 0.0000s, Par: 0.0000s. Hashes: c62d3ce7 == c62d3ce7
+small                | PASS       | Seq: 0.0001s, Par: 0.0001s. Hashes: 5dd1a9b2 == 5dd1a9b2
+medium               | PASS       | Seq: 0.0139s, Par: 0.0118s. Hashes: 6900d989 == 6900d989
+large                | PASS       | Seq: 3.1377s, Par: 3.2768s. Hashes: 5a706b24 == 5a706b24
+large_mismatch       | PASS       | Seq: 2.3764s, Par: 2.7221s. Hashes: 78335442 == 78335442

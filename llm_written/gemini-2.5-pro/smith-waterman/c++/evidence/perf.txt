@@ -1,0 +1,2 @@
+Query: 500, Reference: 500, Sequential Time (s): 0.00508229, Parallel Time (s): 1.28441, Speedup: 0.00395691x
+Query: 1000, Reference: 1000, Sequential Time (s): 0.0142664, Parallel Time (s): 0.159031, Speedup: 0.0897083x

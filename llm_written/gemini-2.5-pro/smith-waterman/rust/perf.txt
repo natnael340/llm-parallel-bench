@@ -1,0 +1,7 @@
+--- Performance Summary ---
+N_query: 350
+N_reference: 320
+t_seq: 1.871138ms
+t_par: 1.454702712s
+speedup: 0.00x
+cores: 16

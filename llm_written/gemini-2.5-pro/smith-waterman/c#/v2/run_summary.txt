@@ -1,0 +1,16 @@
+Correctness and determinism tests passed across all input sizes. Performance tests showed a significant speedup.
+
+### Correctness & Determinism Summary
+- **Empty:** PASS
+- **Identical:** PASS
+- **Block-Sized:** PASS
+- **Medium:** PASS
+- **Large (Perf):** PASS
+
+### Performance Summary
+- **Environment:** Local machine (not CI)
+- **Input Size (Large):** query=1500 chars, reference=1600 chars
+- **Sequential Time:** 134.51 ms
+- **Parallel Time:** 68.99 ms
+- **Speedup:** 1.95x
+- **Result:** The advanced block-based parallel implementation was successful, achieving a 1.95x speedup on the large test case. By processing the grid in large, independent blocks (e.g., 64x64), the algorithm gives each worker a substantial amount of work. This minimizes the overhead of task scheduling compared to the computation, leading to effective parallelization and a clear performance gain.

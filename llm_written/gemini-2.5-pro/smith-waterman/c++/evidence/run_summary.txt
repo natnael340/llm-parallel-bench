@@ -1,0 +1,64 @@
+Test Case (Query: 5, Reference: 3)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 6238700915192780582
+    - Parallel 1: 6238700915192780582
+    - Parallel 2: 6238700915192780582
+
+Test Case (Query: 4, Reference: 4)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 17641964817423663068
+    - Parallel 1: 17641964817423663068
+    - Parallel 2: 17641964817423663068
+
+Test Case (Query: 1, Reference: 1)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 6238700915192780582
+    - Parallel 1: 6238700915192780582
+    - Parallel 2: 6238700915192780582
+
+Test Case (Query: 0, Reference: 0)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 17740494983819004498
+    - Parallel 1: 17740494983819004498
+    - Parallel 2: 17740494983819004498
+
+Test Case (Query: 4, Reference: 0)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 17740494983819004498
+    - Parallel 1: 17740494983819004498
+    - Parallel 2: 17740494983819004498
+
+Test Case (Query: 100, Reference: 100)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 13893990413422621469
+    - Parallel 1: 13893990413422621469
+    - Parallel 2: 13893990413422621469
+
+Test Case (Query: 500, Reference: 500)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 6862276165473063676
+    - Parallel 1: 6862276165473063676
+    - Parallel 2: 6862276165473063676
+
+Test Case (Query: 1000, Reference: 1000)
+  - Correctness: PASS
+  - Determinism: PASS
+  - Hashes: 
+    - Sequential: 1890765870583872041
+    - Parallel 1: 1890765870583872041
+    - Parallel 2: 1890765870583872041
+
