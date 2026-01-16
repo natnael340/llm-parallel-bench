@@ -1,0 +1,61 @@
+Performance Benchmark Results
+==============================
+
+System Configuration:
+- CPU Cores: 16
+- Implementation: Python 3.x with ProcessPoolExecutor + NumPy
+- Worker Count: Dynamic (2-8 workers based on input size)
+- Sequential Threshold: N < 50 stays fully sequential
+
+Test Cases and Timing:
+-----------------------
+
+1. Medium Case: 100x100 DNA sequences
+   - Sequential time:  0.0094s
+   - Parallel time:    0.0680s
+   - Speedup factor:   0.14x (7.2x SLOWER)
+   - Matrix cells:     10,000
+
+2. Medium Case: 200x200 DNA sequences  
+   - Sequential time:  0.0414s
+   - Parallel time:    0.1803s
+   - Speedup factor:   0.23x (4.4x SLOWER)
+   - Matrix cells:     40,000
+
+3. Large Case: 400x400 DNA sequences
+   - Sequential time:  0.1662s
+   - Parallel time:    0.5521s
+   - Speedup factor:   0.30x (3.3x SLOWER)
+   - Matrix cells:     160,000
+
+4. Large Case: 600x600 DNA sequences
+   - Sequential time:  0.4414s
+   - Parallel time:    1.2386s
+   - Speedup factor:   0.36x (2.8x SLOWER)
+   - Matrix cells:     360,000
+
+
+Analysis:
+---------
+The parallel implementation exhibits CONSISTENT SLOWDOWN across all
+input sizes tested. The overhead trend improves slightly with larger
+inputs (0.14x → 0.36x) but never reaches breakeven.
+
+Root causes:
+1. Smith-Waterman DP has strong anti-diagonal dependencies
+2. Matrix construction (the O(n²) bottleneck) is inherently sequential
+3. Only the max-finding step is parallelizable (O(n²) but embarrassingly parallel)
+4. Python ProcessPoolExecutor overhead: ~20-50ms per spawn
+5. Pickling/unpickling matrix data for IPC adds significant cost
+
+Theoretical best case:
+- If matrix construction were instant, max-finding could achieve ~4-8x speedup
+- But matrix construction is 95%+ of runtime, making overall speedup impossible
+
+Recommendation:
+This demonstrates that Smith-Waterman in Python with multiprocessing
+is NOT suitable for production. Alternative approaches:
+- Stay sequential with NumPy optimization (as baseline does)
+- Use Cython/Numba to compile hot loops
+- Switch to C++ with OpenMP and SIMD intrinsics
+- Use GPU acceleration (CUDA) for massive sequences (N > 10,000)

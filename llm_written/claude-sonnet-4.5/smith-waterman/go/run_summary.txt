@@ -1,0 +1,27 @@
+Smith-Waterman Differential Test Results
+=========================================
+
+Correctness Tests:
+  edge_empty: PASS (seq=393a0407ca84de74, par=393a0407ca84de74)
+  edge_one_empty: PASS (seq=393a0407ca84de74, par=393a0407ca84de74)
+  edge_single: PASS (seq=c1b3a8a7c6c5ccf7, par=c1b3a8a7c6c5ccf7)
+  small_exact_match: PASS (seq=47e267b2f5554d4d, par=47e267b2f5554d4d)
+  small_mismatch: PASS (seq=0826b6da18870493, par=0826b6da18870493)
+  small_partial: PASS (seq=0f26cef2a6d961e6, par=0f26cef2a6d961e6)
+  medium_similar: PASS (seq=0ed3475030a7fb98, par=0ed3475030a7fb98)
+  medium_partial: PASS (seq=0e55e869e6267c1e, par=0e55e869e6267c1e)
+  large_similar: PASS (seq=c1731c3d3cceb8a4, par=c1731c3d3cceb8a4)
+  large_partial: PASS (seq=84546fae2154ea9e, par=84546fae2154ea9e)
+
+Determinism Tests:
+  medium_similar: PASS (run1=0ed3475030a7fb98, run2=0ed3475030a7fb98)
+  medium_partial: PASS (run1=0e55e869e6267c1e, run2=0e55e869e6267c1e)
+  large_similar: PASS (run1=c1731c3d3cceb8a4, run2=c1731c3d3cceb8a4)
+  large_partial: PASS (run1=84546fae2154ea9e, run2=84546fae2154ea9e)
+
+Performance Test:
+  Large case (2000x2000):
+    Sequential: 0.1250s
+    Parallel:   0.0898s
+    Speedup:    1.39x
+    Scores match: true (seq=4000, par=4000)

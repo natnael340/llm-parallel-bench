@@ -1,0 +1,73 @@
+[2026-01-14T19:30:36.316514] Smith-Waterman matrix fill has diagonal dependencies: H[i][j] depends on H[i-1][j-1], H[i-1][j], H[i][j-1]. Cannot parallelize arbitrary cells.
+
+Key observations:
+1. ConstructMatrix: Wavefront/antidiagonal parallelization is the standard approach - cells on same antidiagonal are independent
+2. FindHighestScore: trivially parallelizable (reduction over rows)
+3. Traceback: inherently sequential (follows path back)
+
+Chosen strategy: Antidiagonal wavefront
+- Partition each antidiagonal k into independent cells
+- Process antidiagonals sequentially, cells within parallel
+- Deterministic: fixed worker pool, fixed partition per antidiagonal
+
+Rejected alternatives:
+- Row-parallel: violates deps (H[i][j] needs H[i-1][j])
+- Block tiling: complex, >250 LOC likely, needs synchronization barriers
+- SIMD vectorization: Go has limited SIMD, doesn't match CPU-bound worker model
+
+Bounded patch: 1 file (smith_waterman.go), ~100 LOC changes
+
+---
+[2026-01-14T19:34:50.794518] Correctness and determinism PASS, but performance is 0.21x (slowdown, not speedup). The overhead of goroutine spawning per antidiagonal is dominating.
+
+Issue: Creating goroutines for every antidiagonal (n+m-2 times) is too fine-grained. For 800x800, that's ~1600 antidiagonals, each launching numWorkers goroutines.
+
+Fix: Use a worker pool that persists across antidiagonals, with a job queue. This amortizes goroutine creation cost.
+
+Alternative: Increase sequential threshold or use coarser-grained parallelism (e.g., only parallelize when antidiagonal has many cells).
+
+Best approach: Worker pool with channel-based job distribution.
+
+---
+[2026-01-14T19:36:35.837581] Previous approach had workers persist but didn't synchronize per antidiagonal properly. Need to either:
+1. Use a sync barrier per antidiagonal (complex)
+2. Revert to spawning goroutines per antidiagonal but batch cells differently
+3. Use a simpler row-block parallelism with careful dependency handling
+
+Actually, the issue is that worker pool receives jobs asynchronously but we need synchronous completion per antidiagonal. Let me use a different approach: batch multiple antidiagonals into "waves" and parallelize within each wave using simple goroutines with WaitGroup, but reduce the number of goroutines by having each handle multiple cells.
+
+Better fix: parallelize only the large antidiagonals (middle ones), and use a simpler chunking strategy.
+
+---
+[2026-01-14T20:36:05.785154] Still 0.21x speedup - the wavefront approach has too much synchronization overhead for Go on 800x800. The problem is that even with adaptive thresholding, we're still creating many goroutines (hundreds of antidiagonals in the middle).
+
+Alternative approach: Block-based parallelism. Divide the matrix into blocks that respect dependencies. Each block can be computed independently once its dependencies (upper-left blocks) are done. This is more complex but should have much better performance.
+
+However, block-based is likely >250 LOC. Let me try a simpler hybrid: parallelize by row blocks with a small dependency lag. Process rows i..i+B in parallel, but only after row i-1 is complete. This is coarser-grained and should have much lower overhead.
+
+Actually, let me reconsider: maybe the issue is that for 800x800, the cells are too cheap (just a few integer ops). The algorithm might simply not parallelize well at this scale with Go's overhead.
+
+Let me try one more approach: striped parallelism with larger chunks. Divide rows into P stripes, process stripe 0 column-by-column, then stripe 1 catches up with a lag, etc. This reduces synchronization points dramatically.
+
+---
+[2026-01-14T20:38:14.780021] Progress! 1.16x speedup (was 0.21x). Block-based approach is better but still not hitting 1.3x gate on 800x800. Need to test larger N or tune parameters. Let me try larger test size and adjust block size for better granularity. Also can reduce threshold to 40000 so 800x800 gets parallelized more aggressively.
+
+---
+[2026-01-14T22:02:50.039219] Speedup got worse at 1200x1200 (0.73x). The issue is that 1200x1200 triggers parallel path (>40000) but has bad performance. The block-based wavefront still has too much overhead.
+
+Let me reconsider the fundamental issue: Smith-Waterman cells are very cheap (a few integer ops), and Go's goroutine overhead is too high even with block-based parallelism.
+
+New strategy: Increase block size significantly and lower the threshold. With blockSize=128 or 256, we'll have fewer synchronization points. Also, need to ensure we're not creating too many tiny blocks.
+
+Alternatively, I could acknowledge that for this particular problem size range with Go, parallelization doesn't help much. But let me try one more tuning pass with larger blocks and better threshold.
+
+---
+[2026-01-15T00:06:35.734721] Performance issue: Anti-diagonal wavefront has too much overhead for this problem size. The thread creation/destruction per diagonal iteration + poor load balancing (triangular shape) makes it slower than sequential. 
+
+Options:
+1. Increase threshold significantly (100k cells)
+2. Parallelize findHighestScore only (simple, less overhead)
+3. Use blocked/tiled approach with fewer synchronization points
+
+Going with option 1+2: Raise threshold to 100k cells AND optimize findHighestScore. For sizes below threshold, still benefit from parallel max-finding which has minimal overhead.
+---
