@@ -1,0 +1,14 @@
+TEST SUMMARY: PASS
+case 1: empty ok, hash=13646096770106105413
+case 2: start-missing ok, hash=13646096770106105413
+case 3: single-edge ok, hash=8121603564973576675
+case 4: chain ok, hash=11357975516541384970
+case 5: star ok, hash=16861004804662229316
+case 6: random-small-0 ok, hash=15524767824162627362
+case 7: random-small-1 ok, hash=10372544050248992268
+case 8: random-small-2 ok, hash=8876902935632707350
+case 9: random-small-3 ok, hash=17604087075318837241
+case 10: random-small-4 ok, hash=5678100218605725184
+case 11: random-medium-0 ok, hash=7690501276338954634
+case 12: random-medium-1 ok, hash=223095005721926651
+case 13: random-medium-2 ok, hash=14084738397371422951

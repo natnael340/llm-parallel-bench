@@ -1,0 +1,2 @@
+Grid300x300 t_par=6416.1ms
+ER(100k,300k) t_seq=163.6ms, t_par=469.4ms, speedup=0.35x

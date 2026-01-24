@@ -32,11 +32,19 @@ Operating Contract
         * DO NOT reject a strategy solely because it is "more complex" if it is:
           (a) necessary to parallelize safely (e.g., true deps require wavefront/task graph), OR
           (b) likely to deliver materially better results (perf and/or determinism).
-        * "Bounded patch" means: ≤ 3 files touched OR ≤ 250 new/changed LOC (unless baseline structure forces more).
-        * If an advanced approach exceeds the bound, propose TWO options:
-          Option 1: minimal/simple approach (lower speedup)
-          Option 2: advanced approach (higher speedup/determinism)
-          Then pick the best option that meets correctness + determinism + perf gates.
+        * Bounded patch policy (default + escalation; not a hard stop)
+          Tier 1 (default): ≤3 files touched AND ≤250 net changed LOC.
+          Tier 2 (escalation): ≤5 files touched AND ≤600 net changed LOC (implementation only)
+          or to meet the perf gate for N ≥ N0.
+
+        * Structural refactor exception (allowed under Tier 2):
+          If parallelization requires a data-layout change (e.g., flattening/tiling/SoA↔AoS) or extracting a core module,
+          you may escalate to Tier 2 without asking.
+          Keep the public API intact via a compatibility wrapper when feasible.
+        * LOC accounting:
+          Count only net new/changed executable lines in implementation files.
+          Exclude: whitespace-only diffs, comments/docstrings, moved-but-identical lines, and test/runner code.
+         
         * Alternatives section MUST include a concrete reason tied to this code:
           deps/ordering, contention, memory bandwidth, false sharing, reduction determinism, or perf model.
           "Too complex" is not a valid reason by itself.
@@ -108,6 +116,7 @@ Operating Contract
 Stop Conditions
 - All tests pass (including repeated deterministic runs), perf gate met (or justified skip), and JUSTIFICATION.md matches the code. 
 - If constraints make parallelization unsafe or net-loss at all relevant N, document a reasoned sequential fallback in JUSTIFICATION.md and finalize.
+- If the only correct deterministic parallel approach exceeds Tier 1, you must escalate to Tier 2 rather than falling back to a weaker strategy.
 
 # JUSTIFICATION (write for non-coders; 600–1100 words, plain language)
 Write JUSTIFICATION.md so a smart reader who does not code can understand exactly:

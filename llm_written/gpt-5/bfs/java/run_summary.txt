@@ -1,0 +1,6 @@
+Empty graph (order): PASS
+Single node (order): PASS
+Small chain/tree (order): PASS
+Grid 300x300 (dist): PASS
+ER(100k,300k) (dist): PASS
+Determinism on ER(100k,300k): PASS
