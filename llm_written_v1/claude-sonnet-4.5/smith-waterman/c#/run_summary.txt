@@ -1,0 +1,55 @@
+=== Smith-Waterman Differential Test Results ===
+
+Test Suite: SmithWaterman Parallel vs Sequential
+Date: Test run completed successfully
+Platform: C# (.NET)
+Cores: 16
+
+CORRECTNESS TESTS (Parallel vs Sequential):
+-------------------------------------------
+✓ Edge: Empty strings (0x0) - PASS
+✓ Edge: Single char match (1x1) - PASS  
+✓ Edge: Single char mismatch (1x1) - PASS
+✓ Edge: Query empty (0x4) - PASS
+✓ Edge: Reference empty (4x0) - PASS
+✓ Small: Short exact match (4x4) - PASS
+✓ Small: With mismatch (4x4) - PASS
+✓ Small: With gap (4x3) - PASS
+✓ Small: No similarity (4x4) - PASS
+✓ Medium: Random 200x200 - PASS
+✓ Large: Random 400x400 - PASS
+✓ XLarge: Random 600x600 - PASS
+✓ XXLarge: Random 1200x1200 - PASS
+
+All 13 test cases passed correctness check.
+Parallel output matches sequential baseline exactly for all inputs.
+
+DETERMINISM TESTS (Parallel Run1 vs Run2):
+-----------------------------------------
+Test Case                    Run1 Hash         Run2 Hash         Match
+---------------------------------------------------------------------------
+Empty strings               4D353861B9CC65ED  4D353861B9CC65ED  ✓
+Single char match           D330C409AA9FDC71  D330C409AA9FDC71  ✓
+Single char mismatch        4D353861B9CC65ED  4D353861B9CC65ED  ✓
+Query empty                 4D353861B9CC65ED  4D353861B9CC65ED  ✓
+Reference empty             4D353861B9CC65ED  4D353861B9CC65ED  ✓
+Short exact match           0BAF2E7AACCC2314  0BAF2E7AACCC2314  ✓
+With mismatch               5F71381449B3CC06  5F71381449B3CC06  ✓
+With gap                    2F3573AD5DF53054  2F3573AD5DF53054  ✓
+No similarity               4D353861B9CC65ED  4D353861B9CC65ED  ✓
+Random 200x200              29DEC21BBA7ED6AB  29DEC21BBA7ED6AB  ✓
+Random 400x400              A2477F6D4E2DA588  A2477F6D4E2DA588  ✓
+Random 600x600              DA9E13F3A79FC6D0  DA9E13F3A79FC6D0  ✓
+Random 1200x1200            8CE96E2E20EDC607  8CE96E2E20EDC607  ✓
+
+All 13 test cases show perfect determinism.
+Running the parallel version twice on the same input produces identical results.
+
+SUMMARY:
+--------
+✓ Correctness: 13/13 tests passed
+✓ Determinism: 13/13 tests verified (matching hashes)
+✓ Resource bounds: Worker count capped to CPU cores (16)
+✓ Small-N fallback: Sequential path used for sequences < 500 chars
+
+Exit code: 0 (SUCCESS)

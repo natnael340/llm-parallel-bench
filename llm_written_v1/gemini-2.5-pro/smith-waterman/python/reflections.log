@@ -1,0 +1,33 @@
+[2026-01-13T19:22:39.083392] The Smith-Waterman algorithm's `constructMatrix` function has a wavefront dependency, making it difficult to parallelize efficiently with standard Python multiprocessing due to high communication overhead. The calculation of `H[i][j]` depends on `H[i-1][j]`, `H[i][j-1]`, and `H[i-1][j-1]`. While anti-diagonal parallelization is possible, it's complex and ill-suited for a process-based model.
+
+However, the `findHighestScore` function is embarrassingly parallel. It involves a simple scan of the matrix to find the maximum value. My strategy is to parallelize this part.
+
+**Plan:**
+1.  **Isolate the parallelizable part:** The `findHighestScore` method is the target. The `constructMatrix` and `traceback` methods will remain sequential.
+2.  **Parallel strategy:** I will split the scoring matrix `H` into horizontal chunks (groups of rows). A pool of worker processes will find the maximum score and its position within each chunk concurrently.
+3.  **Reduction:** The main process will gather the local maxima from each worker and perform a final reduction to find the global maximum score and its position.
+4.  **Implementation:**
+    - I'll use Python's `concurrent.futures.ProcessPoolExecutor` for managing the worker pool.
+    - A top-level helper function, `_find_max_in_chunk`, will be created to be picklable for the worker processes.
+    - The number of workers will be bounded by the system's CPU count to avoid oversubscription.
+5.  **Safety:**
+    - A sequential fallback will be implemented for small matrices, where the overhead of parallelization would exceed the benefit.
+    - The public API will be preserved. I will modify the class to use the parallel `findHighestScore` by default.
+    - Determinism is guaranteed because the matrix chunking is fixed, and the final reduction order over a small number of local maxima is deterministic.
+6.  **Code Structure:**
+    - I will create a new file `algo_parallel.py`.
+    - The `traceback` method will be slightly refactored to accept the starting position as an argument, decoupling it from the `findHighestScore` call.
+    - The `findAlignment` method will orchestrate the process: `constructMatrix` -> parallel `findHighestScore` -> `traceback`.
+---
+[2026-01-13T20:34:25.050582] The test runner failed with two types of errors:
+1.  `string index out of range`: This likely occurs in the `traceback` method when handling empty query or reference strings. The loops and indexing logic need to be more robust to these edge cases.
+2.  `Unknown format code 'f' for object of type 'str'`: This is a formatting error in my `hash_result` or `run_alignment` function. I'm probably passing a string where a float is expected. Looking at the `run_alignment` function, it returns `(*result, duration)`. The `result` from `findAlignment` is `(str, str, int, float)`. So the return tuple is `(str, str, int, float, float)`. The `hash_result` function expects `(str, str, int, float)`. I need to fix the unpacking in the test runner.
+
+**Plan for REFINE:**
+
+1.  **Fix `algo_parallel.py` and `algo_sequential.py`:** Add checks for empty input strings in the `constructMatrix` and `traceback` methods to prevent index errors. Specifically, if `query` or `reference` is empty, the alignment is empty, and the score is 0.
+2.  **Fix `test_runner.py`:**
+    - Correct the unpacking of results from `run_alignment`. The duration is the 5th element, not part of the core result to be hashed.
+    - Adjust the `hash_result` function call to pass only the alignment result tuple.
+3.  **Re-run the tests:** Execute `test_runner.py` again, first without the `--perf` flag, then with it, to confirm all correctness, determinism, and performance checks pass.
+---

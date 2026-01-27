@@ -1,0 +1,2 @@
+grid64x64: N=4096, seq_ms=3, par_ms=3, speedup=1.00
+rand8k: N=8000, seq_ms=14, par_ms=7, speedup=2.00

@@ -1,0 +1,69 @@
+[2026-01-14T11:18:30.310046] The user wants to parallelize the Smith-Waterman algorithm in C#.
+
+**Analysis:**
+The core of the computation is the `ConstructMatrix` function. It has a loop-carried dependency: `H[i][j]` depends on `H[i-1][j-1]`, `H[i-1][j]`, and `H[i][j-1]`. This "wavefront" dependency prevents a simple `Parallel.For` on the existing loops.
+
+**Plan:**
+1.  **Strategy:** The standard parallelization technique for this problem is to process the matrix along anti-diagonals. All cells `(i, j)` where `i + j = k` can be computed in parallel because they only depend on cells in anti-diagonals `k-1` and `k-2`.
+2.  **Implementation:** I will create a new class `SmithWatermanParallel` with a modified `ConstructMatrix` method. This method will iterate sequentially through the anti-diagonals (`k` from 2 to `n+m-2`). For each anti-diagonal, it will use `Parallel.For` to compute all the cells within that diagonal.
+3.  **Determinism:** This approach is deterministic. The order of computation for anti-diagonals is fixed, and within an anti-diagonal, the computations are independent. The final result will be identical every time.
+4.  **Other Methods:** The `FindHighestScore` and `Traceback` functions are much less computationally intensive than matrix construction. `FindHighestScore` could be parallelized, but the overhead might not be worth the benefit for typical inputs. `Traceback` is inherently sequential. I will focus only on parallelizing `ConstructMatrix`.
+5.  **Testing:** I will create a separate test runner that:
+    *   Compares the output of the sequential and parallel versions on various inputs (empty, small, medium, large).
+    *   Runs the parallel version twice on the same input to verify determinism.
+    *   Reports a clear pass/fail status.
+
+First, I'll save the original code.
+---
+[2026-01-14T11:20:12.769698] The tests passed, but the performance is abysmal. The parallel version is significantly *slower* than the sequential one, even for the "Large (Perf)" case.
+
+**Diagnosis:**
+The issue likely lies in the `Parallel.For` loop. The overhead of creating and managing parallel tasks for each anti-diagonal is overwhelming the actual computation. The work done in each parallel task (calculating a single cell's score) is very small, leading to a high overhead-to-work ratio.
+
+**Refinement Plan:**
+1.  **Increase Granularity:** Instead of parallelizing the inner loop (over `i` within a diagonal), I should try to give more work to each task. However, the wavefront dependency makes this tricky. The current anti-diagonal approach is sound, but the implementation is inefficient.
+2.  **Analyze the Loop:** The loop `Parallel.For(iStart, iEnd + 1, ...)` launches many small tasks.
+3.  **Alternative:** A better approach might be to use a different parallelization strategy if possible, but the anti-diagonal method is the standard for Smith-Waterman. The problem is likely the *implementation* of the anti-diagonal method.
+
+Let's re-examine the loop bounds.
+`k` goes from 1 to `n + m - 3`.
+`iStart` = `Math.Max(1, k - m + 2)`
+`iEnd` = `Math.Min(n - 1, k)`
+
+The number of iterations in the parallel loop is `iEnd - iStart + 1`. This is small for early and late diagonals and peaks for the center diagonal.
+
+The problem is that `Parallel.For` is being called inside the *sequential* loop over `k`. This creates a new set of tasks for every single anti-diagonal. The overhead of this is killing performance.
+
+**Revised Plan:**
+I will keep the anti-diagonal logic but refine the parallel implementation. A key issue is the small amount of work per parallel invocation. I will stick with the current approach but will adjust the sequential fallback threshold. The current threshold of `(long)n * m < 2500` is too low. Let's increase it significantly to see if we can find a crossover point where parallel is better.
+
+I'll increase the threshold to `50 * 50 = 2500`, let's try `200 * 200 = 40000`. This will make the "Medium" test run sequentially, and we'll see if the "Large" test shows improvement.
+
+Also, I'll modify the test runner to use larger strings for the performance test to give parallelization a better chance to shine. Let's try `1000x1100`.
+
+This is my one refinement attempt. If this doesn't show a speedup, it indicates that for this problem size on this machine, the overhead of this parallelization strategy is simply too high, and the sequential version is better.
+---
+[2026-01-14T11:20:59.944788] The refinement failed. Even with a much larger problem size and an adjusted threshold, the parallel version is still significantly slower. The overhead of the `Parallel.For` call on each anti-diagonal is simply too great. The amount of work per parallel task is too small.
+
+This indicates that this specific parallelization strategy, while correct and deterministic, is not efficient for the given problem sizes and the TPL overhead in C#. A more complex implementation (e.g., manual thread management, blocking on diagonals) might yield better results, but that goes beyond a minimal patch.
+
+Given the constraints, the best path forward is to finalize the current parallel implementation, but to document clearly in the `JUSTIFICATION.md` *why* it does not provide a speedup. The code is functionally correct and deterministic, which is a primary requirement. The performance characteristic is an important finding to report.
+
+I will proceed to the finalization step. I will create the evidence files and the justification, explaining the outcome. The parallel code will be delivered as-is, with the high sequential-fallback threshold, as it is correct and handles large inputs, even if not faster in this test environment. The key takeaway is that parallelization is not a magic bullet and can introduce performance regressions if the overhead outweighs the gains.
+---
+[2026-01-14T11:28:56.934975] The advanced, block-based parallelization strategy is now working correctly and passing all tests for correctness and determinism.
+
+**Performance Analysis:**
+The results are much more promising than the previous wavefront attempt.
+- For small inputs ("Medium"), it's still slightly slower, which is expected due to overhead. The sequential fallback handles this.
+- For the "Large (Perf)" test (1500x1600), we see a speedup of **1.23x**. While not a massive gain, it is a significant improvement over the previous version which had a slowdown (0.15x). The warning is noted, but this is a real speedup.
+
+**Reason for Improvement:**
+The block-based approach works better because it gives each parallel task a much larger chunk of work to do (a `64x64` block instead of a single cell). This significantly reduces the scheduling overhead relative to the computation, allowing the benefits of parallel execution to emerge.
+
+**Next Steps:**
+The solution is now correct, deterministic, and provides a measurable performance benefit on large inputs. I can now proceed to the finalization stage. I will:
+1.  Rename the final artifacts to `algo_parallel.cs` and `test_runner.cs`.
+2.  Create the evidence files (`run_summary.txt`, `perf.txt`).
+3.  Write the new `JUSTIFICATION.md` explaining the more effective block-based parallelization strategy.
+---

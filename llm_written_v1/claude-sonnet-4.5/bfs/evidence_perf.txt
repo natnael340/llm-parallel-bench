@@ -1,0 +1,49 @@
+BFS Performance Analysis
+========================
+
+TEST: 100×100 Grid (10,000 vertices)
+------------------------------------
+Input size: 10,000 vertices
+Graph structure: Grid (2 edges/vertex average)
+
+Sequential time: 14.513 ms
+Parallel time 1: 16.062 ms
+Parallel time 2: 18.282 ms
+Speedup: 0.90× (sequential faster)
+
+Analysis:
+- Grid BFS has many narrow levels (width ~200 at peak)
+- ProcessPoolExecutor overhead (process spawn, serialization) dominates
+- Sequential fallback threshold: 100 vertices per level
+- Most levels hit sequential fallback, reducing parallelization benefit
+
+TEST: Binary tree (12 levels, 4,095 vertices)
+----------------------------------------------
+Input size: 4,095 vertices
+Graph structure: Complete binary tree
+
+Sequential time: 3.290 ms
+Parallel time 1: 1581.933 ms
+Parallel time 2: 1494.487 ms
+Speedup: 0.002× (sequential much faster)
+
+Analysis:
+- Binary tree has exponentially growing levels: 1, 2, 4, 8, ..., 2048
+- Only last 4 levels (2048, 1024, 512, 256 vertices) exceed threshold
+- High overhead from ProcessPoolExecutor for small benefit
+- Most work is in few levels, poor amortization
+
+CONCLUSION
+----------
+For these test sizes, ProcessPoolExecutor overhead exceeds parallelization benefit.
+BFS is well-suited for parallel execution on:
+- Large graphs (millions of vertices)
+- Wide levels (thousands of vertices per level consistently)
+- Lower overhead parallel frameworks (threads, compiled languages)
+
+Current implementation correctly prioritizes determinism and correctness.
+Sequential fallback at 100 vertices/level prevents worst-case overhead on tiny levels.
+
+For Python BFS, sequential implementation is appropriate for graphs <100K vertices.
+Parallel BFS shows value only on very large graphs where level width justifies
+process spawning overhead.

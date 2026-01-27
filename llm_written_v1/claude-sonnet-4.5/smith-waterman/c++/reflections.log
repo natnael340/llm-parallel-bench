@@ -1,0 +1,85 @@
+[2026-01-15T13:50:35.932979] PLAN PHASE analysis:
+
+Smith-Waterman has classic DP dependencies:
+- constructMatrix: H[i][j] depends on H[i-1][j-1], H[i-1][j], H[i][j-1]
+  → Anti-diagonal (wavefront) parallelism is natural
+  → All cells on same anti-diagonal i+j=k are independent
+  → Can parallelize each wavefront sweep
+- findHighestScore: embarrassingly parallel reduction (max + position)
+- traceback: inherently sequential (single path walk backward)
+
+CHOSEN STRATEGY: Anti-diagonal wavefront parallelism in constructMatrix + parallel reduction in findHighestScore
+- Fits within 1 file patch (~150 LOC change)
+- Deterministic: fixed anti-diagonal order, fixed reduction order for max
+- Safe: respects true dependencies
+- Perf: O(n*m) work on ~min(n,m) wavefronts → good parallelism for square-ish matrices
+
+REJECTED ALTERNATIVES:
+1. Row-level parallelism (simple #pragma omp parallel for on outer loop): violates row dependencies (H[i][j] needs H[i-1][*])
+2. Task-based DAG (OpenMP tasks): higher overhead, same dependency structure as wavefront, exceeds simplicity goal
+3. Tile/block parallelism: complex data layout changes, >250 LOC
+
+Small-N threshold: if n*m < 10000, sequential (overhead dominates)
+Worker bound: default OpenMP threads (≤ core count)
+
+Proceed to PATCH phase.
+---
+[2026-01-15T13:59:57.653382] Performance results show parallel version is SLOWER than sequential:
+- 2000x2000: seq=0.051s, par=0.342s → 6.7× SLOWER
+- 1000x1000: seq=0.0066s, par=0.055s → 8.3× SLOWER
+
+This is a red flag. Likely causes:
+1. Anti-diagonal parallelism has poor load balance (early/late diagonals are short)
+2. OpenMP overhead dominates with small wavefronts
+3. Cache thrashing from irregular memory access pattern
+
+REFINE needed: Switch to row-block parallelism with careful handling of dependencies.
+Alternative: use larger tiles or accept that this algorithm doesn't parallelize well at these sizes.
+
+Actually, wait - the threshold is 10000. Let me check:
+- 100x100 = 10000 → should use sequential fallback
+- 500x500 = 250000 → parallel
+- 1000x1000 = 1000000 → parallel
+- 2000x2000 = 4000000 → parallel
+
+The parallel code is running on medium/large cases but performing poorly.
+
+Root cause: Anti-diagonal wavefront has:
+- Very uneven work distribution (diagonal length varies from 1 to min(n,m) and back)
+- Synchronization barrier after each diagonal (n+m-2 barriers total!)
+- Poor cache locality (strided access across diagonals)
+
+REFINE strategy: Keep anti-diagonal for correctness, but only on truly large N where parallelism can amortize. Otherwise, accept sequential as optimal for this problem size range. OR switch to row-blocking with overlap handling.
+
+Let me try row-blocking with proper dependency handling first.
+---
+[2026-01-15T15:35:54.601715] Still slower on 2000x2000:
+- Sequential: 0.0511s
+- Parallel (revised): 0.2339s → 4.6× SLOWER (better than 6.7× but still bad)
+
+The wave-based blocking approach still has too much overhead. The fundamental issue: Smith-Waterman DP has very tight dependencies that serialize most operations.
+
+Decision: Accept that this algorithm doesn't parallelize well at these problem sizes. Raise the threshold to extremely large (5M+ cells) where parallel might help, or document that sequential is optimal for typical use cases.
+
+Alternative REFINE 2: Just use sequential version as the "parallel" implementation with a note that parallelizing Smith-Waterman effectively requires GPU or specialized hardware/algorithms.
+
+Actually, let me try one more thing: simple column-wise parallelism with proper row-by-row processing. Keep it extremely simple.
+---
+[2026-01-15T16:22:54.265193] The parallel version at 3000x3000 (9M cells, above 5M threshold) is still SLOWER:
+- Sequential: 0.0573s
+- Parallel: 0.0889s → 1.55× SLOWER
+
+Also note: scores differ slightly (2216 vs 2213), which suggests a correctness issue!
+
+The row-wise parallelization violates H[i][j-1] dependency within the same row. Each cell needs the cell to its left, so parallelizing across j creates a race condition.
+
+This is a critical bug. I need to revert to a correct implementation that respects all dependencies. The only safe parallel approaches are:
+1. Anti-diagonal wavefront (tried, too slow due to barriers)
+2. Sequential-only (honest admission that this DP doesn't parallelize well at CPU scale)
+3. Block-based with careful synchronization (complex, likely still slow)
+
+Given 2 REFINE iterations max and consistent slowdowns, the best engineering decision is:
+Accept that Smith-Waterman's tight dependencies make CPU parallelization ineffective at typical problem sizes. Use sequential implementation with clear documentation in JUSTIFICATION.
+
+Let me fix the correctness issue by reverting to pure sequential, then finalize with honest analysis.
+---

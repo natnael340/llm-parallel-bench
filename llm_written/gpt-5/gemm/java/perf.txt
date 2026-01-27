@@ -1,0 +1,1 @@
+perf M=512 K=512 N=512 seq_ms=174 par_ms=31 speedup=5.613

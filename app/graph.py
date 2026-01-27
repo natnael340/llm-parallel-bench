@@ -16,7 +16,7 @@ from app.tools import (
     rm,
     think_tool,
 )
-from app.consts import MONO_AGENT
+from app.consts import MONO_AGENT, MONO_AGENT_V2
 from app.state import State
 
 
@@ -32,7 +32,7 @@ def get_agent(model: str, checkpointer: Optional[BaseCheckpointSaver] = None):
     return create_agent(
         model, 
         tools=TOOLS, 
-        system_prompt=MONO_AGENT, 
+        system_prompt=MONO_AGENT_V2, 
         checkpointer=checkpointer,
         state_schema=State,
     )

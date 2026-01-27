@@ -1,0 +1,19 @@
+Correctness and determinism tests passed across all input sizes. Performance tests showed a slowdown.
+
+### Correctness & Determinism Summary
+- **Empty:** PASS
+- **Identical:** PASS
+- **Simple Mismatch:** PASS
+- **Simple Gap:** PASS
+- **Longer Sequences:** PASS
+- **No Alignment:** PASS
+- **Medium:** PASS
+- **Large (Perf):** PASS
+
+### Performance Summary
+- **Environment:** Local machine (not CI)
+- **Input Size (Large):** query=1000 chars, reference=1100 chars
+- **Sequential Time:** 60.58 ms
+- **Parallel Time:** 411.92 ms
+- **Speedup:** 0.15x
+- **Result:** The parallel implementation was significantly slower than the sequential version on the large test case. This is due to the high overhead of the Task Parallel Library's `Parallel.For` when the work per parallel task is very small, as is the case here with the anti-diagonal dependency structure. While functionally correct, this parallelization strategy is not efficient for this problem in C# without more advanced, lower-level implementation techniques. The sequential fallback threshold was raised to 40,000 cells to mitigate this for small-to-medium inputs.

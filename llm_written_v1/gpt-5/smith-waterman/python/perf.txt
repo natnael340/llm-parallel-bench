@@ -1,0 +1,5 @@
+Case: random DNA sequences of length 512 each
+Sequential time: 0.2381 s
+Parallel (NumPy vectorized) time: 0.1024 s
+Speedup: 2.33x
+Cores: (NumPy internal threading; external workers not used)

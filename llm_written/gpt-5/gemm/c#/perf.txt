@@ -1,0 +1,3 @@
+PERF m=384 k=384 n=384 -> seq=334.6 ms par=124.5 ms speedup=2.69x eq=True
+Environment.ProcessorCount=64, MaxDegreeOfParallelism=64
+Notes: timings are approximate, single run after warmup.

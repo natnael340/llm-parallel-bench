@@ -1,0 +1,5 @@
+Our original mono-agent prompt included a strict constraint: the agent could not modify more than 250 lines of code and had to apply only a minimal patch. In practice, this limited the range of optimizations the model could apply and led to weaker performance. After reviewing the resulting changes, we concluded that the LOC/minimal-change constraint was preventing the agent from making the best design decisions. We therefore updated the prompt to MONO_AGENT_V2, removing the LOC restriction and allowing broader refactoring to achieve stronger performance, while still enforcing correctness and determinism.
+
+The updated prompt resulted in a more effective parallelization strategy, for example in Gemm reaching from 2x to 5x speedups on larger matrix sizes, compared to the original prompt's more modest gains. This demonstrates that relaxing overly strict constraints can enable more effective optimizations in code generation tasks.
+
+Based on these results, we adopt MONO_AGENT_V2 as the default configuration for subsequent experiments, as it better supports high-impact optimizations without compromising correctness or determinism.

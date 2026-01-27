@@ -1,0 +1,9 @@
+Case 1x1x1: equal=True, deterministic=True
+Case 1x5x3: equal=True, deterministic=True
+Case 4x3x1: equal=True, deterministic=True
+Case 16x16x16: equal=True, deterministic=True
+Case 64x64x64: equal=True, deterministic=True
+Case 96x64x48: equal=True, deterministic=True
+Case 128x128x128: equal=True, deterministic=True
+Case 256x256x256: equal=True, deterministic=True
+Case alpha0 32x32x32: equal=True, deterministic=True

@@ -1,0 +1,7 @@
+You have go.mod file in the parent directory and here is the content
+
+../go.mod
+
+module github.com/natnael340/llm-parallel-bench
+
+go 1.18

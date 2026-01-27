@@ -1,0 +1,1 @@
+N=2000,M=8000 t_seq_ms=13.379 t_par_ms=21.652 speedup=0.62 cores=16

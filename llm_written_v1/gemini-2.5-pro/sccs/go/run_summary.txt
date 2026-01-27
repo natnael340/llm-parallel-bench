@@ -1,0 +1,16 @@
+Correctness and Determinism Test (`-v 1000 -e 5000 -seed 42`)
+------------------------------------------------------------------
+Generating graph with 1000 vertices, 5000 edges, seed 42
+
+--- Running Correctness Check ---
+Sequential implementation took: 5.330282ms
+Parallel implementation (run 1) took: 4.832188ms
+✅ SUCCESS: Correctness check passed.
+
+--- Running Determinism Check ---
+Parallel implementation (run 2) took: 4.079722ms
+Hash of parallel run 1: c4e8d808c36a8755749c4f025900bc797f04163a88a0716a5f19ab67d691c723
+Hash of parallel run 2: c4e8d808c36a8755749c4f025900bc797f04163a88a0716a5f19ab67d691c723
+✅ SUCCESS: Determinism check passed.
+
+All checks passed.

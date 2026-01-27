@@ -1,0 +1,49 @@
+Running tests with 16 threads.
+Test Case: Empty (V=0, E=0)
+  Status: PASS
+  Sequential Hash: 0
+  Parallel Hash 1: 0
+  Parallel Hash 2: 0
+  Sequential Time: 1.563e-06s
+  Parallel Time:   9.32e-07s
+
+Test Case: Single Node (V=1, E=0)
+  Status: PASS
+  Sequential Hash: 0
+  Parallel Hash 1: 0
+  Parallel Hash 2: 0
+  Sequential Time: 3.046e-06s
+  Parallel Time:   1.523e-06s
+
+Test Case: Small (V=100, E=500)
+  Status: PASS
+  Sequential Hash: 3263078108368710201
+  Parallel Hash 1: 3263078108368710201
+  Parallel Hash 2: 3263078108368710201
+  Sequential Time: 0.000214239s
+  Parallel Time:   0.000143664s
+
+Test Case: Medium (V=2000, E=20000)
+  Status: PASS
+  Sequential Hash: 1334031258436945545
+  Parallel Hash 1: 1334031258436945545
+  Parallel Hash 2: 1334031258436945545
+  Sequential Time: 0.00637217s
+  Parallel Time:   0.00431765s
+
+Test Case: Large (V=10000, E=150000)
+  Status: PASS
+  Sequential Hash: 5399955032137651128
+  Parallel Hash 1: 5399955032137651128
+  Parallel Hash 2: 5399955032137651128
+  Sequential Time: 0.0458744s
+  Parallel Time:   0.0467142s
+
+Test Case: Skewed (V=5000, E=5000)
+  Status: PASS
+  Sequential Hash: 10400419282403936040
+  Parallel Hash 1: 10400419282403936040
+  Parallel Hash 2: 10400419282403936040
+  Sequential Time: 0.000967947s
+  Parallel Time:   0.0118303s
+

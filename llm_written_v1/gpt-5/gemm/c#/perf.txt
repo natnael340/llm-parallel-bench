@@ -1,0 +1,1 @@
+256x256x256 seq_ms=190.09 par_ms=92.56 speedup=2.05

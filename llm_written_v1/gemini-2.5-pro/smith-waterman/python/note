@@ -1,0 +1,12 @@
+This is an interesting challenge. The Smith-Waterman algorithm's core, the matrix construction, has inherent data dependencies that make parallelization non-trivial. A direct parallelization of the inner loops is incorrect. Instead, I'll parallelize the overall alignment task by breaking the larger reference sequence into overlapping chunks and aligning the query sequence against each chunk concurrently. This is a common and effective strategy in bioinformatics.
+
+My plan is as follows:
+
+    PLAN: Adopt a coarse-grained parallelization strategy. The findAlignment method will be modified to split the reference string into overlapping chunks. A pool of worker processes will run the original constructMatrix and traceback on these smaller chunks. A final reduction step will select the best alignment from the results.
+    PATCH: Create algo_parallel.py with a new findAlignment_parallel method that orchestrates the chunking and execution using Python's concurrent.futures.ProcessPoolExecutor.
+    TEST: Develop a differential test harness, test_algo.py, to verify that the parallel implementation produces the same alignment score as the sequential version across various input sizes. It will also check for determinism by running the parallel version twice and comparing the results.
+    FINALIZE: Write JUSTIFICATION.md explaining the chunking strategy, its benefits, the determinism guarantees, and the evidence from the tests.
+
+Okay, planning is complete. I will parallelize the findHighestScore function using a map-reduce approach with a process pool, as it's the most straightforward and safest part of the algorithm to parallelize without introducing nondeterminism or excessive complexity. The matrix construction will remain sequential due to its wavefront dependency.
+
+gemini storping in the middle of excution.

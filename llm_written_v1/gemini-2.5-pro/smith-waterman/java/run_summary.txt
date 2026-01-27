@@ -1,0 +1,58 @@
+Running Smith-Waterman Differential Tests...
+--- Running Test Case: EMPTY ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: bfd64d492a7697c0c78f9e9185400366db5185a6c97819fca4d05ba63e2f32ce
+--- Test Case EMPTY: PASSED ---
+
+--- Running Test Case: SMALL_IDENTICAL ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: df15ca1f7adaa9d422e37a2180095802f8649cc903843adc951e095ef7fb16d0
+--- Test Case SMALL_IDENTICAL: PASSED ---
+
+--- Running Test Case: SMALL_DIFFERENT ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: d2e0f09bc32f1e433fa0d58947d0f7ab7121b11fca0fb27f89916ba6deada0db
+--- Test Case SMALL_DIFFERENT: PASSED ---
+
+--- Running Test Case: MEDIUM_SEQ ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: 3e28c88eb419f797057829cdba230b805e73c95cce7a3cdde66fbc3c9fd919a4
+--- Test Case MEDIUM_SEQ: PASSED ---
+
+--- Running Test Case: MEDIUM_SEQ_2 ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: 9db453b4752229aefdacdf6ec49d67bb1d39055398d76f1485e56b64c3420f47
+--- Test Case MEDIUM_SEQ_2: PASSED ---
+
+--- Running Test Case: LARGE_SEQ ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: 132c7677add6f19179c8bbbd82044c3341244e3464e52214bd3fa9703a1d94e5
+--- Test Case LARGE_SEQ: PASSED ---
+
+--- Running Test Case: LARGE_SEQ_DISSIMILAR ---
+Sequential run complete.
+Parallel run 1 complete.
+Parallel run 2 complete.
+Correctness Check PASSED.
+Determinism Check PASSED. Hash: a483c0ceff4753a994cfac11b58b08a3034e24bfc362a98e3ca8ae1fd079de47
+--- Test Case LARGE_SEQ_DISSIMILAR: PASSED ---
+
+All tests passed successfully!

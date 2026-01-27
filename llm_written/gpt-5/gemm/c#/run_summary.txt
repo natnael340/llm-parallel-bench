@@ -1,0 +1,9 @@
+PASS cases:
+- m=1 k=1 n=1: parity=True determinism=True hash=-2955147666749890067
+- m=2 k=3 n=1: parity=True determinism=True hash=2778745892582307667
+- m=16 k=16 n=16: parity=True determinism=True hash=8989356743025955839
+- m=63 k=31 n=47: parity=True determinism=True hash=5802462935967372221
+- m=128 k=64 n=96: parity=True determinism=True hash=-2159656574779680093
+- m=256 k=256 n=256: parity=True determinism=True hash=1908815398242490889
+
+All parity and determinism checks passed (3 repeats each).

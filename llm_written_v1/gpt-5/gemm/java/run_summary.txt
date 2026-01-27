@@ -1,0 +1,6 @@
+Edge 1x1: PASS
+Small 8x5*5x7: PASS
+Medium 64: PASS
+Large 512: PASS
+Determinism: PASS hash1=3919829652005c07e7ed039e86a4cd6ffd04e866b4149cc344f142d8e24fc4f2 hash2=3919829652005c07e7ed039e86a4cd6ffd04e866b4149cc344f142d8e24fc4f2
+Perf: N=512 seq=246.37 ms par=171.83 ms speedup=1.43x

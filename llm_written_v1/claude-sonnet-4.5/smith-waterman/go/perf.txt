@@ -1,0 +1,8 @@
+Smith-Waterman Performance Results
+==================================
+
+Test Case: 2000x2000 sequences (N=4000000)
+Sequential time: 0.1250s
+Parallel time:   0.0898s
+Speedup:         1.39x
+Scores match:    true

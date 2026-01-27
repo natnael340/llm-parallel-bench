@@ -1,0 +1,51 @@
+SCC Edge Reduction Test Results
+================================
+
+Test: empty
+  Vertices: 0, Edges: 0
+  Sequential: 0 edges, hash=0
+  Parallel run 1: 0 edges, hash=0
+  Parallel run 2: 0 edges, hash=0
+  Correctness: PASS
+  Determinism: PASS
+
+Test: single_node
+  Vertices: 1, Edges: 0
+  Sequential: 0 edges, hash=0
+  Parallel run 1: 0 edges, hash=0
+  Parallel run 2: 0 edges, hash=0
+  Correctness: PASS
+  Determinism: PASS
+
+Test: simple_cycle
+  Vertices: 4, Edges: 4
+  Sequential: 6 edges, hash=6699bf927a6ab07e
+  Parallel run 1: 6 edges, hash=6699bf927a6ab07e
+  Parallel run 2: 6 edges, hash=6699bf927a6ab07e
+  Correctness: PASS
+  Determinism: PASS
+
+Test: two_sccs
+  Vertices: 6, Edges: 7
+  Sequential: 8 edges, hash=d7f2970906ae0344
+  Parallel run 1: 8 edges, hash=d7f2970906ae0344
+  Parallel run 2: 8 edges, hash=d7f2970906ae0344
+  Correctness: PASS
+  Determinism: PASS
+
+Test: medium_multi_scc
+  Vertices: 30, Edges: 30
+  Sequential: 40 edges, hash=f3ea59eaccc8dc26
+  Parallel run 1: 40 edges, hash=f3ea59eaccc8dc26
+  Parallel run 2: 40 edges, hash=f3ea59eaccc8dc26
+  Correctness: PASS
+  Determinism: PASS
+
+Test: large_multi_scc
+  Vertices: 10000, Edges: 12000
+  Sequential: 19800 edges, hash=804a295543e27b28
+  Parallel run 1: 19800 edges, hash=804a295543e27b28
+  Parallel run 2: 19800 edges, hash=804a295543e27b28
+  Correctness: PASS
+  Determinism: PASS
+

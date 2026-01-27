@@ -1,0 +1,23 @@
+Case m=0 k=0 n=0
+  edge(empty): baseline threw=true
+  edge(empty): parallel also threw (expected)
+Case m=1 k=1 n=1
+  parity: PASS
+  seq ms=0 par ms=0
+  determinism: PASS hash=8b6c533e90dccf3b9974b037b8b8b907152ea4f7bbba7cb00f23688ea893c3ec
+Case m=3 k=5 n=2
+  parity: PASS
+  seq ms=0 par ms=0
+  determinism: PASS hash=4dae42d4a4e06a329b83569a7b01502ff85fac914fd39e85cf87f2c55181b83a
+Case m=32 k=32 n=32
+  parity: PASS
+  seq ms=1 par ms=1
+  determinism: PASS hash=6cb4bb4b575a655d10e0a8be60a281330814e37adb81553e163210c0adfcc1c5
+Case m=128 k=128 n=128
+  parity: PASS
+  seq ms=11 par ms=63
+  determinism: PASS hash=bf7d9bd1f550df491abd20360b3af6e9087e5b01d74098bb80ac67ea749dfd6b
+Case m=256 k=256 n=256
+  parity: PASS
+  seq ms=33 par ms=18
+  determinism: PASS hash=b4ee69a1922b73edd7e87b7c15fb09348a440ccba9feb34b20537f730a78bce2

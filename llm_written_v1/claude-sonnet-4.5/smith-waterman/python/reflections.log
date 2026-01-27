@@ -1,0 +1,4 @@
+[2026-01-13T18:50:57.532211] Smith-Waterman DP has anti-diagonal dependencies. Strategy: (1) parallelize anti-diagonal chunks in constructMatrix, (2) parallel max-reduction in findHighestScore, (3) keep traceback sequential. Will use ProcessPoolExecutor with row-level parallelization for constructMatrix (simpler than anti-diagonal, still correct if row-by-row), and chunk-based parallel max finding. Need small-N threshold ~100.
+---
+[2026-01-13T18:57:06.079540] Process spawning overhead dominates. Anti-diagonal parallelization with ProcessPoolExecutor is too costly. Better strategy: (1) keep constructMatrix sequential (it's the DP core, hard to parallelize efficiently in Python without C extensions), (2) only parallelize findHighestScore with multiprocessing since it's embarrassingly parallel and less frequent. Or better: use NumPy for vectorized operations within sequential flow. Will simplify to: sequential matrix with NumPy hints, parallel max-finding only.
+---

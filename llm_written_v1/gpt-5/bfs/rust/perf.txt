@@ -1,0 +1,1 @@
+PERF n=20000 extras_per_node=4 workers=16 t_seq=0.199159 t_par=0.087535 speedup=2.275 equal=true

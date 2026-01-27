@@ -1,0 +1,19 @@
+[2026-01-15T22:36:42.003063] Smith-Waterman matrix construction has anti-diagonal wavefront dependencies: each cell H[i][j] depends on H[i-1][j-1], H[i-1][j], H[i][j-1]. Cells on the same anti-diagonal (i+j=constant) are independent and can be computed in parallel. FindHighestScore is embarrassingly parallel. Traceback must stay sequential (path-dependent).
+
+Strategy choice:
+1. **CHOSEN: Wavefront/antidiagonal parallelization** - Compute each antidiagonal in parallel, synchronize between diagonals. Deterministic (fixed order), good speedup for large matrices.
+2. Row-striping with atomic/lock - Rejected: race conditions at boundaries, non-deterministic without careful synchronization.
+3. Blocked tiling - Rejected: complex boundary handling, marginal benefit for typical sequence lengths.
+4. Full sequential with parallel FindHighestScore only - Rejected: misses main bottleneck (matrix construction is O(nm), FindHighestScore is also O(nm) but trivially parallel).
+
+Bounded patch: Single file modification (SmithWaterman.cs), ~100 LOC changes within ConstructMatrix and helper methods. TPL Parallel.For with bounded MaxDegreeOfParallelism.
+
+---
+[2026-01-15T22:38:25.930346] Tests pass correctness and determinism but show 0.25x speedup (slowdown). This is unexpected. The wavefront approach has synchronization overhead. For 1000x1000, the overhead of Parallel.For per antidiagonal (2000 diagonals) plus lock contention in FindHighestScore is dominating. Need to refine:
+1. Reduce Parallel.For overhead by using coarser granularity
+2. Check if sequential threshold is too low
+3. Consider row-based parallelism with proper chunking instead of wavefront for better balance
+
+Let me analyze: 1000x1000 should benefit from parallelism. The issue is likely too many small parallel regions (one per antidiagonal). I'll refine to use row-based parallel approach with careful dependency handling or increase chunk size in wavefront.
+
+---

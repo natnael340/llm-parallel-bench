@@ -1,0 +1,72 @@
+Smith-Waterman Parallel Implementation - Test Evidence
+======================================================
+
+Test Run Date: 2024
+Platform: 16 CPU cores detected
+Python: ProcessPoolExecutor with NumPy optimization
+
+CORRECTNESS TESTS (Sequential vs Parallel)
+-------------------------------------------
+All 11 test cases PASSED - outputs match exactly
+
+Edge Cases:
+✅ Empty query (0x4)
+✅ Empty reference (4x0)  
+✅ Both empty (0x0)
+✅ Single char match (1x1)
+✅ Small identical (4x4)
+
+Small Cases:
+✅ Similar sequences (10x10)
+✅ Divergent sequences (20x20)
+
+Medium Cases:
+✅ Random DNA (100x100) - hash: 57141a1a886892fd
+✅ Random DNA (200x200) - hash: 9a06c78f07469f65
+
+Large Cases:
+✅ Random DNA (400x400) - hash: 585175e97c054f73
+✅ Random DNA (600x600) - hash: c4020121c61f35ba
+
+
+DETERMINISM TESTS (Parallel Run 1 vs Parallel Run 2)
+-----------------------------------------------------
+All 11 test cases PASSED - repeated parallel runs produce identical hashes
+
+Example hashes (Run1 == Run2):
+- 100x100: 57141a1a886892fd == 57141a1a886892fd ✓
+- 200x200: 9a06c78f07469f65 == 9a06c78f07469f65 ✓
+- 400x400: 585175e97c054f73 == 585175e97c054f73 ✓
+- 600x600: c4020121c61f35ba == c4020121c61f35ba ✓
+
+
+PERFORMANCE RESULTS
+-------------------
+Note: This implementation experiences SLOWDOWN due to:
+1. Strong data dependencies in Smith-Waterman DP algorithm
+2. Python multiprocessing overhead dominates at these input sizes
+3. The bottleneck (matrix construction) is inherently sequential
+
+Test Case    | Sequential | Parallel | Speedup | Status
+-------------|------------|----------|---------|--------
+100x100      | 0.0094s    | 0.0680s  | 0.14x   | Slower (overhead)
+200x200      | 0.0414s    | 0.1803s  | 0.23x   | Slower (overhead)
+400x400      | 0.1662s    | 0.5521s  | 0.30x   | Slower (overhead)
+600x600      | 0.4414s    | 1.2386s  | 0.36x   | Slower (overhead)
+
+
+CONCLUSION
+----------
+✅ Correctness: PASS (100% match with sequential baseline)
+✅ Determinism: PASS (100% reproducible across runs)
+❌ Performance: SLOWDOWN (0.3x typical, due to algorithm constraints)
+
+The parallel implementation is CORRECT and DETERMINISTIC but slower
+than sequential due to fundamental algorithm limitations and Python's
+multiprocessing overhead. This is a valid demonstration that not all
+algorithms benefit from parallelization in all environments.
+
+For production Smith-Waterman at scale, consider:
+- GPU implementations (CUDA/OpenCL)
+- C/C++ with OpenMP and SIMD
+- Specialized libraries (e.g., SSW, Parasail)

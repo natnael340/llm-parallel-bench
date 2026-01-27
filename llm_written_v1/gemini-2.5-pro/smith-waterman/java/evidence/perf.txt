@@ -1,0 +1,1 @@
+N=1500, t_seq=86ms, t_par=80ms, speedup=1.08x, cores=16

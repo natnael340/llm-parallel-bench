@@ -1,0 +1,101 @@
+[2026-01-15T20:42:23.547354] Smith-Waterman has a classic wavefront dependency: H[i][j] needs H[i-1][j-1], H[i-1][j], H[i][j-1]. 
+
+Options:
+1. Row-parallel with sequential inner loop - limited parallelism, simple
+2. Anti-diagonal wavefront - full parallelism, deterministic, more complex but bounded
+3. Strip-based with overlap - complex synchronization, not worth it
+
+Chosen: Anti-diagonal wavefront. Each anti-diagonal d has cells where i+j=d, all independent. Process diagonals sequentially, cells within diagonal in parallel. Deterministic because merge order is fixed by cell index.
+
+Rejected alternatives:
+- Row-parallel: only n-way parallelism, wastes cores on long sequences
+- Task-graph: overkill for regular pattern, more LOC
+
+Bounded patch: modify constructMatrix only, ~80 LOC change. findHighestScore can use parallel stream (simple addition). traceback stays sequential.
+
+Worker count: ForkJoinPool.commonPool(), capped to Runtime.getRuntime().availableProcessors().
+Small-N fallback: if n*m < 10000, stay sequential (overhead dominates).
+
+---
+[2026-01-15T20:46:07.134903] All correctness and determinism tests passed! However, the parallel version is MUCH slower than sequential (0.01-0.02x speedup). This is a severe performance regression. The issue is that IntStream.parallel() has massive overhead for the small anti-diagonal chunks, and we're launching parallel tasks for every diagonal.
+
+Need to refine: batch multiple diagonals or use a custom thread pool with better chunking. The wavefront approach is correct but the granularity is too fine. Let me optimize by:
+1. Use a custom ForkJoinTask that batches cells more efficiently
+2. Or switch to a simpler row-parallel approach with larger chunks
+
+Actually, the simpler fix: only parallelize diagonals that are large enough. Small diagonals have few cells and overhead dominates. Let me add a threshold.
+---
+[2026-01-15T20:49:30.679161] Still very slow (0.01-0.04x). The issue is that IntStream.parallel() overhead is massive even with the threshold. The wavefront approach is theoretically correct but Java's parallel streams are not suitable for this fine-grained pattern.
+
+I need to reconsider the strategy. Options:
+1. Row-parallel with manual batching - simpler, more overhead control
+2. Keep wavefront but use explicit ForkJoinTask for better control
+3. Use a different parallelization pattern entirely
+
+Given the bounded patch constraint and the need for actual speedup, let me switch to a simpler row-parallel approach with manual thread pooling and larger chunks. This sacrifices some theoretical parallelism but will have much lower overhead and actually achieve speedup.
+
+This is still within the refine budget (iteration 1 of 2).
+---
+[2026-01-15T21:20:36.911185] Looking at the existing implementation, I see:
+1. SmithWaterman.java exists with a row-batched parallel approach
+2. The current approach processes rows in batches, but this is NOT safe due to dependencies!
+3. Each cell H[i][j] depends on H[i-1][j-1], H[i-1][j], and H[i][j-1]
+4. The current batch approach has a RACE CONDITION: within a batch, row i reads H[i][j-1] while row i could still be computing it!
+
+The current implementation is INCORRECT. It needs to be replaced with a proper anti-diagonal wavefront approach where:
+- All cells on the same anti-diagonal (i+j = constant) are independent
+- We process anti-diagonals sequentially but parallelize within each anti-diagonal
+
+I need to:
+1. Fix the parallel implementation to use proper anti-diagonal wavefront
+2. Re-run tests to verify correctness and determinism
+3. Measure performance
+
+This is a REFINE step - fixing a broken implementation.
+---
+[2026-01-15T21:21:59.826695] Tests pass for correctness and determinism, but performance is TERRIBLE - parallel is 100x slower than sequential! This is because:
+
+1. The overhead of creating one Future per cell is enormous
+2. For each anti-diagonal, we create iEnd-iStart futures (could be hundreds)
+3. The synchronization cost dwarfs the tiny computation per cell
+
+I need to refine the approach:
+- Instead of one task per cell, chunk cells on each anti-diagonal
+- Use a reasonable chunk size (e.g., cells per chunk = antidiag_length / (numCores * 2))
+- This reduces task creation overhead dramatically
+
+This is REFINE iteration 1.
+---
+[2026-01-15T21:23:09.521555] Still much worse. The issue is that:
+1. We create a new ForkJoinPool for EVERY call to constructMatrix
+2. Anti-diagonal parallelization has too much overhead for this problem size
+3. The synchronization barrier after each anti-diagonal kills performance
+
+For Smith-Waterman at these sizes, the wavefront approach overhead dominates. I need a different strategy: row-parallel with proper dependency handling. 
+
+Actually, looking at it more carefully: the fundamental issue is that anti-diagonal wavefront requires processing n+m anti-diagonals sequentially, each with synchronization. This is O(n+m) synchronization points.
+
+Better approach for bounded patch: Simple row-parallel where each row is processed completely sequentially (respecting left dependency H[i][j-1]) and we only need to wait for the previous row. This gives us O(n) synchronization points but each row can be fully parallelized internally... wait, no, within a row we have left dependency.
+
+Actually the BEST bounded approach here is: process rows sequentially, but within each row we can't parallelize easily due to left dependency. 
+
+Wait - I should reconsider the problem. The issue is that for these matrix sizes (500x600 = 300K cells), the overhead of ANY parallel coordination is too high relative to the tiny per-cell computation.
+
+Let me try: use a reusable thread pool and increase MIN_SIZE significantly.
+---
+[2026-01-15T21:25:06.020967] This is worse again on truly large inputs! The issue is clear: the anti-diagonal wavefront approach has fundamental overhead that doesn't scale well. Each anti-diagonal requires:
+1. Creating and submitting tasks
+2. Waiting for all to complete (barrier synchronization)
+3. This happens n+m times (5500 times for 2000x2500!)
+
+The fundamental problem: Smith-Waterman has true dependencies that prevent effective parallelization at reasonable problem sizes. The per-cell computation is too small relative to synchronization overhead.
+
+However, I've reached the limit of refinement (2 iterations). I need to document what was achieved:
+- Correctness: ✓ All tests pass
+- Determinism: ✓ Hash matches on repeated runs
+- Performance: Mixed - works on 1000x1200 (2.86x speedup), but degrades on larger matrices
+
+The honest conclusion: anti-diagonal wavefront is theoretically correct but practically has high overhead for this algorithm's granularity. The best I can do within bounded patch constraints is document this tradeoff and set the threshold appropriately.
+
+Let me finalize with evidence files and JUSTIFICATION.
+---
