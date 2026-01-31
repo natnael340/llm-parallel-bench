@@ -1,16 +1,15 @@
-from typing import List, Set, Tuple, Iterable
+from __future__ import annotations
+from typing import List, Set, Tuple, Iterable, Optional
 import os
 from concurrent.futures import ProcessPoolExecutor
-import multiprocessing as mp
 
-# Baseline Graph implementation with Tarjan SCC and edge reduction.
-# We will add a deterministic parallel reducer for SCC edge minimization.
-
-class Graph:
-    def __init__(self, v: int):
+# ---------------------- Baseline (sequential, as provided) ----------------------
+class GraphSequential:
+    def __init__(self, v: int, verbose: bool = False) -> None:
         self.V: int = v
         self.adj: List[List[int]] = [[] for _ in range(v)]
         self.rev_adj: List[List[int]] = [[] for _ in range(v)]
+        self.verbose = verbose
 
     def add_edge(self, v: int, w: int) -> None:
         self.adj[v].append(w)
@@ -28,7 +27,7 @@ class Graph:
         time_ref[0] += 1
         disc[u] = low[u] = time_ref[0]
         stack.append(u)
-        in_stack[u] = True
+        in_stack[u] = True                
 
         for v in self.adj[u]:
             if disc[v] == -1:
@@ -74,8 +73,8 @@ class Graph:
         reverse_tree = self.build_spanning_tree(scc[0], self.rev_adj, nodes)
 
         # Step 3: merge both trees (each edge appears at most twice)
-        essential_edges.extend(sorted(forward_tree))
-        essential_edges.extend(sorted(reverse_tree))
+        essential_edges.extend(forward_tree)
+        essential_edges.extend(reverse_tree)
 
         return essential_edges
 
@@ -86,7 +85,7 @@ class Graph:
         visited: Set[int] = set()
         stack: List[int] = [start]
         visited.add(start)
-
+        
         while stack:
             node = stack.pop()
             for neighbor in graph[node]:
@@ -99,100 +98,100 @@ class Graph:
 
     def reduce_edges(self) -> List[Tuple[int, int]]:
         SCCs = self.find_sccs()
-        # Deterministic ordering of SCCs for reproducible results
-        SCCs_sorted = sorted((sorted(s) for s in SCCs), key=lambda s: (len(s), s))
+        if self.verbose:
+            print(f"Found {len(SCCs)} SCC(s).")
 
         reduced_edges: List[Tuple[int, int]] = []
-        for scc in SCCs_sorted:
+        for scc in SCCs:
             min_edges = self.minimize_edges_in_scc(scc)
             reduced_edges.extend(min_edges)
 
-        return reduced_edges
-
-    def _minimize_edges_in_scc_static(self, scc: List[int]) -> List[Tuple[int, int]]:
-        # helper to allow staticmethod-like picklable call; uses instance data by closure
-        return self.minimize_edges_in_scc(scc)
-
-    def reduce_edges_parallel(self, max_workers: int | None = None, small_threshold: int = 3) -> List[Tuple[int, int]]:
-        """
-        Parallel version of reduce_edges:
-        - Computes SCCs sequentially (Tarjan is stack/time dependent)
-        - Sorts SCCs deterministically
-        - Splits SCCs across a bounded process pool
-        - Merges partial results in the same SCC order
-        Deterministic for a fixed graph and worker count.
-        """
-        SCCs = self.find_sccs()
-        SCCs_sorted = sorted((sorted(s) for s in SCCs), key=lambda s: (len(s), s))
-
-        n = len(SCCs_sorted)
-        if n == 0:
-            return []
-        if n <= small_threshold:
-            # tiny input: keep sequential to avoid overhead
-            return self.reduce_edges()
-
-        if max_workers is None:
-            try:
-                cpu = os.cpu_count() or 1
-            except Exception:
-                cpu = 1
-            max_workers = max(1, cpu)
-
-        # Prepare serializable payload: adjacency lists and reverse as plain lists
-        adj = self.adj
-        rev_adj = self.rev_adj
-
-        # We cannot directly pickle bound methods with large state easily.
-        # Define a top-level worker function below and pass necessary data.
-        tasks = [(scc, adj, rev_adj) for scc in SCCs_sorted]
-
-        results: List[List[Tuple[int,int]]] = []
-        # Fixed chunksize=1 to preserve submission order mapping to result order
-        with ProcessPoolExecutor(max_workers=max_workers, mp_context=mp.get_context("fork" if os.name != "nt" else "spawn")) as ex:
-            for res in ex.map(_worker_minimize_edges_in_scc, tasks, chunksize=1):
-                results.append(res)
-
-        # Deterministic merge in SCC order
-        reduced_edges: List[Tuple[int, int]] = []
-        for part in results:
-            reduced_edges.extend(part)
+        if self.verbose:
+            print(f"Reduced SCC edges: {len(reduced_edges)}")
         return reduced_edges
 
 
-def _worker_minimize_edges_in_scc(args: Tuple[List[int], List[List[int]], List[List[int]]]) -> List[Tuple[int,int]]:
-    scc, adj, rev_adj = args
-    nodes: Set[int] = set(scc)
+# ---------------------- Parallel, deterministic implementation ----------------------
+# Globals used by worker processes (set via initializer)
+_G_ADJ: Optional[List[List[int]]] = None
+_G_REV: Optional[List[List[int]]] = None
+_G_V: Optional[int] = None
 
-    def build(start: int, graph: List[List[int]], nodes: Set[int]) -> Set[Tuple[int,int]]:
-        spanning_tree: Set[Tuple[int,int]] = set()
-        visited: Set[int] = set([start])
-        stack: List[int] = [start]
-        while stack:
-            node = stack.pop()
-            for neighbor in graph[node]:
-                if neighbor in nodes and neighbor not in visited:
-                    spanning_tree.add((node, neighbor))
-                    visited.add(neighbor)
-                    stack.append(neighbor)
-        return spanning_tree
-
-    forward_tree = build(scc[0], adj, nodes)
-    reverse_tree = build(scc[0], rev_adj, nodes)
-    essential_edges: List[Tuple[int,int]] = []
-    essential_edges.extend(sorted(forward_tree))
-    essential_edges.extend(sorted(reverse_tree))
-    return essential_edges
+def _init_worker_graph(adj: List[List[int]], rev: List[List[int]]) -> None:
+    global _G_ADJ, _G_REV, _G_V
+    _G_ADJ = adj
+    _G_REV = rev
+    _G_V = len(adj)
 
 
-if __name__ == "__main__":
-    # Simple manual sanity run
-    g = Graph(5)
-    edges = [(0,1),(1,2),(2,0),(1,3),(3,4),(4,3)]
-    for u,v in edges:
-        g.add_edge(u,v)
-    seq = g.reduce_edges()
-    par = g.reduce_edges_parallel()
-    print("seq edges:", len(seq))
-    print("par edges:", len(par))
-    print("equal:", seq == par)
+def _worker_minimize_scc(scc: List[int]) -> List[Tuple[int, int]]:
+    # Runs inside a worker process; uses globals for adjacency, calls baseline to guarantee exact parity
+    if _G_ADJ is None or _G_REV is None or _G_V is None:
+        raise RuntimeError("Worker graph not initialized")
+    g = GraphSequential(_G_V)
+    g.adj = _G_ADJ
+    g.rev_adj = _G_REV
+    return g.minimize_edges_in_scc(scc)
+
+
+def canonicalize_edges(edges: Iterable[Tuple[int, int]]) -> List[Tuple[int, int]]:
+    # Sort and deduplicate deterministically
+    seen = set()
+    out: List[Tuple[int, int]] = []
+    for e in edges:
+        if e not in seen:
+            seen.add(e)
+            out.append(e)
+    out.sort()
+    return out
+
+
+class GraphParallel:
+    def __init__(self, v: int, verbose: bool = False, workers: Optional[int] = None, small_threshold: int = 2) -> None:
+        self.V: int = v
+        self.adj: List[List[int]] = [[] for _ in range(v)]
+        self.rev_adj: List[List[int]] = [[] for _ in range(v)]
+        self.verbose = verbose
+        self.workers = workers if workers and workers > 0 else (os.cpu_count() or 1)
+        # If number of SCCs <= small_threshold, run sequential per-SCC to avoid overhead
+        self.small_threshold = max(0, small_threshold)
+
+    def add_edge(self, v: int, w: int) -> None:
+        self.adj[v].append(w)
+        self.rev_adj[w].append(v)
+
+    def find_sccs(self) -> List[List[int]]:
+        return self._find_sccs_via_baseline()
+
+    # We delegate SCC computation to the sequential baseline to ensure identical SCC ordering
+    def _find_sccs_via_baseline(self) -> List[List[int]]:
+        g = GraphSequential(self.V)
+        g.adj = [lst[:] for lst in self.adj]
+        g.rev_adj = [lst[:] for lst in self.rev_adj]
+        return g.find_sccs()
+
+    def _minimize_edges_in_scc_seq(self, scc: List[int]) -> List[Tuple[int, int]]:
+        # Use baseline implementation to guarantee identical choice of edges
+        g = GraphSequential(self.V)
+        g.adj = self.adj
+        g.rev_adj = self.rev_adj
+        return g.minimize_edges_in_scc(scc)
+
+    def reduce_edges(self) -> List[Tuple[int, int]]:
+        # Compute SCCs using the baseline path to match scc[0] choice exactly
+        SCCs = self._find_sccs_via_baseline()
+        if self.verbose:
+            print(f"Found {len(SCCs)} SCC(s). Using up to {self.workers} workers.")
+        if len(SCCs) <= self.small_threshold or self.workers == 1:
+            combined: List[Tuple[int, int]] = []
+            for scc in SCCs:
+                combined.extend(self._minimize_edges_in_scc_seq(scc))
+            return canonicalize_edges(combined)
+        # Parallel per-SCC phase with fixed order combine
+        with ProcessPoolExecutor(max_workers=self.workers, initializer=_init_worker_graph, initargs=(self.adj, self.rev_adj)) as ex:
+            # map preserves input order; chunksize=1 to avoid grouping across SCCs
+            results = list(ex.map(_worker_minimize_scc, SCCs, chunksize=1))
+        combined: List[Tuple[int, int]] = []
+        for part in results:  # fixed combine order
+            combined.extend(part)
+        return canonicalize_edges(combined)

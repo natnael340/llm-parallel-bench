@@ -1,0 +1,5 @@
+random-large: V=12000 E=48000 t_seq=112.99ms t_par=80.24ms speedup=1.41x
+random-large: V=12000 E=48000 t_seq=139.55ms t_par=70.52ms speedup=1.98x
+random-large: V=12000 E=48000 t_seq=144.84ms t_par=70.12ms speedup=2.07x
+random-large: V=12000 E=48000 t_seq=138.18ms t_par=72.31ms speedup=1.91x
+random-large: V=12000 E=48000 t_seq=126.00ms t_par=54.58ms speedup=2.31x

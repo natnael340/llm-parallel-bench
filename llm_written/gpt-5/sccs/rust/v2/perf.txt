@@ -1,0 +1,1 @@
+n=5000 t_seq_ms=31.813 t_par_ms=28.636 speedup=1.111

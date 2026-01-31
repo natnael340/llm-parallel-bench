@@ -1,0 +1,7 @@
+cases:
+n=0 det_ok=true t_seq_ms=0.018 t_par_avg_ms=0.001 hash=14650fb0739d0383
+n=1 det_ok=true t_seq_ms=0.023 t_par_avg_ms=0.010 hash=14650fb0739d0383
+n=8 det_ok=true t_seq_ms=0.047 t_par_avg_ms=0.046 hash=3d67aaf7dedea519
+n=200 det_ok=true t_seq_ms=1.161 t_par_avg_ms=1.033 hash=759835d838500bd9
+n=2000 det_ok=true t_seq_ms=13.532 t_par_avg_ms=11.582 hash=cdd1fe7f5bbb13d1
+ALL_OK=true

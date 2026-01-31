@@ -1,0 +1,1 @@
+User provided a sequential Java Graph class implementing Tarjan's SCC and SCC edge reduction (forward and reverse spanning trees). Task: Transform into a correct, deterministic, resource-bounded parallel implementation; provide tests, differential harness, and justification. Deliverables: algo_parallel.java, test/run files, JUSTIFICATION.md, run_summary.txt, perf.txt.

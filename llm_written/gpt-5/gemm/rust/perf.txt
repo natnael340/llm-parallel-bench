@@ -1,0 +1,1 @@
+perf N=256: t_seq=1104.841 ms, t_par=311.880 ms, speedup=3.54x

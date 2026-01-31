@@ -105,5 +105,3 @@ class Graph:
         if self.verbose:
             print(f"Reduced SCC edges: {len(reduced_edges)}")
         return reduced_edges
-
-Graph.reduce_edges

@@ -1,0 +1,4 @@
+m=1 k=1 n=1 alpha=1 with_c=false beta=0 | t_seq=0.006 ms, t_par≈0.001 ms, det=true
+m=1 k=3 n=2 alpha=1 with_c=true beta=0.5 | t_seq=0.003 ms, t_par≈0.002 ms, det=true
+m=4 k=5 n=3 alpha=0.7 with_c=false beta=0 | t_seq=0.024 ms, t_par≈0.005 ms, det=true
+m=64 k=64 n=64 alpha=1 with_c=false beta=0 | t_seq=13.854 ms, t_par≈19.979 ms, det=true

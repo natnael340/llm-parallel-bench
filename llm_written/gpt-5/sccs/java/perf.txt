@@ -1,0 +1,1 @@
+random-large: V=12000 E=48000 t_seq=112.99ms t_par=80.24ms speedup=1.41x

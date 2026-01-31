@@ -1,1 +1,0 @@
-perf: N_scc=60 t_seq=0.0028s t_par=0.1548s speedup=0.02x cores=16

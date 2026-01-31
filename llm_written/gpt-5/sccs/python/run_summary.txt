@@ -1,0 +1,6 @@
+N=0 M=0 SCCs_ok=True Edges_ok=True Determinism_ok=True
+N=1 M=0 SCCs_ok=True Edges_ok=True Determinism_ok=True
+N=5 M=0 SCCs_ok=True Edges_ok=True Determinism_ok=True
+N=5 M=4 SCCs_ok=True Edges_ok=True Determinism_ok=True
+N=10 M=20 SCCs_ok=True Edges_ok=True Determinism_ok=True
+N=100 M=400 SCCs_ok=True Edges_ok=True Determinism_ok=True

@@ -1,0 +1,1 @@
+(Run perf mode with: python run_scc.py --mode perf)
