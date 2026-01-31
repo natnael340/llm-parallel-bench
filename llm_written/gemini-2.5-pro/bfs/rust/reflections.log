@@ -1,0 +1,45 @@
+[2026-01-31T19:13:19.629252] I have analyzed the sequential BFS algorithm and devised a parallelization strategy.
+
+**Chosen Strategy: Level-Synchronous Parallel BFS using Rayon**
+1.  The algorithm will proceed in levels, processing all nodes at the current depth in parallel.
+2.  The set of nodes at the current level is called the "frontier".
+3.  I will use Rayon's parallel iterators (`par_iter`) to explore the neighbors of all nodes in the current frontier simultaneously.
+4.  A thread-safe mechanism (like a `Mutex`-wrapped `HashSet` or Rayon's built-in combinators) will be used for the `visited` set to prevent data races.
+5.  To ensure **determinism**, the list of newly discovered neighbors for the *next* frontier will be sorted at the end of each level. This guarantees that the final output traversal is identical across runs.
+6.  This approach contains parallelism within each level and provides a clear synchronization point between levels, making it a good balance of performance and correctness.
+
+**Rejected Alternatives:**
+1.  **Parallelizing the inner neighbor loop:** Too fine-grained; overhead would exceed benefits.
+2.  **Fully asynchronous approach with concurrent queues/sets:** Much more complex to implement and makes ensuring deterministic output very difficult. The level-synchronous approach is easier to reason about and control for determinism.
+3.  **Graph partitioning:** Overkill for this problem. The cost of a good partitioning algorithm would likely dominate the execution time for a single BFS run.
+
+Next, I will save the user's request and then proceed with capturing the baseline implementation.
+---
+[2026-01-31T19:30:20.188639] The previous `run_code` command failed because `cargo run` expects a `main.rs` file as the entry point, but I named my test harness `test_runner.rs`. The simplest way to fix this is to rename the test runner file to `main.rs` to align with Cargo's default expectations. I will read the content of `test_runner.rs`, write it to `main.rs`, remove the old file, and then re-run the test command.
+---
+[2026-01-31T19:33:08.403354] The compiler caught a typo in my test runner: `Vec.new()` instead of `Vec::new()`. This is a simple fix. I will correct the `main.rs` file and rerun the tests.
+---
+[2026-01-31T19:57:10.262710] The tests passed for correctness and determinism, which is good. However, the performance is a significant regression. The parallel version is much slower than the sequential one, indicating that the overhead from my parallelization strategy is far too high.
+
+The primary suspect is the `Mutex` wrapping the `visited` `HashSet`. Every thread contends for this single lock to check if a neighbor has been visited and to insert it. This serializes a critical part of the algorithm and negates any potential parallelism.
+
+I will refine the parallel implementation to reduce this contention. Instead of a single locked `HashSet`, I will have each parallel task collect its own local list of newly discovered nodes. Then, I will merge these lists and update the global `visited` set and the `result` vector in a sequential step between levels. This "map-reduce" style approach within each level should significantly reduce the locking overhead.
+
+**Refinement Steps:**
+1.  Modify `algo_parallel.rs` to remove the `Mutex`.
+2.  In the parallel section, each thread will work on a portion of the frontier and produce a local `Vec` of new neighbors.
+3.  After the parallel computation, iterate through the collected local lists, check against the global `visited` set, and add new nodes to the next frontier.
+4.  Re-run the tests.
+---
+[2026-01-31T20:31:36.479564] The previous refinement failed to improve performance. The bottleneck was collecting all neighbors into a single vector and then processing it sequentially to filter out duplicates and already-visited nodes.
+
+My second refinement attempt will address this by parallelizing more of the work.
+
+**Strategy for Refinement #2:**
+1.  **Parallel Neighbor Collection:** Use `par_iter().flat_map()` to gather all neighbors of the current frontier into a single vector, just like before.
+2.  **Parallel Sort & Deduplication:** Instead of a sequential loop, I will use Rayon's parallel sort (`par_sort_unstable()`) followed by a sequential `dedup()` on the collected neighbors. This efficiently creates a list of unique candidate nodes for the next frontier.
+3.  **Sequential Filtering:** The final step is to iterate through this much smaller, unique list of candidates and check against the global `visited` set. This sequential step is now much less of a bottleneck because the expensive deduplication work has been done in parallel.
+4.  **Deterministic Sorting:** The final, filtered `next_frontier` will be sorted before being added to the results to ensure the overall BFS traversal is deterministic.
+
+This approach moves the most computationally expensive part (sorting and deduplicating a potentially large number of neighbors) into a parallel context, which should yield a significant performance improvement over the previous attempts. I will now implement this refined strategy.
+---

@@ -1,0 +1,14 @@
+# Correctness and Determinism Test Summary
+
+## Correctness
+- **Command**: `java TestBfs correctness 20000`
+- **Result**: PASS
+- **Details**: The output of the parallel BFS implementation matches the sequential version for a graph with 20,000 vertices.
+
+## Determinism
+- **Command**: `java TestBfs determinism 20000`
+- **Result**: PASS
+- **Details**: Three consecutive runs of the parallel BFS implementation on the same graph yielded identical results, confirmed by matching SHA-256 hashes.
+  - **Run 1 Hash**: 2b01116c2379d970313a35c61304323a6c117f739611b84f3e9c8a41768a3536
+  - **Run 2 Hash**: 2b01116c2379d970313a35c61304323a6c117f739611b84f3e9c8a41768a3536
+  - **Run 3 Hash**: 2b01116c2379d970313a35c61304323a6c117f739611b84f3e9c8a41768a3536

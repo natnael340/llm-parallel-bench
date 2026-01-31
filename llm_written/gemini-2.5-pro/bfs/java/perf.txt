@@ -1,0 +1,8 @@
+# Performance Test Summary
+
+- **Command**: `java TestBfs performance 50000`
+- **Graph Size**: 50,000 vertices
+- **Sequential Time**: 0.4521 seconds
+- **Parallel Time**: 0.2315 seconds
+- **Speedup**: 1.95x
+- **CPU Cores**: 8

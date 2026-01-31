@@ -1,0 +1,76 @@
+Test Case: Empty Graph
+Sequential Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Parallel Hash 1: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Parallel Hash 2: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Single Node Graph
+Sequential Hash: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Parallel Hash 1: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Parallel Hash 2: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Small Linear Graph
+Sequential Hash: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 1: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 2: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Small Star Graph
+Sequential Hash: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 1: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 2: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Medium Random Graph
+Sequential Hash: 858e90bff64b318f4fb960f62999e052e90a85d9dc30eff41e4532f325e641b6
+Parallel Hash 1: 9e56ab5455cd51ef5c20fa552b59f529f71190f6b426245d0c4e5c92b354e4de
+Parallel Hash 2: 399ec518eb858277028cb80181193d959071e2a4d464c42c89a75fe791fdc4be
+Result: FAILED
+  - Failure: Parallel result does not match sequential result.
+  - Failure: Parallel runs produced different results.
+
+Test Case: Large Random Graph
+Sequential Hash: 6d52cda398c7a65333aa6cc49804f48dc1234d5b5e44e1cfdb6b1e89087fc6d5
+Parallel Hash 1: 0ea083526e36736f69e3bbd74076f73949e570b7cc88b0b394a28742bbd8f754
+Parallel Hash 2: 3c18961a2aa4f910ea32052e468aeefe67b2fadb03e75684362621b4ec26779e
+Result: FAILED
+  - Failure: Parallel result does not match sequential result.
+  - Failure: Parallel runs produced different results.
+
+Test Case: Empty Graph
+Sequential Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Parallel Hash 1: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Parallel Hash 2: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Single Node Graph
+Sequential Hash: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Parallel Hash 1: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Parallel Hash 2: 5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Small Linear Graph
+Sequential Hash: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 1: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 2: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Small Star Graph
+Sequential Hash: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 1: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Parallel Hash 2: e6cf777272c201d518e2f563331986ca64d7b7d5aa34d7dcd5e0a5f0109d605f
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Medium Random Graph
+Sequential Hash: 858e90bff64b318f4fb960f62999e052e90a85d9dc30eff41e4532f325e641b6
+Parallel Hash 1: 858e90bff64b318f4fb960f62999e052e90a85d9dc30eff41e4532f325e641b6
+Parallel Hash 2: 858e90bff64b318f4fb960f62999e052e90a85d9dc30eff41e4532f325e641b6
+Result: PASSED (Correctness and Determinism)
+
+Test Case: Large Random Graph
+Sequential Hash: 6d52cda398c7a65333aa6cc49804f48dc1234d5b5e44e1cfdb6b1e89087fc6d5
+Parallel Hash 1: 6d52cda398c7a65333aa6cc49804f48dc1234d5b5e44e1cfdb6b1e89087fc6d5
+Parallel Hash 2: 6d52cda398c7a65333aa6cc49804f48dc1234d5b5e44e1cfdb6b1e89087fc6d5
+Result: PASSED (Correctness and Determinism)
+

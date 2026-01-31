@@ -1,0 +1,66 @@
+[2026-01-31T12:32:54.337827] I have analyzed the sequential BFS algorithm and devised a parallelization strategy.
+
+**Chosen Strategy: Level-Synchronous Parallel BFS**
+
+This approach maintains the core level-by-level progression of BFS, which is essential for correctness, but parallelizes the work within each level.
+
+1.  **Outer Loop (Sequential):** The algorithm will iterate from one level of the graph to the next sequentially.
+2.  **Inner Loop (Parallel):** For each level, all nodes in the current "frontier" will be processed in parallel using the Task Parallel Library (TPL). Each parallel task will explore the neighbors of its assigned node.
+3.  **Data Structures for Concurrency:**
+    *   `visited`: A `ConcurrentDictionary<int, byte>` will be used to track visited nodes. This allows for thread-safe, high-performance checks and additions, which is crucial as multiple threads will be accessing it simultaneously.
+    *   `next_frontier`: A `ConcurrentBag<int>` will be used to collect the neighbors that will form the frontier for the next level. Bags are optimized for concurrent additions.
+4.  **Ensuring Determinism:** The order of nodes visited is part of the algorithm's output. Parallel execution can introduce non-determinism. To counteract this:
+    *   The nodes forming the *current* level's frontier are added to the final result list in a deterministic order (e.g., by sorting them) *before* the parallel neighbor expansion begins.
+    *   After all threads have finished exploring and adding neighbors to the `ConcurrentBag`, the bag's contents are transferred to a list and sorted. This ensures that the *next* level's frontier is always processed in the same order, run after run.
+5.  **Small-N Fallback:** For very small frontiers, the overhead of parallelization can be greater than the benefit. I will add a threshold below which the frontier is processed sequentially.
+
+**Rejected Alternatives:**
+
+*   **Node-level Locking:** Too much lock contention and overhead.
+*   **Graph Partitioning:** Overly complex for a shared-memory environment; more suited for distributed systems.
+*   **Parallelizing the main `while` loop:** Incorrect due to fundamental loop-carried dependencies.
+
+This strategy balances parallelism with the need to maintain the BFS level-by-level logic and guarantees deterministic output. I will now proceed with implementing this strategy.
+---
+[2026-01-31T13:14:00.638479] The test run failed on the "Medium Random Graph". The correctness check failed, meaning the parallel output did not match the sequential output. The determinism check passed, which is good—it means my sorting strategy for frontiers is working.
+
+The root cause of the correctness failure is a subtle logic difference between the sequential and parallel versions regarding *when* a node is added to the result list.
+
+*   **Sequential:** A node is added to the result list *after* it is dequeued and confirmed as unvisited.
+*   **My Parallel (buggy):** All nodes in the current frontier were added to the result list *before* their neighbors were explored in parallel. This is incorrect. The result of a BFS is the sequence of nodes in the order they are visited, level by level. My implementation was adding a whole level, then finding the next, which is correct, but the initial state was wrong. It should add a level to the results *after* it's been discovered.
+
+To fix this, I will adjust the parallel algorithm's main loop:
+1.  Initialize `result` with just the `startVertex`.
+2.  The main loop will now find all new, unvisited neighbors from the current frontier in parallel.
+3.  These newly discovered neighbors will form the `nextFrontier`.
+4.  This `nextFrontier` will be sorted to ensure determinism.
+5.  *Then*, this sorted `nextFrontier` will be added to the `result` list.
+6.  The `frontier` for the next iteration becomes the `nextFrontier`.
+
+This change aligns the parallel version's logic directly with the level-by-level discovery process of the sequential baseline, ensuring the output order is identical. I will now apply this patch.
+---
+[2026-01-31T14:00:23.385953] The second test run failed for the same reason: a correctness mismatch with the sequential baseline. My previous fix was logically flawed. The core issue is that the sequential algorithm's output order is dictated by the FIFO nature of the queue, which processes nodes one by one and enqueues their neighbors in a specific, determined order. My parallel approach of collecting all next-level neighbors into a single bag and then sorting them creates a different, albeit deterministic, order.
+
+To truly match the baseline, the parallel version must respect the processing order of the source nodes from the current frontier.
+
+**Final Refined Strategy:**
+
+1.  **Level-synchronous approach is kept.** We process the graph level by level.
+2.  **Sort the current frontier.** This remains essential to ensure that we always process the nodes within a level in a consistent order.
+3.  **Use a partitioned output structure.** Instead of adding all discovered neighbors to a single `ConcurrentBag`, each parallel task will work on a node from the frontier and place its discovered neighbors into a dedicated list corresponding to that node's position in the sorted frontier.
+    *   We can use an array of `List<int>`s (`List<int>[] partitions`) for this, where `partitions[i]` will hold the neighbors discovered from `frontier[i]`.
+4.  **Parallel Neighbor Discovery:** A `Parallel.For` loop will iterate from `0` to `frontier.Count - 1`. The task for index `i` will:
+    *   Take the node `frontier[i]`.
+    *   Find all its unvisited neighbors.
+    *   Add these neighbors to `partitions[i]`.
+5.  **Deterministic Merge:** After the parallel loop completes, the array of lists (`partitions`) is flattened *sequentially*. We iterate from `i = 0` to the end, concatenating `partitions[0]`, then `partitions[1]`, and so on. This step is critical as it reconstructs the exact discovery order that a sequential algorithm iterating over the *sorted* frontier would produce.
+6.  **Update State:** The resulting merged list becomes the new frontier for the next level and is also added to the final `result` list.
+
+This approach correctly parallelizes the expensive work (finding neighbors for all nodes in a wide frontier) while preserving the deterministic ordering required to match the baseline's output exactly. This will be my final refinement.
+---
+[2026-01-31T15:18:34.541587] The final attempt still failed on correctness and determinism. The core issue is subtle but critical: the parallel implementation, even with partitioning, cannot perfectly replicate the FIFO processing order of the sequential baseline's queue. The `Parallel.For` loop processes the frontier out of order, and the `visited` check becomes a race condition. Whichever parallel task "wins" the race to mark a shared neighbor determines the final traversal path, leading to non-determinism and incorrectness relative to the strict sequential order.
+
+Given the strict requirement to match the baseline output *exactly*, and having exhausted the refinement attempts, I must conclude that a safe, perfectly-matching parallel implementation is not achievable without fundamentally altering the graph's data structure (e.g., pre-sorting all adjacency lists) or introducing complex synchronization that would negate performance gains. The safest path forward is to revert to the sequential implementation and provide a detailed justification.
+
+My next steps are to finalize the required deliverables. I will use the last failed test run to create the `run_summary.txt`, run a performance comparison to generate `perf.txt`, and then write the `JUSTIFICATION.md` explaining the journey and the final, safety-oriented conclusion.
+---

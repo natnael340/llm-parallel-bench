@@ -1,0 +1,44 @@
+Scenario: edge_empty
+Correctness: PASS
+Determinism: PASS
+Sequential time: 762ns
+Parallel time (avg): 187ns
+Speedup: 4.07x
+Sequential Hash: 13646096770106105413
+Parallel Hashes: [13646096770106105413, 13646096770106105413, 13646096770106105413]
+
+Scenario: edge_single
+Correctness: PASS
+Determinism: PASS
+Sequential time: 80ns
+Parallel time (avg): 80ns
+Speedup: 1.00x
+Sequential Hash: 13646096770106105413
+Parallel Hashes: [13646096770106105413, 13646096770106105413, 13646096770106105413]
+
+Scenario: small
+Correctness: PASS
+Determinism: PASS
+Sequential time: 1.406974ms
+Parallel time (avg): 58.330629ms
+Speedup: 0.02x
+Sequential Hash: 6697738806548336896
+Parallel Hashes: [6697738806548336896, 6697738806548336896, 6697738806548336896]
+
+Scenario: medium
+Correctness: PASS
+Determinism: PASS
+Sequential time: 25.115563ms
+Parallel time (avg): 306.152583ms
+Speedup: 0.08x
+Sequential Hash: 17117677275949922001
+Parallel Hashes: [17117677275949922001, 17117677275949922001, 17117677275949922001]
+
+Scenario: large
+Correctness: PASS
+Determinism: PASS
+Sequential time: 502.372127ms
+Parallel time (avg): 2.117372019s
+Speedup: 0.24x
+Sequential Hash: 16178252174432459680
+Parallel Hashes: [16178252174432459680, 16178252174432459680, 16178252174432459680]
