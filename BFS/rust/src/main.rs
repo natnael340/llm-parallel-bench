@@ -1,5 +1,9 @@
-use bfs::{Bfs, Graph};
 use std::time::Instant;
+use bfs::{BfsParallel as Bfs, Graph};
+use rand::rngs::StdRng;
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
+use std::collections::VecDeque;
 
 static mut PASSED: u32 = 0;
 static mut FAILED: u32 = 0;
@@ -34,11 +38,13 @@ fn main() {
     // Consistency Tests
     test("Order consistency is maintained across runs", test_order_consistency);
     test("Different starting vertices produce valid orderings", test_different_start_vertices);
+    test("Unordered edge insertion produces correct BFS", test_unordered_edges);
 
     // Performance Tests
     test("Performance stress test with large linear graph", test_large_linear_graph);
     test("Performance with wide graph (many neighbors)", test_wide_graph);
     test("Performance with deep graph (long chain)", test_deep_graph);
+    test("Performance speed test with complete graph", test_performance_speed_test);
 
     // Summary
     unsafe {
@@ -313,6 +319,37 @@ fn test_different_start_vertices() -> Result<(), String> {
     assert_eq(vec![5, 4, 3, 2, 1], Bfs::run(&graph, 5))
 }
 
+
+fn test_unordered_edges() -> Result<(), String> {
+    // Edges added in non-sorted, scrambled order
+    let seed = 42;
+    let mut graph = Graph::new();
+    let mut rng = StdRng::seed_from_u64(seed);
+    
+    let num_nodes = 100;
+    
+    for from in 1..=num_nodes {
+        let mut neighbors: Vec<i32> = (1..=num_nodes).filter(|&to| to != from).collect();
+
+        neighbors.shuffle(&mut rng);
+        
+        for to in neighbors {
+            graph.add_edge(from, to);
+        }
+    }
+    let expected = [
+        1,100,46,64,4,3,22,27,94,62,36,63,92,45,5,81,90,25,85,50,6,7,
+        73,28,13,48,75,65,44,93,82,74,99,60,52,83,70,37,9,31,78,11,69,
+        41,89,18,96,80,55,42,34,97,95,16,98,88,8,59,79,57,10,76,20,86,
+        53,87,71,15,29,19,68,38,54,40,77,21,17,12,32,51,30,47,2,56,33,
+        66,91,43,61,84,67,58,35,24,23,26,39,49,14,72
+    ];
+    let result =  Bfs::run(&graph, 1);
+    // BFS from node 1 should still produce valid level-order traversal
+    assert_eq(expected.to_vec(), result)
+
+}
+
 // ==================== Performance Tests ====================
 
 fn test_large_linear_graph() -> Result<(), String> {
@@ -363,4 +400,51 @@ fn test_deep_graph() -> Result<(), String> {
 
     println!("       (Deep graph: depth={} in {:.2} ms)", depth, duration.as_secs_f64() * 1000.0);
     Ok(())
+}
+
+fn test_performance_speed_test() -> Result<(), String> {
+    let mut graph = Graph::new();
+    let size: i32 = 2000;
+    for i in 1..=size {
+        for j in (i + 1)..=size {
+            graph.add_edge(i, j);
+            graph.add_edge(j, i);
+        }
+    }
+
+    // Warm-up
+    let _ = Bfs::run(&graph, 1);
+
+    let reps = 5;
+    let iters = 20;
+    let mut times: Vec<f64> = Vec::with_capacity(reps);
+
+    for _ in 0..reps {
+        let start = Instant::now();
+        for _ in 0..iters {
+            let _ = Bfs::run(&graph, 1);
+        }
+        let duration = start.elapsed();
+        times.push(duration.as_secs_f64() * 1000.0 / iters as f64);
+    }
+
+    let avg = average(&times);
+    let sd = standard_deviation(&times);
+
+    let directed_edges = size as i64 * (size as i64 - 1);
+    println!(
+        "       (BFS complete graph | nodes={}, undirected edges≈{} (directed≈{}) | {:.2} ms/run ± {:.2} (n={}))",
+        size, directed_edges / 2, directed_edges, avg, sd, reps
+    );
+    Ok(())
+}
+
+fn average(values: &[f64]) -> f64 {
+    values.iter().sum::<f64>() / values.len() as f64
+}
+
+fn standard_deviation(values: &[f64]) -> f64 {
+    let avg = average(values);
+    let sum_squares: f64 = values.iter().map(|v| (v - avg).powi(2)).sum();
+    (sum_squares / values.len() as f64).sqrt()
 }

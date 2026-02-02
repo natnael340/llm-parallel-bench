@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public static class Bfs
+public static class BfsSequential
 {
     public static List<int> Run(Graph graph, int startVertex)
     {

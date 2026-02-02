@@ -1086,63 +1086,67 @@ time.sleep(5)
 
 class TestGlobalFunctions:
     """Test global functions (run_code, configure_runner, get_runner)."""
-    
+
     def test_run_code_function(self, temp_workspace):
         """Test the global run_code function."""
         # Configure global runner
         configure_runner(base_dir=temp_workspace)
-        
+
         # Create test script
         script = temp_workspace / "test.py"
         script.write_text("print('Global function')")
-        
-        # Use global function
-        if hasattr(run_code, 'func'):
-            # It's a StructuredTool, get the underlying function
-            result = run_code.func(filenames=[script.name], language="python")
-        elif callable(run_code):
-            # It's a direct function
-            result = run_code([script.name], "python")
-        else:
-            pytest.fail(f"run_code is neither callable nor a StructuredTool: {type(run_code)}")
-        
+
+        # Patch BASE_DIR so _safe_path resolves to temp_workspace
+        with patch('app.tools.BASE_DIR', temp_workspace):
+            # Use global function
+            if hasattr(run_code, 'func'):
+                # It's a StructuredTool, get the underlying function
+                result = run_code.func(filenames=[script.name], language="python")
+            elif callable(run_code):
+                # It's a direct function
+                result = run_code([script.name], "python")
+            else:
+                pytest.fail(f"run_code is neither callable nor a StructuredTool: {type(run_code)}")
+
         assert result["status"] == "successful"
         assert "Global function" in result["stdout"]
-    
+
     def test_get_runner_singleton(self):
         """Test that get_runner returns singleton."""
         runner1 = get_runner()
         runner2 = get_runner()
-        
+
         assert runner1 is runner2
-    
+
     def test_configure_runner_creates_new_instance(self, temp_workspace):
         """Test that configure_runner creates new instance."""
         runner1 = get_runner()
-        
+
         configure_runner(base_dir=temp_workspace, timeout_sec=100)
-        
+
         runner2 = get_runner()
-        
+
         assert runner2.timeout_sec == 100
-    
+
     def test_run_code_uses_configuration(self, temp_workspace):
         """Test that run_code uses global configuration."""
         configure_runner(base_dir=temp_workspace, timeout_sec=1)
-        
+
         script = temp_workspace / "timeout.py"
         script.write_text("""
 import time
 time.sleep(5)
 """)
-        
-        if hasattr(run_code, 'func'):
-            # It's a StructuredTool
-            result = run_code.func(filenames=[script.name], language="python")
-        else:
-            # It's a direct function
-            result = run_code([script.name], "python")
-        
+
+        # Patch BASE_DIR so _safe_path resolves to temp_workspace
+        with patch('app.tools.BASE_DIR', temp_workspace):
+            if hasattr(run_code, 'func'):
+                # It's a StructuredTool
+                result = run_code.func(filenames=[script.name], language="python")
+            else:
+                # It's a direct function
+                result = run_code([script.name], "python")
+
         assert result["status"] == "error"
         assert "Timeout" in result["stderr"]
 

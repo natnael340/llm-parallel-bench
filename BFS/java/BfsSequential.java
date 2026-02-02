@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Bfs {
+public class BfsSequential {
     public static List<Integer> run(Graph graph, int startVertex) {
         if (!graph.getVertices().containsKey(startVertex)) {
             return new ArrayList<>();

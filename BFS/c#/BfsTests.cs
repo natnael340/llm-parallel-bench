@@ -4,6 +4,8 @@ using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
+using Bfs = BfsSequential;
+
 public class BfsTests
 {
     private readonly ITestOutputHelper _output;

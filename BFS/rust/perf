@@ -1,0 +1,10 @@
+[PASS] Performance stress test with large linear graph
+       (Wide graph: center + 5000 neighbors in 2.08 ms)
+[PASS] Performance with wide graph (many neighbors)
+       (Deep graph: depth=10000 in 4.74 ms)
+[PASS] Performance with deep graph (long chain)
+       (BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 337.83 ms/run ± 3.68 (n=5))
+
+========================================
+Results: 25 passed, 0 failed, 25 total
+========================================

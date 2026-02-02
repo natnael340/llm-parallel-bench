@@ -1,8 +1,17 @@
 import java.util.*;
+import static java.util.Collections.emptyList;
+
+
+class Bfs {
+    public static List<Integer> run(Graph graph, int start) {
+        return BfsSequential.run(graph, start);
+    }
+}
 
 public class BfsTests {
     private static int passed = 0;
     private static int failed = 0;
+    private static Bfs bfs = new Bfs();
 
     public static void main(String[] args) {
         System.out.println("Running BFS Tests...\n");
@@ -34,11 +43,13 @@ public class BfsTests {
         // Consistency Tests
         test("Order consistency is maintained across runs", BfsTests::testOrderConsistency);
         test("Different starting vertices produce valid orderings", BfsTests::testDifferentStartVertices);
+        test("Unordered edge insertion produces correct BFS", BfsTests::testReturnOrder);
 
         // Performance Tests
         test("Performance stress test with large linear graph", BfsTests::testLargeLinearGraph);
         test("Performance with wide graph (many neighbors)", BfsTests::testWideGraph);
         test("Performance with deep graph (long chain)", BfsTests::testDeepGraph);
+        test("Performance speed test with complete graph", BfsTests::testPerformanceSpeedTest);
 
         // Summary
         System.out.println("\n========================================");
@@ -303,6 +314,23 @@ public class BfsTests {
         assertEquals(List.of(5, 4, 3, 2, 1), Bfs.run(graph, 5));
     }
 
+    private static void testReturnOrder() {
+        // Edges added in non-sorted, scrambled order
+        Graph graph = new Graph();
+        graph.addEdge(5, 6);
+        graph.addEdge(1, 4);
+        graph.addEdge(3, 5);
+        graph.addEdge(1, 2);
+        graph.addEdge(2, 3);
+        graph.addEdge(1, 3);
+        graph.addEdge(4, 5);
+
+        // BFS from node 1 should still produce valid level-order traversal
+        
+        List<Integer> result = Bfs.run(graph, 1);
+        assertEquals(List.of(1, 4, 2, 3, 5, 6), result);
+    }
+
     // ==================== Performance Tests ====================
 
     private static void testLargeLinearGraph() {
@@ -353,5 +381,54 @@ public class BfsTests {
 
         double timeMs = (endTime - startTime) / 1_000_000.0;
         System.out.printf("       (Deep graph: depth=%d in %.2f ms)%n", depth, timeMs);
+    }
+
+    private static void testPerformanceSpeedTest() {
+        Graph graph = new Graph();
+        int size = 2000;
+        for (int i = 1; i <= size; i++) {
+            for (int j = i + 1; j <= size; j++) {
+                graph.addEdge(i, j);
+                graph.addEdge(j, i);
+            }
+        }
+
+        // Warm-up
+        Bfs.run(graph, 1);
+
+        int reps = 5;
+        int iters = 20;
+        double[] times = new double[reps];
+
+        for (int r = 0; r < reps; r++) {
+            long startTime = System.nanoTime();
+            for (int i = 0; i < iters; i++) {
+                Bfs.run(graph, 1);
+            }
+            long endTime = System.nanoTime();
+            times[r] = (endTime - startTime) / 1_000_000.0 / iters;
+        }
+
+        double avg = average(times);
+        double sd = standardDeviation(times);
+
+        long directedEdges = (long) size * (size - 1);
+        System.out.printf("       (BFS complete graph | nodes=%d, undirected edges≈%,d (directed≈%,d) | %.2f ms/run ± %.2f (n=%d))%n",
+                          size, directedEdges / 2, directedEdges, avg, sd, reps);
+    }
+
+    private static double average(double[] values) {
+        double sum = 0;
+        for (double v : values) sum += v;
+        return sum / values.length;
+    }
+
+    private static double standardDeviation(double[] values) {
+        double avg = average(values);
+        double sumSquares = 0;
+        for (double v : values) {
+            sumSquares += (v - avg) * (v - avg);
+        }
+        return Math.sqrt(sumSquares / values.length);
     }
 }

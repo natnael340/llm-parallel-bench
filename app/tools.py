@@ -146,9 +146,9 @@ def run_code(filenames: List[str], language: Literal['python', 'go', 'cpp', 'csh
         - path: str (resolved path used)
         - note: str (optional details)
     """
-    
+    clean_filenames = [_safe_path(filename) for filename in filenames]
     runner = get_runner()
-    return runner.run(filenames, language)
+    return runner.run(clean_filenames, language)
 
 @tool("compile_code", description=COMPILE_CODE_TOOL_DESC)
 def compile_code(source_files: List[str], output_file: str, language: Literal["C++", "Java"], openmp: Literal["on", "off"] = "off"):
@@ -174,9 +174,22 @@ def compile_code(source_files: List[str], output_file: str, language: Literal["C
 
     compiler = get_compiler()
     # Convert string paths to Path objects
-    src_paths = [_safe_path(src_file) for src_file in source_files]
-    # For Java, output_file can be empty string (generates .class files in source directory)
-    out_path = BASE_DIR if output_file == "" else _safe_path(output_file)
+    try:
+        src_paths = [_safe_path(src_file) for src_file in source_files]
+        # For Java, output_file can be empty string (generates .class files in source directory)
+        out_path = BASE_DIR if language == "Java" else _safe_path(output_file)
+        out_path = BASE_DIR if output_file == "" else _safe_path(output_file)
+    except (FileNotFoundError, PermissionError) as e:
+        return {
+            "status": "error",
+            "returncode": None,
+            "stdout": "",
+            "stderr": str(e),
+            "duration_sec": 0.0,
+            "cmd": [],
+            "source_paths": source_files,
+            "output_path": output_file,
+        }
 
     result =  compiler.compile(language, src_paths, out_path, openmp=openmp)
 
