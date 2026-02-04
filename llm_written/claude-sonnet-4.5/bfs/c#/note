@@ -1,0 +1,8 @@
+Claude sonnet, declared it couldn't parallelize the bfs
+respecting sequential order, instead of sorint the input like
+the other models or like it did in other algorithms like go,
+Claude decide not to parallelize it and say declared it is not
+possible, how wever it considered parallization using level-synchronous bfs:
+**Best rejected alternative:** Level-synchronized parallel BFS with sorted vertices within each level. Rejected because sorting by vertex ID changes the discovery order from the sequential baseline, breaking correctness requirements.
+
+rejected becuase it violates the seuential bfs order.

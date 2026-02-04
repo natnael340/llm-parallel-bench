@@ -1,0 +1,5 @@
+M=1024, K=1024, N=1024
+t_seq=6920.34ms
+t_par=1166.07ms
+speedup=5.93x
+cores=16

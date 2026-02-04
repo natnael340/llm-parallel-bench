@@ -1,0 +1,40 @@
+BFS Parallel Implementation - Test Results
+==========================================
+
+Test Date: 2026-02-03T09:45:36+01:00
+
+CORRECTNESS TESTS
+-----------------
+✓ empty_graph: PASS (len=0)
+✓ single_vertex: PASS (len=1)
+✓ small_chain: PASS (len=5)
+✓ small_star: PASS (len=10)
+✓ medium_grid_10x10: PASS (len=100)
+✓ medium_complete_50: PASS (len=50)
+✓ large_grid_50x50: PASS (len=2500)
+✓ large_random_sparse_1000: PASS (len=1000)
+✓ large_binary_tree_depth10: PASS (len=1023)
+
+Correctness Summary: 9 passed, 0 failed
+
+DETERMINISM TESTS
+-----------------
+✓ empty_graph: DETERMINISTIC (hash=e3b0c44298fc1c14...)
+✓ single_vertex: DETERMINISTIC (hash=0a5a2432405b31b9...)
+✓ small_chain: DETERMINISTIC (hash=1cab3bb7804c8032...)
+✓ small_star: DETERMINISTIC (hash=1e1190d5d8e8f01e...)
+✓ medium_grid_10x10: DETERMINISTIC (hash=e5dd37af73975edf...)
+✓ medium_complete_50: DETERMINISTIC (hash=077ba6995d23b61f...)
+✓ large_grid_50x50: DETERMINISTIC (hash=f48d5a936abd2a2f...)
+✓ large_random_sparse_1000: DETERMINISTIC (hash=3b2969d8f1118b8d...)
+✓ large_binary_tree_depth10: DETERMINISTIC (hash=342ace4922b5fec3...)
+
+Determinism Summary: 9 passed, 0 failed
+
+OVERALL SUMMARY
+---------------
+Total Tests: 18
+Passed: 18
+Failed: 0
+
+STATUS: ALL TESTS PASSED ✓

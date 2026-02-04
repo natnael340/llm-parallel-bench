@@ -1,0 +1,1 @@
+BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 59.525525 ms/run ± 0.235627 (n=5)

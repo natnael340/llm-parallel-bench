@@ -1,0 +1,89 @@
+[2026-02-03T09:38:33.136869] BFS analysis:
+- Strong level-by-level ordering dependency
+- Each level must complete before next begins
+- Within a level, neighbors can be discovered in parallel
+- Result order depends on: (1) level order, (2) within-level discovery order
+- Map iteration in Go is non-deterministic by design
+
+Strategy options:
+1. Level-synchronous parallel: Process each level in parallel, sort within level for determinism
+2. Parallel frontier expansion: Workers process current frontier, merge results deterministically
+3. Task graph / work-stealing: Too complex for BFS structure
+4. Full sequential: Safe but no speedup
+
+Best choice: Level-synchronous with sorted adjacency lists and sorted frontier processing
+- Pre-sort all adjacency lists once for determinism
+- Process each level: workers take chunks of current frontier, discover neighbors
+- Sort discovered neighbors before next level
+- Guarantees same output as sequential with sorted iteration
+
+Rejected:
+- Async/speculative: breaks determinism
+- Lock-based shared queue: contention + non-deterministic order
+- Full parallelization across levels: violates BFS semantics
+---
+[2026-02-03T09:40:35.091926] The issue is clear: same vertices but different order. This is happening at index 6, which is early in the traversal. The problem is likely in how we're handling the frontier within a level.
+
+Looking at the parallel code:
+1. We sort adjacency lists (good)
+2. We process chunks of the frontier in parallel
+3. Workers collect neighbors independently
+4. We merge results in worker order
+5. We sort the next level
+
+The issue: when we merge results from workers, we're deduplicating globally, but the ORDER in which we add vertices depends on which worker found them first. Even though we process workers in order, within each worker's result list, the order depends on the chunk assignment.
+
+The sequential version processes vertices in the order they appear in the current level, discovering neighbors in sorted order for each vertex.
+
+The parallel version processes chunks, so vertex 0 might be in worker 0's chunk and vertex 5 in worker 1's chunk. When we merge, we get worker 0's discoveries first, then worker 1's, but this doesn't match the sequential order.
+
+Fix: Instead of sorting only the final next level, we need to ensure the merge process respects the sequential discovery order. The simplest fix: after collecting all neighbors from all workers, deduplicate while preserving the order they would have been discovered sequentially.
+---
+[2026-02-03T09:41:14.408871] The issue persists. Let me think more carefully:
+
+Sequential BFS with sorted adjacency lists:
+- Level 0: [0]
+- Process vertex 0, get sorted neighbors -> Level 1: [423, 668, 750, 786, 987, ...]
+- Process Level 1 in order: 423, then 668, then 750, then 786, then 987
+- For each vertex, add its sorted neighbors (if not visited)
+- So Level 2 starts with neighbors of 423, then neighbors of 668, etc.
+
+Parallel BFS:
+- Level 0: [0]
+- Level 1: [423, 668, 750, 786, 987, ...] (sorted)
+- Split Level 1 into chunks for workers
+- Worker 0 gets [423, 668, ...], Worker 1 gets [...], etc.
+- Each worker processes its chunk, collecting neighbors
+- We merge in worker order
+- Then we SORT the result
+
+AH! The problem is the final sort. After merging, we're sorting the entire next level, which destroys the discovery order.
+
+Sequential discovers: neighbors(423), then neighbors(668), then neighbors(750), ...
+Parallel discovers: neighbors(worker0_chunk), then neighbors(worker1_chunk), ...
+Then we SORT, which reorders everything.
+
+The fix: DON'T sort the next level after merging. The merge order already gives us deterministic order (worker order, which corresponds to chunk order, which corresponds to sequential vertex order).
+
+Wait, but we DO need sorting somewhere for determinism... Let me reconsider.
+
+Actually, the issue is that within each level, the sequential version doesn't sort - it processes in queue order. The queue order is determined by the order neighbors were discovered in the previous level.
+
+I think the real issue is that I'm sorting the next level, which changes the order from what sequential would produce. Sequential doesn't sort each level - it just processes in discovery order.
+---
+[2026-02-03T09:42:54.288270] Performance results show parallel is slower than sequential across all test sizes. This is actually expected for BFS because:
+
+1. BFS has inherent level-by-level synchronization - can't start level N+1 until level N completes
+2. Each level's work is limited - often small frontiers
+3. Overhead of goroutine creation, sync.Map operations, and channel communication dominates
+4. Memory bandwidth is the bottleneck, not CPU
+
+This is a fundamental limitation of BFS parallelization, not a bug. The current implementation is correct and deterministic, but parallelization doesn't help for this algorithm on these graph sizes.
+
+Options:
+1. Increase thresholds so parallel path is rarely taken
+2. Document this as a case where parallelization is not beneficial
+3. Keep the implementation as a demonstration of correct parallel BFS, but acknowledge the performance limitation
+
+I'll go with option 3 - keep the implementation, but be honest in JUSTIFICATION.md that BFS is not a good candidate for parallelization due to Amdahl's Law and synchronization overhead.
+---

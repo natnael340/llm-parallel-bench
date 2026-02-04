@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::thread;
 use std::sync::Mutex;
+use rayon::prelude::*;
 
 pub struct Graph {
     vertices: HashMap<i32, Vec<i32>>,
@@ -70,142 +71,116 @@ impl BfsSequential {
 pub struct BfsParallel;
 
 impl BfsParallel {
-    // Baseline sequential BFS (as provided), kept for differential testing
-    pub fn run_seq(graph: &Graph, start_vertex: i32) -> Vec<i32> {
+    /// Graphs smaller than this use sequential BFS
+    const SMALL_GRAPH_THRESHOLD: usize = 100;
+    
+    /// Levels smaller than this are processed sequentially
+    const SMALL_LEVEL_THRESHOLD: usize = 50;
+
+    pub fn run(graph: &Graph, start_vertex: i32) -> Vec<i32> {
+        // Handle edge cases
         if !graph.vertices().contains_key(&start_vertex) {
             return Vec::new();
+        }
+
+        // Use sequential for small graphs to avoid thread overhead
+        if graph.vertices().len() < Self::SMALL_GRAPH_THRESHOLD {
+            return BfsSequential::run(graph, start_vertex);
         }
 
         let mut visited = HashSet::new();
         let mut result = Vec::new();
-        let mut queue: std::collections::VecDeque<i32> = std::collections::VecDeque::new();
+        let mut current_level = vec![start_vertex];
 
-        queue.push_back(start_vertex);
+        visited.insert(start_vertex);
 
-        while let Some(current) = queue.pop_front() {
-            if !visited.contains(&current) {
-                visited.insert(current);
-                result.push(current);
+        while !current_level.is_empty() {
+            // Add current level to result in sorted order
+            let mut sorted_level = current_level.clone();
+            sorted_level.sort_unstable();
+            result.extend(sorted_level.iter());
 
-                if let Some(neighbors) = graph.vertices().get(&current) {
-                    for &neighbor in neighbors {
-                        if !visited.contains(&neighbor) {
-                            queue.push_back(neighbor);
-                        }
-                    }
-                }
+            // Choose sequential or parallel processing based on level size
+            let next_level = if current_level.len() < Self::SMALL_LEVEL_THRESHOLD {
+                Self::process_level_sequential(graph, &current_level, &visited)
+            } else {
+                Self::process_level_parallel(graph, &current_level, &visited)
+            };
+
+            // Update visited set with new vertices
+            for &vertex in &next_level {
+                visited.insert(vertex);
             }
+
+            current_level = next_level;
         }
 
         result
     }
 
-    // Parallel, deterministic, level-synchronous BFS
-    pub fn run(graph: &Graph, start_vertex: i32) -> Vec<i32> {
-        if !graph.vertices().contains_key(&start_vertex) {
-            return Vec::new();
-        }
+    /// Process a BFS level sequentially
+    fn process_level_sequential(
+        graph: &Graph,
+        current_level: &[i32],
+        visited: &HashSet<i32>,
+    ) -> Vec<i32> {
+        let mut next_level = Vec::new();
+        let mut seen_in_level = HashSet::new();
 
-        // Small-N fallback: for tiny frontiers, keep sequential behavior.
-        const SMALL_FRONTIER: usize = 64;
-
-        // visited/result/frontier
-        let mut visited: HashSet<i32> = HashSet::new();
-        let mut result: Vec<i32> = Vec::new();
-
-        // Start vertex
-        visited.insert(start_vertex);
-        result.push(start_vertex);
-        let mut frontier: Vec<i32> = vec![start_vertex];
-
-        // Determine worker cap once
-        let worker_cap: usize = match thread::available_parallelism() {
-            Ok(n) => n.get(),
-            Err(_) => 4,
-        };
-
-        while !frontier.is_empty() {
-            // If frontier is small or only 1 worker, process sequentially in a way that matches baseline
-            if frontier.len() <= SMALL_FRONTIER || worker_cap <= 1 {
-                let mut next_frontier: Vec<i32> = Vec::new();
-                for &v in &frontier {
-                    if let Some(neighbors) = graph.vertices().get(&v) {
-                        for &nbr in neighbors {
-                            if !visited.contains(&nbr) {
-                                visited.insert(nbr);
-                                next_frontier.push(nbr);
-                                result.push(nbr);
-                            }
-                        }
-                    }
-                }
-                frontier = next_frontier;
-                continue;
-            }
-
-            // Parallel path: process by level with fixed-order merge
-            let current_frontier = frontier; // take ownership
-
-            // Prepare chunks
-            let len = current_frontier.len();
-            let workers = worker_cap.min(len);
-            let base = len / workers;
-            let rem = len % workers;
-
-            // Immutable snapshot references used in worker threads
-            let graph_ref = graph;
-            let visited_ref = &visited; // only read inside threads
-
-            // Shared result slots (one per chunk), protected by a mutex
-            let chunk_results: Vec<Mutex<Vec<i32>>> = (0..workers).map(|_| Mutex::new(Vec::new())).collect();
-
-            // Spawn scoped threads to process chunks in parallel; write into their slot
-            thread::scope(|s| {
-                let mut start = 0usize;
-                for i in 0..workers {
-                    let size = base + if i < rem { 1 } else { 0 };
-                    let end = start + size;
-                    let chunk_slice = &current_frontier[start..end];
-                    let slot = &chunk_results[i];
-
-                    s.spawn(move || {
-                        // Local dedup within this chunk
-                        let mut local_seen: HashSet<i32> = HashSet::new();
-                        let mut local_out: Vec<i32> = Vec::new();
-                        for &v in chunk_slice {
-                            if let Some(neighbors) = graph_ref.vertices().get(&v) {
-                                for &nbr in neighbors {
-                                    if !visited_ref.contains(&nbr) && local_seen.insert(nbr) {
-                                        // Candidate for next frontier
-                                        local_out.push(nbr);
-                                    }
-                                }
-                            }
-                        }
-                        let mut guard = slot.lock().unwrap();
-                        *guard = local_out;
-                    });
-
-                    start = end;
-                }
-            }); // scope ends => all threads joined
-
-            // Fixed-order merge + global dedup against visited
-            let mut next_frontier: Vec<i32> = Vec::new();
-            for slot in chunk_results.into_iter() {
-                let chunk = slot.into_inner().unwrap();
-                for v in chunk.into_iter() {
-                    if !visited.contains(&v) {
-                        visited.insert(v);
-                        next_frontier.push(v);
-                        result.push(v);
+        for &vertex in current_level {
+            if let Some(neighbors) = graph.vertices().get(&vertex) {
+                for &neighbor in neighbors {
+                    if !visited.contains(&neighbor) && !seen_in_level.contains(&neighbor) {
+                        seen_in_level.insert(neighbor);
+                        next_level.push(neighbor);
                     }
                 }
             }
-
-            frontier = next_frontier;
         }
 
-        result
+        // Sort for deterministic ordering
+        next_level.sort_unstable();
+        next_level
+    }
+
+    /// Process a BFS level in parallel
+    /// 
+    /// Each vertex in the current level is processed by a worker thread,
+    /// which collects its unvisited neighbors into a private buffer.
+    /// After all workers complete, the buffers are merged and deduplicated
+    /// in a deterministic order (sorted by vertex ID).
+    fn process_level_parallel(
+        graph: &Graph,
+        current_level: &[i32],
+        visited: &HashSet<i32>,
+    ) -> Vec<i32> {
+        // Process vertices in parallel, each collecting neighbors
+        let neighbor_sets: Vec<Vec<i32>> = current_level
+            .par_iter()
+            .map(|&vertex| {
+                let mut neighbors = Vec::new();
+                if let Some(adj) = graph.vertices().get(&vertex) {
+                    for &neighbor in adj {
+                        if !visited.contains(&neighbor) {
+                            neighbors.push(neighbor);
+                        }
+                    }
+                }
+                neighbors
+            })
+            .collect();
+
+        // Merge all neighbor sets deterministically
+        let mut next_level = Vec::new();
+        for neighbors in neighbor_sets {
+            next_level.extend(neighbors);
+        }
+
+        // Sort and deduplicate for deterministic ordering
+        next_level.sort_unstable();
+        next_level.dedup();
+        next_level
     }
 }
+
+

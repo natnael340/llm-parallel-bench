@@ -1,0 +1,2 @@
+--- Performance Test ---
+N=1024: t_seq=74.0040s, t_par=11.1517s, speedup=6.64x, threads=16, efficiency=41.48%

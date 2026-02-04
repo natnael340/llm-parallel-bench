@@ -1,0 +1,44 @@
+[2026-02-03T09:55:02.618593] BFS Analysis:
+- Strict level-order dependency: level L must complete before L+1 starts
+- Within a level: neighbor discovery can be parallelized
+- Output order: must match sequential (queue FIFO order within each level)
+- Strategy: Level-synchronized parallel BFS
+  - Process current frontier in parallel
+  - Each thread discovers neighbors, writes to thread-local next-level buffer
+  - Merge buffers in fixed order (by thread ID) to preserve determinism
+  - Deduplicate visited nodes with atomic flags or critical section
+- Rejected: fully async task-based (non-deterministic ordering), single-level parallelism only (limited speedup on deep graphs)
+- Best fit: OpenMP with explicit barriers between levels
+---
+[2026-02-03T09:58:32.430815] Grid graphs fail but line/star/complete pass. The issue is likely:
+1. Grid graphs have larger frontiers and more complex neighbor ordering
+2. The critical section for visited marking may have race conditions
+3. The fixed visited array size (1M) should be fine for these sizes
+4. Most likely: the order of neighbor discovery within a level differs from sequential
+
+The sequential BFS uses a queue which processes vertices in FIFO order. Within each vertex, neighbors are added in the order they appear in the adjacency list. The parallel version processes vertices in parallel, which can change the order neighbors are discovered.
+
+Need to debug: add a small test case to see exact difference. The issue is that even though we merge thread buffers in order, the order within each thread's buffer depends on which vertices that thread processed, and dynamic scheduling may assign vertices differently (though it should be deterministic for same input).
+
+Wait - the issue might be simpler: the visited array approach has a race condition. Two threads might both check visited[neighbor] == false, then both set it to true, and both add it to their local buffers. This would cause duplicates or ordering issues.
+
+Need to fix the critical section to be atomic and ensure only one thread adds each neighbor.
+---
+[2026-02-03T10:01:05.287698] The parallel version is slower than sequential! This is because:
+1. The sequential merge step (deduplication) is a bottleneck
+2. The parallel work (collecting neighbors) is minimal compared to the overhead
+3. BFS on these graphs has small frontiers at each level, so there's not enough parallel work
+
+The current implementation only parallelizes the neighbor collection, but the deduplication and merging is sequential. This defeats the purpose of parallelization.
+
+I need to reconsider the approach. The issue is that maintaining exact sequential order is very constraining. However, I realize that the sequential order is deterministic based on:
+1. The order vertices appear in the frontier
+2. The order neighbors appear in each vertex's adjacency list
+
+Since the Graph class uses vectors for adjacency lists, the neighbor order is fixed. So I can:
+1. Process frontier vertices in parallel
+2. Use atomic operations or better synchronization for visited tracking
+3. Ensure deterministic ordering by sorting or using a different merge strategy
+
+Actually, looking at the current code, the sequential merge at the end is killing performance. Let me optimize this by using parallel visited checking with atomic operations and a more efficient merge.
+---

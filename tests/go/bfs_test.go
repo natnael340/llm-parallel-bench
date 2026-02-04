@@ -6,8 +6,8 @@ import (
 	"time"
 	"fmt"
 	"math"
-	//"github.com/natnael340/llm-parallel-bench/BFS/bfsgo"
-	bfsgo "github.com/natnael340/llm-parallel-bench/llm_written"
+	//bfsgo "github.com/natnael340/llm-parallel-bench/BFS/bfsgo"
+	bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/gemini-2.5-pro/bfs/go"
 )
 
 func TestBFSEmptyGraph(t *testing.T) {
@@ -168,6 +168,18 @@ func TestBFSOrderConsistency(t *testing.T) {
 	}
 }
 
+func TestUnorderedNeighbors(t *testing.T) {
+	// build the graph from the remaining lines
+	g := bfsgo.Graph{}
+	g.AddEdge(1, 3)
+	g.AddEdge(1, 2)
+	result := bfsgo.Bfs(g, 1)
+	expected := []int{1, 3, 2}
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("Expected %v, but got %v", expected, result)
+	}
+}
+
 func TestBFSPerformanceStressTest(t *testing.T) {
 	g := bfsgo.Graph{}
 	size := 1000
@@ -187,6 +199,7 @@ func TestBFSPerformanceStressTest(t *testing.T) {
 }
 
 
+
 func TestBFSSpeed(t *testing.T) {
 	// Create a large graph for benchmarking
 
@@ -199,7 +212,10 @@ func TestBFSSpeed(t *testing.T) {
 		}
 	}
 
-	bfsgo.Bfs(g, 1)
+	for i := 0; i < 3; i++{
+		bfsgo.Bfs(g, 1)
+	}
+	
 
 	reps := 5
 	iters := 20
@@ -212,7 +228,7 @@ func TestBFSSpeed(t *testing.T) {
 		}
 		total := time.Since(start)
 		// per-run in milliseconds (use ns to avoid integer truncation)
-		perRunMs[r] = float64(total.Nanoseconds()) / 1e6 / float64(iters)
+		perRunMs[r] = (float64(total.Nanoseconds()) / 1e6) / float64(iters)
 	}
 	
 	mean := 0.0

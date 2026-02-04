@@ -1,0 +1,6 @@
+N=10000
+t_seq=31.78ms
+t_par=25.95ms
+speedup=1.22x
+cores=16
+efficiency=7.7%

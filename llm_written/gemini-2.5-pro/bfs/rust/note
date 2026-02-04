@@ -1,0 +1,23 @@
+the same problem in rust merging and soriting creating an issue in gemini
+
+## 2) How We Made It Parallel (and Why It Failed)
+The chosen strategy was a **level-synchronous BFS**. The idea was to process all nodes at the same "level" (e.g., all of A's direct friends) at the same time, using multiple workers.
+The process looked like this:
+
+Input ▶ [Current Level: A]
+                │
+             Worker1 (finds B, C)
+                │
+           Merge & Sort Results ▶ [Next Level: B, C]
+                │
+      ┌─────────┴─────────┐
+   Worker1 (finds D, E)  Worker2 (finds F)
+      │                     │
+      └──────► Merge & Sort ◄┘
+
+Each worker would find the neighbors of its assigned nodes. These lists of neighbors would then be combined, sorted (to ensure the same answer every time), and filtered to create the next level.
+**The Problem:** The work required to merge, sort, and filter the results from multiple workers created a new bottleneck. The cost of this coordination and data management was much higher than the time saved by exploring neighbors in parallel. After two attempts to optimize this process, the parallel version remained significantly slower than the simple, single-worker sequential version.
+
+This is another lie ther eis no parallle version
+
+this is the sequential repeated we can do comaparision

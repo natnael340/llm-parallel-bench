@@ -1,0 +1,3 @@
+Sequential time: 30.44 ms
+Parallel time: 31.51 ms
+

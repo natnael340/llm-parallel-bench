@@ -1,0 +1,38 @@
+=== BFS Performance Results ===
+
+System: 16 available processors
+
+Test 1: Grid 100x100 (V=10000)
+  Sequential time: 14.58 ms
+  Parallel time:   80.13 ms
+  Speedup:         0.18x
+  Efficiency:      1.1%
+  Correctness:     PASS
+
+Test 2: Grid 200x200 (V=40000)
+  Sequential time: 13.65 ms
+  Parallel time:   145.41 ms
+  Speedup:         0.09x
+  Efficiency:      0.6%
+  Correctness:     PASS
+
+Test 3: Random Graph (V=5000, E=25000)
+  Sequential time: 5.46 ms
+  Parallel time:   9.03 ms
+  Speedup:         0.61x
+  Efficiency:      3.8%
+  Correctness:     PASS
+
+Test 4: Random Graph (V=10000, E=50000)
+  Sequential time: 19.01 ms
+  Parallel time:   8.88 ms
+  Speedup:         2.14x
+  Efficiency:      13.4%
+  Correctness:     PASS
+
+ANALYSIS:
+- Grid graphs show poor performance due to shallow BFS trees (high diameter, small levels)
+- Random graphs with higher edge density show better speedup (V=10000, E=50000: 2.14x)
+- BFS is memory-bound and has limited parallelism due to level-synchronous nature
+- Overhead from thread management and synchronization dominates on small/shallow graphs
+- Best case achieved 2.14x speedup on largest random graph test

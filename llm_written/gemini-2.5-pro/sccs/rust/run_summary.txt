@@ -1,0 +1,7 @@
+--- Test Summary ---
+Test: Empty Graph          | Correctness: PASS | Determinism: N/A
+Test: Simple Cycle         | Correctness: PASS | Determinism: N/A
+Test: Multiple SCCs        | Correctness: PASS | Determinism: N/A
+Test: Large Random Graph   | Correctness: PASS | Determinism: PASS
+
+Overall Status: PASSED

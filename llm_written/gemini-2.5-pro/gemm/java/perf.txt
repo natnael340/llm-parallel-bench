@@ -1,0 +1,3 @@
+shape,type,time_ms
+1024x1024x1024,sequential,1232.87
+1024x1024x1024,parallel,395.06

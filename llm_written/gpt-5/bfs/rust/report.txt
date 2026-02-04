@@ -1,0 +1,34 @@
+[PASS] Performance stress test with large linear graph
+       (Wide graph: center + 5000 neighbors in 7.25 ms)
+[PASS] Performance with wide graph (many neighbors)
+       (Deep graph: depth=10000 in 4.42 ms)
+[PASS] Performance with deep graph (long chain)
+       (BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 36.03 ms/run ± 1.03 (n=5))
+[PASS] Performance speed test with complete graph
+
+========================================
+Results: 25 passed, 0 failed, 25 total
+========================================
+
+
+sequentail:
+[PASS] Performance stress test with large linear graph
+       (Wide graph: center + 5000 neighbors in 2.08 ms)
+[PASS] Performance with wide graph (many neighbors)
+       (Deep graph: depth=10000 in 4.74 ms)
+[PASS] Performance with deep graph (long chain)
+       (BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 337.83 ms/run ± 3.68 (n=5))
+
+========================================
+Results: 25 passed, 0 failed, 25 total
+========================================
+
+
+Great implementation and gret improvement, it retained the order achiving an outstanding perfomance of 10%, if we calculate
+efficent using amdhals law, ...
+
+We changed the code to process each wave (one BFS level) using several workers at once. Each worker gets a slice of the frontier (the nodes to expand next). Workers scan neighbors independently and write possible next nodes into a private buffer. After all workers finish, we combine these buffers in a fixed order and remove duplicates. Then we move on to the next wave. For tiny waves we keep the old sequential path to avoid overhead.
+
+the implementation is somehow similar to the other codes impelemntation
+spliting the frontiers to differnt workes and this worked read the neighbors append to their private buffer and finally
+merged using the chunk ordered

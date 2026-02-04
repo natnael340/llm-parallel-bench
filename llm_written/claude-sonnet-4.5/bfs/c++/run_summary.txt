@@ -1,0 +1,92 @@
+BFS Differential Test Results
+==============================
+
+[PASS] Empty graph (n=0)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 0000000000000000
+    Run 1: 0000000000000000
+    Run 2: 0000000000000000
+
+[PASS] Single vertex (n=1)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 000000009e3779f8
+    Run 1: 000000009e3779f8
+    Run 2: 000000009e3779f8
+
+[PASS] Start not in graph (n=5)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 0000000000000000
+    Run 1: 0000000000000000
+    Run 2: 0000000000000000
+
+[PASS] Line graph (10) (n=10)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 6f201439eee8d58c
+    Run 1: 6f201439eee8d58c
+    Run 2: 6f201439eee8d58c
+
+[PASS] Star graph (20) (n=21)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 64b0463f8fdac376
+    Run 1: 64b0463f8fdac376
+    Run 2: 64b0463f8fdac376
+
+[PASS] Complete graph (15) (n=15)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: a67e2197ccada38f
+    Run 1: a67e2197ccada38f
+    Run 2: a67e2197ccada38f
+
+[PASS] Grid 30x30 (900) (n=900)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 786e8404bb416e32
+    Run 1: 786e8404bb416e32
+    Run 2: 786e8404bb416e32
+
+[PASS] Line graph (1000) (n=1000)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 6b72d17fa3f5f87d
+    Run 1: 6b72d17fa3f5f87d
+    Run 2: 6b72d17fa3f5f87d
+
+[PASS] Star graph (5000) (n=5001)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 23072a8e60ab8f8d
+    Run 1: 23072a8e60ab8f8d
+    Run 2: 23072a8e60ab8f8d
+
+[PASS] Grid 100x100 (10k) (n=10000)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: a2c19e69dd21394f
+    Run 1: a2c19e69dd21394f
+    Run 2: a2c19e69dd21394f
+
+[PASS] Grid 200x200 (40k) (n=40000)
+  Correctness: PASS
+  Determinism: PASS (3 runs)
+  Hashes:
+    Run 0: 6c822a4dbf63f94e
+    Run 1: 6c822a4dbf63f94e
+    Run 2: 6c822a4dbf63f94e
+
+Summary: 11 passed, 0 failed

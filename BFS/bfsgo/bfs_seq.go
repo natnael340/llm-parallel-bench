@@ -12,6 +12,7 @@ func (g *Graph) AddEdge(from, to int){
 	g.Vertices[to] = append(g.Vertices[to], from)
 }
 
+
 func Bfs(g Graph, startVertex int) []int {
 	if _, exists := g.Vertices[startVertex]; !exists {
 		return []int{}

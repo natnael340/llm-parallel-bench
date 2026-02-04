@@ -1,0 +1,12 @@
+--- Correctness Tests ---
+[PASS] Edge Case (1x1): 1x1 * 1x1
+[PASS] Small (10x10): 10x10 * 10x10
+[PASS] Rectangular (32x64x16): 32x64 * 64x16
+[PASS] Medium (128x128): 128x128 * 128x128
+[PASS] Large (512x512): 512x512 * 512x512
+
+--- Determinism Tests ---
+[PASS] Determinism (256x256): Exact match
+
+--- Performance Test ---
+N=1024: t_seq=74.0040s, t_par=11.1517s, speedup=6.64x, threads=16, efficiency=41.48%

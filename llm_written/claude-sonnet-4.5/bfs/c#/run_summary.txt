@@ -1,0 +1,6 @@
+=== BFS Test Summary ===
+Total tests: 12
+Passed: 12
+Failed: 0
+
+All tests passed!

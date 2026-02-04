@@ -1,0 +1,27 @@
+[2026-02-03T14:19:51.971304] BFS Analysis:
+- Loop-carried dependency: Each level depends on previous level completion
+- Shared state: visited HashSet, result Vec
+- Ordering: BFS requires level-by-level ordering for determinism
+- Strategy: Level-synchronous parallelization
+  - Process each BFS level in parallel
+  - Synchronize between levels
+  - Sort neighbors within each level for determinism
+  - Use Rayon's parallel iterators with bounded pool
+- Rejected alternatives:
+  1. Task-based async: harder to control determinism, overhead
+  2. Lock-based shared queue: contention, non-deterministic ordering
+  3. Full graph partitioning: doesn't respect BFS semantics
+  4. Wavefront with atomics: complex, hard to guarantee determinism
+---
+[2026-02-03T14:24:29.372587] Tests show correctness and determinism are perfect. Performance is poor because:
+1. Running in debug mode (no optimizations)
+2. The graphs tested (grid, star) have limited parallelism - BFS levels are small
+3. Need to test with release mode and potentially larger/denser graphs
+
+The poor performance is expected for BFS on these graph types because:
+- Grid graphs have small BFS levels (width grows slowly)
+- Star graphs have only 2 levels (center + all leaves)
+- Thread overhead dominates when levels are small
+
+Need to run in release mode to get realistic performance numbers.
+---

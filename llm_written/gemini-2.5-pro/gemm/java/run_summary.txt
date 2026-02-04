@@ -1,0 +1,40 @@
+
+--- Shape: M=1, K=1, N=1 ---
+Sequential Hash: c9adb32e43ccc0876792c3c7d7d00afb0481ea64e1e1a2371cb4ea1db6e35617
+Parallel Run 1 Hash: c9adb32e43ccc0876792c3c7d7d00afb0481ea64e1e1a2371cb4ea1db6e35617
+Correctness: PASSED
+Parallel Run 2 Hash: c9adb32e43ccc0876792c3c7d7d00afb0481ea64e1e1a2371cb4ea1db6e35617
+Determinism: PASSED
+
+--- Shape: M=10, K=10, N=10 ---
+Sequential Hash: 8444d55c1361503df6828dfa53f3c20aee80b9cc9fbb51cc1e742b54402c5d51
+Parallel Run 1 Hash: 8444d55c1361503df6828dfa53f3c20aee80b9cc9fbb51cc1e742b54402c5d51
+Correctness: PASSED
+Parallel Run 2 Hash: 8444d55c1361503df6828dfa53f3c20aee80b9cc9fbb51cc1e742b54402c5d51
+Determinism: PASSED
+
+--- Shape: M=128, K=128, N=128 ---
+Sequential Hash: dc5cd552170d1c04508f5c2f670fbf4aabd87cc7f0f0cf58a4d27bec06dd43e2
+Parallel Run 1 Hash: dc5cd552170d1c04508f5c2f670fbf4aabd87cc7f0f0cf58a4d27bec06dd43e2
+Correctness: PASSED
+Parallel Run 2 Hash: dc5cd552170d1c04508f5c2f670fbf4aabd87cc7f0f0cf58a4d27bec06dd43e2
+Determinism: PASSED
+
+--- Shape: M=512, K=512, N=512 ---
+Sequential Hash: 57ac7795e904da86a0c62b879b458874df525946f377358c7b23d87efa615f89
+Parallel Run 1 Hash: 57ac7795e904da86a0c62b879b458874df525946f377358c7b23d87efa615f89
+Correctness: PASSED
+Parallel Run 2 Hash: 57ac7795e904da86a0c62b879b458874df525946f377358c7b23d87efa615f89
+Determinism: PASSED
+
+--- Shape: M=100, K=200, N=300 ---
+Sequential Hash: 3b5946a213c6ab07215a02196545a6debefc44005394f7c7b46cb8cf0c5c8656
+Parallel Run 1 Hash: 3b5946a213c6ab07215a02196545a6debefc44005394f7c7b46cb8cf0c5c8656
+Correctness: PASSED
+Parallel Run 2 Hash: 3b5946a213c6ab07215a02196545a6debefc44005394f7c7b46cb8cf0c5c8656
+Determinism: PASSED
+
+--- Performance ---
+Sequential average time: 1232.87 ms
+Parallel average time:   395.06 ms
+Speedup: 3.12x

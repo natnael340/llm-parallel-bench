@@ -1,0 +1,32 @@
+[2026-02-03T13:33:01.074387] BFS analysis:
+- Core dependency: level-by-level ordering (can't visit level L+1 until level L is complete)
+- Within a level: vertices can be processed in parallel IF we maintain deterministic ordering
+- Visited set: shared read/write, needs synchronization
+- Result list: must preserve discovery order
+
+Strategy: Level-synchronized parallel BFS
+- Process each level sequentially (level barrier)
+- Within each level, process vertices in parallel with fixed ordering
+- Use concurrent collections for thread-safe visited tracking
+- Merge results in deterministic order (sorted by vertex ID within each level)
+
+Rejected alternatives:
+1. Fully async BFS: breaks level ordering, non-deterministic
+2. Lock-based queue: contention bottleneck, hard to guarantee determinism
+3. Direction-optimizing BFS: complex, requires major refactoring beyond scope
+4. Task-parallel per-vertex: overhead dominates for small graphs, ordering issues
+---
+[2026-02-03T13:34:36.770721] Problem: The parallel version sorts vertices within each level, but the sequential version processes neighbors in their natural adjacency list order. This breaks correctness.
+
+Solution: I need to preserve the exact discovery order from the sequential version. The key insight is that BFS has strict level-by-level ordering, but within a level, the order depends on:
+1. The order vertices were added to the current level
+2. The order neighbors appear in adjacency lists
+
+For deterministic parallel BFS that matches sequential:
+- Process each level sequentially (already doing this)
+- Within a level, process vertices in the order they were discovered (not sorted by ID)
+- Use atomic operations to mark visited and collect next-level vertices
+- Preserve the order of neighbor discovery
+
+Better approach: Use a thread-safe queue or collect neighbors in order, then deduplicate while preserving first-seen order.
+---

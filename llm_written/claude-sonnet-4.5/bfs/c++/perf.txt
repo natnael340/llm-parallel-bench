@@ -1,0 +1,16 @@
+BFS Performance Results
+=======================
+Threads: 16
+
+Grid 200x200 (40,000 vertices)
+  Sequential: 10.07 ms
+  Parallel:   20.45 ms
+  Speedup:    0.49x
+  Efficiency: 3.1%
+
+Grid 300x300 (90,000 vertices)
+  Sequential: 29.84 ms
+  Parallel:   70.46 ms
+  Speedup:    0.42x
+  Efficiency: 2.6%
+

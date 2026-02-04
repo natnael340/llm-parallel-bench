@@ -1,0 +1,30 @@
+BFS Performance Results
+=======================
+
+Test: grid_100x100
+Vertices: 10000
+  Sequential: 45.69 ms
+  Parallel:   181.42 ms
+  Speedup:    0.25×
+  Threads:    16
+  Efficiency: 1.6%
+  Result size: 10000
+
+Test: random_5000_deg20
+Vertices: 5000
+  Sequential: 99.68 ms
+  Parallel:   58.34 ms
+  Speedup:    1.71×
+  Threads:    16
+  Efficiency: 10.7%
+  Result size: 5000
+
+Test: random_10000_deg30
+Vertices: 10000
+  Sequential: 283.47 ms
+  Parallel:   164.16 ms
+  Speedup:    1.73×
+  Threads:    16
+  Efficiency: 10.8%
+  Result size: 10000
+

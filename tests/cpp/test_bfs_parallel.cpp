@@ -2,8 +2,8 @@
 #include "vector"
 #include "math.h"
 #include "chrono"
-#include "../../llm_written/graph.h"
-#include "../../llm_written/bfs_parallel.hpp"
+#include "../../llm_written/gemini-2.5-pro/bfs/cpp/graph.h"
+#include "../../llm_written/gemini-2.5-pro/bfs/cpp/bfs_parallel.hpp"
 
 using std::vector;
 

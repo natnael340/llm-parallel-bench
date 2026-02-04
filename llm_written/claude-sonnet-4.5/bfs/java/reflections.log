@@ -1,0 +1,35 @@
+[2026-02-03T13:59:24.372385] BFS Analysis:
+- Sequential bottleneck: Queue processing is inherently serial
+- Key constraint: Level-order traversal must be preserved for determinism
+- Opportunity: Within each level, vertices can be processed in parallel
+- Strategy: Level-synchronous parallel BFS
+  - Process one level at a time
+  - Within each level, parallelize neighbor discovery
+  - Sort vertices within each level for determinism
+  - Use ConcurrentHashMap for visited set
+  - Use ForkJoinPool with bounded parallelism
+
+Rejected alternatives:
+1. Fully async BFS: Non-deterministic ordering
+2. Lock-free queue: Still sequential bottleneck
+3. Direction-optimizing BFS: Requires major API changes
+4. Graph partitioning: Complex, high overhead for small graphs
+---
+[2026-02-03T14:00:28.995077] Test failure on random graph V=1000, E=5000. The issue is clear: the parallel version is sorting vertices within each level, but the sequential version visits them in the order they were added to the queue (which depends on neighbor list order). The parallel version changes the visit order within levels.
+
+The problem: I'm sorting vertices within each level for determinism, but this changes the BFS traversal order compared to the sequential baseline. BFS order is not just level-by-level, but also depends on the order vertices are discovered within each level.
+
+Solution: Don't sort within levels. Instead, ensure deterministic ordering by processing neighbors in a consistent order. The sequential version already has a deterministic order based on the neighbor list order in the graph. I need to preserve that exact order in the parallel version.
+
+New approach: Process each level in parallel but maintain the discovery order by using atomic operations and preserving the order in which neighbors are discovered.
+---
+[2026-02-03T14:01:24.477595] Now I have both correctness AND determinism failures. The issue is that ConcurrentHashMap.newKeySet() with visited.add() creates race conditions. Multiple threads can add the same neighbor, and the order in which threads complete is non-deterministic.
+
+The fundamental problem: I'm trying to parallelize within a level, but the visited set needs to be updated atomically AND the order of discovery must be preserved.
+
+Better approach: Use a two-phase process:
+1. Each thread discovers candidates from its vertices (without marking as visited)
+2. Sequentially process all candidates in order, marking as visited and adding to next level
+
+This ensures deterministic ordering while still parallelizing the neighbor discovery.
+---

@@ -12,17 +12,6 @@ import (
 	gemm_seq "github.com/natnael340/llm-parallel-bench/GEMM/golang"
 )
 
-// ====== CHANGE THIS to your package & function ======
-// Example expected signature (adjust if yours differs):
-//    func GEMM(A, B [][]float64, alpha float64, C [][]float64, beta float64, MB, NB, KB int)
-//
-// import your gemm pkg like:
-//    import gemm "github.com/you/yourrepo/GEMM/go"
-//
-// and then call: gemm.GEMM(...)
-
-// ----------------- Matrix helpers -----------------
-
 func makeRandomMatrix(r, c int, seed int64) [][]float64 {
 	rng := rand.New(rand.NewSource(seed))
 	A := make([][]float64, r)
@@ -51,9 +40,7 @@ func min(a, b int) int {
 	return b
 }
 
-// ----------------- Timing & stats -----------------
 
-// timeAvgPerRun: run fn until total wall >= minWallSeconds (after warmup); return avg sec/run.
 func timeAvgPerRun(fn func(), minWallSeconds float64, warmup int) float64 {
 	for i := 0; i < warmup; i++ {
 		fn()

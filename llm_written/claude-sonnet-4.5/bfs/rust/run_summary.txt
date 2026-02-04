@@ -1,0 +1,32 @@
+BFS Parallel Implementation - Test Results
+==========================================
+
+EDGE CASE TESTS
+---------------
+✓ empty_graph: PASS
+✓ disconnected_graph: PASS (size: 3)
+
+CORRECTNESS TESTS
+-----------------
+✓ small_tree: PASS (size: 6)
+✓ medium_grid: PASS (size: 100)
+✓ large_grid: PASS (size: 10000)
+✓ star_500: PASS (size: 500)
+✓ star_2000: PASS (size: 2000)
+✓ random_1000_deg20: PASS (size: 1000)
+
+DETERMINISM TESTS
+-----------------
+✓ small_tree: DETERMINISTIC
+  Hash: 42e0c70b319b6ed3
+✓ medium_grid: DETERMINISTIC
+  Hash: 06d9691786d50e7a
+✓ large_grid: DETERMINISTIC
+  Hash: 89e9d5f513430cc4
+✓ star_500: DETERMINISTIC
+  Hash: c9bd1157baa044b2
+✓ star_2000: DETERMINISTIC
+  Hash: 0e7cd909e629b07f
+✓ random_1000_deg20: DETERMINISTIC
+  Hash: 13a263c02bf1da17
+
