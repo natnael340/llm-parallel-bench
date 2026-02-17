@@ -1,9 +1,10 @@
+[PASS] Unordered edge insertion produces correct BFS
 [PASS] Performance stress test with large linear graph
-       (Wide graph: center + 5000 neighbors in 1.25 ms)
+       (Wide graph: center + 5000 neighbors in 1.90 ms)
 [PASS] Performance with wide graph (many neighbors)
-       (Deep graph: depth=10000 in 2.98 ms)
+       (Deep graph: depth=10000 in 3.83 ms)
 [PASS] Performance with deep graph (long chain)
-       (BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 200.46 ms/run ± 1.97 (n=5))
+       (BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 291.91 ms/run ± 3.15 (n=5))
 [PASS] Performance speed test with complete graph
 
 ========================================

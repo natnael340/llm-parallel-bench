@@ -1,9 +1,8 @@
 use std::time::Instant;
-use bfs::{BfsParallel as Bfs, Graph};
+use bfs::{BfsSequential as Bfs, Graph};
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
-use std::collections::VecDeque;
 
 static mut PASSED: u32 = 0;
 static mut FAILED: u32 = 0;

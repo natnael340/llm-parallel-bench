@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-
 public static class BfsParallel
 {
     // Parallel, deterministic, level-synchronous BFS

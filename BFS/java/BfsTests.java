@@ -5,7 +5,7 @@ import static java.util.Collections.emptyList;
 class Bfs {
     public static List<Integer> run(Graph graph, int start) {
         // BfsParallel bfs = new BfsParallel();
-        return BfsParallel.run(graph, start);
+        return BfsSequential.run(graph, start);
     }
 }
 

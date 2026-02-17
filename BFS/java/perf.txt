@@ -3,7 +3,7 @@
 [PASS] Performance with wide graph (many neighbors)
        (Deep graph: depth=10000 in 37.01 ms)
 [PASS] Performance with deep graph (long chain)
-       (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | 1380.80 ms/run ± 249.43 (n=5))
+       (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | 943.46 ms/run ± 172.17 (n=5))
 [PASS] Performance speed test with complete graph
 
 ========================================

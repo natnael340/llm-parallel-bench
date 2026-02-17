@@ -4,7 +4,7 @@ using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 
-using Bfs = BfsSequential;
+using Bfs = BfsSequential; // Switch to BfsSequential for testing sequential version
 
 public class BfsTests
 {
