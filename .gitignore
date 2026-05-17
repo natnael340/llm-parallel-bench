@@ -3,6 +3,21 @@
 .env
 .vscode/
 
+# Build output dirs
 obj/
 bin/
 target/
+
+# Java bytecode
+*.class
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# MSBuild artifacts
+*.FileListAbsolute.txt
+*.AssemblyInfoInputs.cache
+*.assets.cache
+*.CoreCompileInputs.cache
