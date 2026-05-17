@@ -1,0 +1,45 @@
+CORRECTNESS & DETERMINISM TESTS
+================================
+
+✓ Empty edge case (1x1x1)
+  Correctness: PASS
+  Determinism: PASS (hash: 11919661936040931335)
+
+✓ Small (4x4x4)
+  Correctness: PASS
+  Determinism: PASS (hash: 16976256111123462301)
+
+✓ Small with beta (8x8x8)
+  Correctness: PASS
+  Determinism: PASS (hash: 8645475879397821419)
+
+✓ Medium (64x64x64)
+  Correctness: PASS
+  Determinism: PASS (hash: 18134776113662195087)
+
+✓ Medium rectangular (100x50x75)
+  Correctness: PASS
+  Determinism: PASS (hash: 8246132988833471480)
+
+✓ Large (256x256x256)
+  Correctness: PASS
+  Determinism: PASS (hash: 2793431127182673818)
+
+✓ Large rectangular (512x256x128)
+  Correctness: PASS
+  Determinism: PASS (hash: 7657022440462332074)
+
+
+PERFORMANCE TEST
+================
+
+Test 256x256x256:
+  t_seq: 2.1153s
+  t_par: 0.3838s
+  Speedup: 5.51x
+
+Test 512x512x512:
+  t_seq: 17.3179s
+  t_par: 2.1880s
+  Speedup: 7.92x
+

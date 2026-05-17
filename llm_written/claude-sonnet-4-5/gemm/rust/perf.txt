@@ -1,0 +1,9 @@
+GEMM Performance Test
+=====================
+
+Matrix size: 512x512x512
+Sequential time: 17.3179s
+Parallel time:   2.1880s
+Speedup:         7.92x
+
+Threads: 16 (bounded to CPU count)

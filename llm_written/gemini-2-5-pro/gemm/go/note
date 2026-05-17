@@ -1,0 +1,1 @@
+gemm_test.go:547: GEMM 1024x1024x1024: 313.66 ms/run ± 2.62 (6.847 GFLOPs) [iters=20, repeats=5]

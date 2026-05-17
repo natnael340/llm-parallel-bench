@@ -1,0 +1,23 @@
+=== Test Summary ===
+
+Correctness Tests:
+PASS: edge_1x1
+PASS: edge_1xN
+PASS: edge_Mx1
+PASS: small_8x8
+PASS: small_16x16
+PASS: small_alpha_beta
+PASS: medium_128x128
+PASS: medium_tall
+PASS: medium_wide
+PASS: large_512x512
+
+Correctness: 10 passed, 0 failed
+
+Determinism Tests:
+PASS: medium_128x128 (hash: a6ffd63385e99556)
+PASS: large_256x256 (hash: 0178626f03617e87)
+
+Determinism: PASS
+
+Overall: PASS

@@ -1,0 +1,1 @@
+N=2000, t_seq=0.1831s, t_par=0.1352s, speedup=1.35x

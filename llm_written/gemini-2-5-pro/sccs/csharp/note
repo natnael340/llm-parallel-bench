@@ -1,0 +1,4 @@
+[Determinism randomized large multi-SCC] FAIL
+
+Mean: 29.74 ms/run ± 4.66
+Speedup: 1.35x

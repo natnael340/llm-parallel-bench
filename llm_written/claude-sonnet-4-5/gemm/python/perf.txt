@@ -1,0 +1,10 @@
+GEMM Performance Results
+============================================================
+
+Largest test: Very Large (400x300) x (300x400)
+  Sequential time: 8.311706s
+  Parallel time: 8.521674s
+  Speedup: 0.98x
+  Workers: capped at CPU count (max 8)
+  Correctness: PASS
+  Determinism: PASS

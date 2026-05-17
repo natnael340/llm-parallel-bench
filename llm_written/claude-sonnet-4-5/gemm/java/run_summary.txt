@@ -1,0 +1,24 @@
+GEMM Test Summary
+=================
+
+Correctness Tests
+-----------------
+1x1 matrix: PASS
+1xN matrix: PASS
+Mx1 matrix: PASS
+8x8 matrix: PASS
+128x128 matrix: PASS
+512x512 matrix: PASS
+100x200 * 200x150: PASS
+64x64 with alpha=2.5: PASS
+64x64 with alpha=1.5, beta=0.5: PASS
+64x64 with alpha=0: PASS
+Passed: 10/10
+
+Determinism Tests
+-----------------
+Determinism 512x512 (run 1 vs run 2): PASS: hash1=88ed96803ed36b87..., hash2=88ed96803ed36b87...
+Determinism 256x256 (3 runs): PASS: all hashes match
+Passed: 2/2
+
+Overall: 12/12 tests passed

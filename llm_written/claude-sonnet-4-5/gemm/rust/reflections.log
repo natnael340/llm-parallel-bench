@@ -1,0 +1,21 @@
+[2026-02-09T05:19:03.054955] Analyzing GEMM dependencies:
+
+1. Loop structure: n0 (outer) → k0 (middle) → m0 (inner)
+2. k0 loop has accumulation dependency: each k0 iteration adds to C
+3. n0 and m0 loops are independent - different tiles don't overlap in C
+4. Strategy: Parallelize the outermost independent dimension
+
+Best strategy: Parallelize over (n0, m0) tile pairs
+- Each (n0, m0) pair defines a tile of C
+- For each tile, sequentially accumulate over k0 (preserves determinism)
+- No conflicts since tiles don't overlap
+- Fixed iteration order ensures determinism
+
+Rejected alternatives:
+1. Parallelize k0: Would need atomic/lock on C tiles (slow, non-deterministic)
+2. Parallelize m0 only: Less parallelism than (n0, m0) pairs
+3. Task graph with dependencies: Overkill, adds complexity without benefit
+4. Vectorization only: Not enough for large matrices
+
+Implementation: Use Rayon's par_iter over pre-computed (n0, m0) tile coordinates, with thread pool bounded to CPU count.
+---

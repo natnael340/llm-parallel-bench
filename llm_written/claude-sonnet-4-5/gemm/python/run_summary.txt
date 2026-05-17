@@ -1,0 +1,83 @@
+GEMM Differential Test Results
+============================================================
+
+Test: 1x1 matrices
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 0.000095s
+  Parallel time: 0.000224s
+  Speedup: 0.43x
+  Hash (seq):  842cd4ded7b1ee4e40c29d04972d9961bb4f8c12d21b8cc2ea1c08b443fb4f26
+  Hash (par1): 842cd4ded7b1ee4e40c29d04972d9961bb4f8c12d21b8cc2ea1c08b443fb4f26
+  Hash (par2): 842cd4ded7b1ee4e40c29d04972d9961bb4f8c12d21b8cc2ea1c08b443fb4f26
+  Hash (par3): 842cd4ded7b1ee4e40c29d04972d9961bb4f8c12d21b8cc2ea1c08b443fb4f26
+
+Test: Small (4x5) x (5x6)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 0.000322s
+  Parallel time: 0.000386s
+  Speedup: 0.84x
+  Hash (seq):  303764d425a508c954465b36296fee37206a0da13325ef971a45ae6591662a6b
+  Hash (par1): 303764d425a508c954465b36296fee37206a0da13325ef971a45ae6591662a6b
+  Hash (par2): 303764d425a508c954465b36296fee37206a0da13325ef971a45ae6591662a6b
+  Hash (par3): 303764d425a508c954465b36296fee37206a0da13325ef971a45ae6591662a6b
+
+Test: Medium (32x32) x (32x32)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 0.010878s
+  Parallel time: 0.008549s
+  Speedup: 1.27x
+  Hash (seq):  8da6b3351ac2c2661d8cff1fe9a590f311d7f87a03f267d828adc8db9592b388
+  Hash (par1): 8da6b3351ac2c2661d8cff1fe9a590f311d7f87a03f267d828adc8db9592b388
+  Hash (par2): 8da6b3351ac2c2661d8cff1fe9a590f311d7f87a03f267d828adc8db9592b388
+  Hash (par3): 8da6b3351ac2c2661d8cff1fe9a590f311d7f87a03f267d828adc8db9592b388
+
+Test: Medium (100x80) x (80x120)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 0.188365s
+  Parallel time: 0.202957s
+  Speedup: 0.93x
+  Hash (seq):  7acbf999f3f409bf0349334a390558ec8e075318a4e9cf70d5c9d1b9d8c89855
+  Hash (par1): 7acbf999f3f409bf0349334a390558ec8e075318a4e9cf70d5c9d1b9d8c89855
+  Hash (par2): 7acbf999f3f409bf0349334a390558ec8e075318a4e9cf70d5c9d1b9d8c89855
+  Hash (par3): 7acbf999f3f409bf0349334a390558ec8e075318a4e9cf70d5c9d1b9d8c89855
+
+Test: Large (200x150) x (150x200)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 1.117828s
+  Parallel time: 0.966979s
+  Speedup: 1.16x
+  Hash (seq):  4008b4c56b1a66c70c0409ba4ab09369973b3136787decf34b6fe07a80795b46
+  Hash (par1): 4008b4c56b1a66c70c0409ba4ab09369973b3136787decf34b6fe07a80795b46
+  Hash (par2): 4008b4c56b1a66c70c0409ba4ab09369973b3136787decf34b6fe07a80795b46
+  Hash (par3): 4008b4c56b1a66c70c0409ba4ab09369973b3136787decf34b6fe07a80795b46
+
+Test: With alpha=2.5 (50x60) x (60x70)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 0.051151s
+  Parallel time: 0.053646s
+  Speedup: 0.95x
+  Hash (seq):  df1e5f23ca0ec1d3ee21dba3edd55b57405820da065aef62c97d9e85e8516372
+  Hash (par1): df1e5f23ca0ec1d3ee21dba3edd55b57405820da065aef62c97d9e85e8516372
+  Hash (par2): df1e5f23ca0ec1d3ee21dba3edd55b57405820da065aef62c97d9e85e8516372
+  Hash (par3): df1e5f23ca0ec1d3ee21dba3edd55b57405820da065aef62c97d9e85e8516372
+
+Test: Very Large (400x300) x (300x400)
+  Correctness: PASS
+  Determinism: PASS
+  Sequential time: 8.311706s
+  Parallel time: 8.521674s
+  Speedup: 0.98x
+  Hash (seq):  2dc724cf62dd6931163e1a662e838652cfb2e89c6d556e550db9f7870b181ac8
+  Hash (par1): 2dc724cf62dd6931163e1a662e838652cfb2e89c6d556e550db9f7870b181ac8
+  Hash (par2): 2dc724cf62dd6931163e1a662e838652cfb2e89c6d556e550db9f7870b181ac8
+  Hash (par3): 2dc724cf62dd6931163e1a662e838652cfb2e89c6d556e550db9f7870b181ac8
+
+============================================================
+Overall Correctness: PASS
+Overall Determinism: PASS

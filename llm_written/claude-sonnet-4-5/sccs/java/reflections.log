@@ -1,0 +1,55 @@
+[2026-02-09T11:05:06.069121] Analyzing the sequential algorithm:
+
+1. **findSCCs()**: Tarjan's DFS is inherently sequential due to:
+   - Global discovery/low time tracking
+   - Stack-based recursion with ordering dependencies
+   - Cannot parallelize the DFS traversal itself
+
+2. **minimizeEdgesInSCC()**: Called per SCC, builds two spanning trees (forward + reverse). Each SCC is independent.
+
+3. **reduceEdges()**: Orchestrates findSCCs then processes each SCC independently.
+
+**Key insight**: The SCC detection must remain sequential, but once SCCs are found, processing each SCC (minimizeEdgesInSCC) is embarrassingly parallel—no shared state between SCCs.
+
+**Chosen strategy**: 
+- Keep Tarjan's DFS sequential (unavoidable)
+- Parallelize the per-SCC edge minimization using ForkJoinPool with bounded parallelism
+- Use fixed ordering (process SCCs in discovery order) to ensure determinism
+
+**Rejected alternatives**:
+1. Parallel SCC detection (e.g., multi-pivot): Requires major algorithmic change, non-deterministic without careful synchronization
+2. Task-graph approach: Overkill for embarrassingly parallel per-SCC work
+3. Parallel spanning tree construction within each SCC: Overhead dominates for typical SCC sizes
+
+---
+[2026-02-09T11:07:12.529008] The performance results show that parallelization is actually slower (0.35x speedup). This is because:
+
+1. The workload is too small - each SCC has only 20 nodes
+2. Thread pool overhead dominates the actual computation time
+3. The sequential version is already very fast (4.44 ms median)
+
+This is a classic case where parallelization overhead exceeds the benefit. I need to:
+1. Increase the PARALLEL_THRESHOLD to avoid parallelism on small workloads
+2. Test with a much larger workload to demonstrate where parallelism would help
+3. Document this in JUSTIFICATION.md as an Amdahl's Law limitation
+
+Let me refine the implementation to have a better threshold and create a larger test case.
+
+---
+[2026-02-09T11:08:33.446583] Even with a much larger workload (10,000 nodes, 100 SCCs), parallelization is still slower (0.70x speedup). This indicates that:
+
+1. The per-SCC work is still too small relative to thread pool overhead
+2. The sequential Tarjan's algorithm is very fast
+3. The spanning tree construction for each SCC is memory-bound, not CPU-bound
+4. Thread pool creation/destruction overhead is significant
+
+This is a realistic scenario where parallelization doesn't help due to:
+- Amdahl's Law: The sequential SCC detection dominates
+- Memory bandwidth bottleneck: Each SCC's spanning tree construction is memory-bound
+- Small per-task granularity: Each SCC is processed too quickly
+
+I should document this honestly in JUSTIFICATION.md. The implementation is correct and deterministic, but parallelization doesn't provide speedup for this algorithm on typical graph sizes. This is a valuable lesson: not all algorithms benefit from parallelization.
+
+Let me write a comprehensive summary and create the final deliverables.
+
+---

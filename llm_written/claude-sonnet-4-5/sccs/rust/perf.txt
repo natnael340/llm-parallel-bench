@@ -1,0 +1,6 @@
+=== Performance Results ===
+Test: Large Graph (5000 nodes, 50 SCCs)
+Sequential time: 0.028852s
+Parallel time: 0.040152s
+Speedup: 0.72x
+Threads: 16

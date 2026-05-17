@@ -31,7 +31,7 @@ public class BfsParallel {
         if (!keySet.contains(startVertex)) return null;
         int n = keySet.size();
         int[] idxToId = new int[n];
-        int[] sorted = new int[n];
+        int[] sorted = new int[n]; // redundant unnecessary variable
         int k = 0; for (int id : keySet) sorted[k++] = id; Arrays.sort(sorted);
         for (int i = 0; i < n; i++) idxToId[i] = sorted[i];
         Map<Integer,Integer> idToIdx = new HashMap<>(n*2);

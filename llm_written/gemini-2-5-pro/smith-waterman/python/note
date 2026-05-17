@@ -1,0 +1,66 @@
+ERROR: test_large_sequences_from_file (python.tests.TestSmithWatermanLargeInput.test_large_sequences_from_file)
+Test with large sequences loaded from file
+
+---
+
+Traceback (most recent call last):
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/tests.py", line 426, in test_large_sequences_from_file
+start_pos = self.sw.findHighestScore(H)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/algo_parallel.py", line 102, in findHighestScore
+for local_max_score, local_max_pos in results:
+^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/process.py", line 636, in \_chain_from_iterable_of_lists
+for element in iterable:
+^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 619, in result_iterator
+yield \_result_or_cancel(fs.pop())
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 317, in \_result_or_cancel
+return fut.result(timeout)
+^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 456, in result
+return self.**get_result()
+^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 401, in **get_result
+raise self.\_exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+
+======================================================================
+ERROR: test_performance_large_sequences (python.tests.TestSmithWatermanPerformance.test_performance_large_sequences)
+
+---
+
+Traceback (most recent call last):
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/tests.py", line 476, in test*performance_large_sequences
+run_alignment()
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/tests.py", line 473, in run_alignment
+* = self.sw.findAlignment(query, reference)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/algo_parallel.py", line 178, in findAlignment
+start_pos = self.findHighestScore(H)
+^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/malik/projects/llm-parallel-bench/Smith-Waterman/python/algo_parallel.py", line 102, in findHighestScore
+for local_max_score, local_max_pos in results:
+^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/process.py", line 636, in \_chain_from_iterable_of_lists
+for element in iterable:
+^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 619, in result_iterator
+yield \_result_or_cancel(fs.pop())
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 317, in \_result_or_cancel
+return fut.result(timeout)
+^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 456, in result
+return self.**get_result()
+^^^^^^^^^^^^^^^^^^^
+File "/home/malik/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/concurrent/futures/\_base.py", line 401, in **get_result
+raise self.\_exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+
+---
+
+Ran 32 tests in 316.131s
+
+FAILED (errors=2)

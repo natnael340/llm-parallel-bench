@@ -1,0 +1,1 @@
+GEMM 1024x1024x1024: 645.08 ms/run ± 12.72 (3.329 GFLOPs) [iters=20, repeats=5]

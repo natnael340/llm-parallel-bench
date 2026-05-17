@@ -1,0 +1,1 @@
+gemm_test.go:547: GEMM 1024x1024x1024: 402.48 ms/run ± 11.73 (5.336 GFLOPs) [iters=20, repeats=5]

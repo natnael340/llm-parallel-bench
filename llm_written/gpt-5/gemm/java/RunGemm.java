@@ -131,7 +131,7 @@ public class RunGemm {
         }
 
         // Performance smoke test on larger N
-        int M=512,K=512,N=512;
+        int M=1024,K=1024,N=1024;
         rng.setSeed(777);
         double[][] A = randomMatrix(M,K);
         double[][] B = randomMatrix(K,N);

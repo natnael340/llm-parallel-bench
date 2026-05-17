@@ -1,5 +1,0 @@
-The tests passed for correctness and determinism, which is great. However, the performance results are abysmal. The parallel version is significantly slower than the sequential one, indicating a major bottleneck.
-
-The slowdown is almost certainly caused by the heavy use of a Mutex to guard the entire matrix h. Locking and unlocking the mutex for every single cell calculation serializes the work and adds immense overhead, completely defeating the purpose of parallelism.
-
-I will now refine the implementation to eliminate this bottleneck. The wavefront strategy is correct, but the implementation needs to be changed to avoid locking on the critical path. I will process the anti-diagonals sequentially, but compute the cells within each anti-diagonal in parallel. This respects the data dependencies without requiring a lock for each cell.

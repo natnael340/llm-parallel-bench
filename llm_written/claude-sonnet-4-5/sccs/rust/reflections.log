@@ -1,0 +1,26 @@
+[2026-02-09T13:08:04.627336] PLAN ANALYSIS:
+
+Dependencies:
+- Tarjan's DFS has strong loop-carried dependencies (disc, low, stack, in_stack all mutate during recursion)
+- The DFS visit order determines SCC discovery order
+- Stack operations are inherently sequential
+- However, once SCCs are found, minimize_edges_in_scc for each SCC is independent
+
+Parallelization strategy:
+1. Keep Tarjan's find_sccs() sequential (it's inherently sequential due to DFS dependencies)
+2. Parallelize the per-SCC edge minimization in reduce_edges() using Rayon
+3. Sort SCCs by index to ensure deterministic processing order
+4. Use bounded thread pool
+
+This is safe because:
+- Each SCC's edge minimization is independent
+- We'll sort SCCs deterministically before parallel processing
+- No shared mutable state across workers
+
+Rejected alternatives:
+- Parallel Tarjan: requires complex synchronization, non-deterministic without careful ordering
+- Multi-source BFS SCC: changes algorithm fundamentally, harder to verify correctness
+- Task graph for DFS: overhead dominates for typical graph sizes
+
+Small N fallback: if total vertices < 1000 or num_sccs < 4, stay sequential
+---

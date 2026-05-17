@@ -1,0 +1,27 @@
+[2026-02-09T04:41:51.564555] Analyzing the GEMM implementation:
+
+Dependencies:
+- The triple-nested loop over tiles (n0, k0, m0) has a specific order
+- Each partialMatmul call ACCUMULATES into C[m0:m1, n0:n1] with += operator
+- For a given output tile C[m0:m1, n0:n1], contributions come from multiple k0 iterations
+- The k0 loop creates a loop-carried dependency for each (m0, n0) tile pair
+- However, DIFFERENT (m0, n0) pairs are independent
+
+Parallelization opportunities:
+1. Parallelize the outermost n0 loop - each n-tile is independent
+2. Parallelize the m0 loop - each m-tile within a (n0, k0) pair is independent
+3. Parallelize both n0 and m0 - create a 2D grid of independent tasks
+
+Key insight: The k0 loop MUST remain sequential for each (m0, n0) pair to maintain deterministic accumulation order. But different (m0, n0) pairs can be computed in parallel.
+
+Best strategy: Parallelize over the 2D grid of (m0, n0) tiles. For each tile pair, sequentially iterate k0 to accumulate contributions in a fixed order.
+
+This requires restructuring the loop nest from (n0, k0, m0) to (n0, m0, k0) or creating explicit tasks for each (m0, n0) pair.
+
+Alternatives to reject:
+1. Parallelize k0 loop - would require atomic/synchronized accumulation, non-deterministic
+2. Parallelize inner partialMatmul - too fine-grained, overhead dominates
+3. Use parallel streams on outer loop only - leaves m0 loop sequential, suboptimal
+4. Task-per-tile with dependency graph - complex, overkill for this structure
+
+---

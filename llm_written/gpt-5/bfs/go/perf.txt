@@ -1,1 +1,1 @@
-bfs_test.go:255: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 25.69 ms/run ± 0.70 (n=5)
+ bfs_test.go:255: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | 22.22 ms/run ± 0.47 (n=5)

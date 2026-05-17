@@ -1,0 +1,9 @@
+Performance Test Results
+========================
+Matrix size: 512x512
+Test runs: 5
+Sequential time: 0.2482 seconds
+Parallel time: 0.0322 seconds
+Speedup: 7.72x
+Cores: 16
+Parallel efficiency: 48.23%

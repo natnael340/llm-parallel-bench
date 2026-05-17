@@ -1,0 +1,23 @@
+Graph SCC Edge Reduction - Performance Results
+==============================================
+
+Configuration:
+  Total nodes: 1000
+  Number of SCCs: 50
+  Nodes per SCC: 20
+  Available cores: 16
+
+Results (median of 5 runs):
+  Sequential time: 4.44 ms
+  Parallel time:   12.70 ms
+  Speedup:         0.35x
+  Efficiency:      2.2%
+
+Large Graph Test:
+  Total nodes: 10000
+  Number of SCCs: 100
+  Nodes per SCC: 100
+  Sequential time: 23.02 ms
+  Parallel time:   32.86 ms
+  Speedup:         0.70x
+  Efficiency:      4.4%

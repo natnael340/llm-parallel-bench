@@ -1,0 +1,45 @@
+=== CORRECTNESS TESTS ===
+
+✓ 1x1: PASS
+✓ 2x2: PASS
+✓ 10x10: PASS
+✓ 15x20x25: PASS
+✓ 100x100: PASS
+✓ 128x256x128: PASS
+✓ 512x512: PASS
+✓ 100x100_alpha_beta: PASS
+✓ identity_50x50: PASS
+
+Correctness: 9 passed, 0 failed
+
+=== DETERMINISM TESTS ===
+
+✓ 128x128x128: DETERMINISTIC
+  Hash: 1f526a6aa989b7df5bd3f81cbd4c57d014d2d2d350e6ca7651d15890ce28db93
+✓ 256x256x256: DETERMINISTIC
+  Hash: bc540b9cb99a248cc806bdf5a292c12cc2fbdad4147cbdfa823cfceaa00bf0d8
+✓ 512x512x512: DETERMINISTIC
+  Hash: 00068f321c2514cf80c61bfd68121fbe2a993be969141a203566e85fce6b4e98
+
+Determinism: 3 passed, 0 failed
+
+=== PERFORMANCE TESTS ===
+
+256x256x256:
+  Sequential: 0.169s
+  Parallel:   0.065s
+  Speedup:    2.59x
+  Efficiency: 16.2% (16 cores)
+
+512x512x512:
+  Sequential: 1.312s
+  Parallel:   0.329s
+  Speedup:    3.99x
+  Efficiency: 24.9% (16 cores)
+
+1024x1024x1024:
+  Sequential: 10.564s
+  Parallel:   1.788s
+  Speedup:    5.91x
+  Efficiency: 36.9% (16 cores)
+

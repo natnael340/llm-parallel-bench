@@ -1,0 +1,40 @@
+GEMM Test Results
+=================
+
+Correctness Tests: 11/11 passed
+Failed: 0
+
+Test Details:
+  Edge: 1x1 matrices: PASS
+  Edge: single row A: PASS
+  Edge: single column B: PASS
+  Small: 4x4 matrices: PASS
+  Small: 5x3 * 3x7: PASS
+  Small: alpha=2.5, beta=0.5: PASS
+  Medium: 64x64 (block boundary): PASS
+  Medium: 100x80 * 80x120: PASS
+  Medium: 128x128: PASS
+  Large: 256x256: PASS
+  Large: 512x256 * 256x128: PASS
+
+Performance Results:
+Threads: 16
+
+256x256 * 256x256:
+  Sequential: 0.0253 s
+  Parallel:   0.0363 s
+  Speedup:    0.70x
+  Efficiency: 4.4%
+
+512x512 * 512x512:
+  Sequential: 0.1958 s
+  Parallel:   0.1066 s
+  Speedup:    1.84x
+  Efficiency: 11.5%
+
+1024x512 * 512x512:
+  Sequential: 0.3746 s
+  Parallel:   0.1305 s
+  Speedup:    2.87x
+  Efficiency: 17.9%
+

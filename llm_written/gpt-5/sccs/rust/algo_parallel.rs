@@ -125,7 +125,7 @@ pub mod par {
                 if self.verbose { println!("Reduced SCC edges: {}", reduced_edges.len()); }
                 return reduced_edges;
             }
-
+            
             // Parallel over SCCs but collect in original order for determinism
             let per_scc: Vec<Vec<(usize, usize)>> = sccs
                 .par_iter()

@@ -1,0 +1,10 @@
+=== SCC Parallel Test Summary ===
+
+Test 1 - Simple Cycle: Correctness=true Determinism=true
+Test 2 - Two SCCs: Correctness=true Determinism=true
+Test 3 - Empty Graph: Correctness=true Determinism=true
+Test 4 - Single Node: Correctness=true Determinism=true
+Test 5 - Medium: Correctness=true Determinism=true
+Test 6 - Large: Correctness=true Determinism=true t_seq=0.028852s t_par=0.040152s speedup=0.72x
+
+All tests passed: YES

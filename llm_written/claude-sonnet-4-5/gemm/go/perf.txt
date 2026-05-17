@@ -1,0 +1,2 @@
+256x256: seq=72.44ms, par=31.71ms, speedup=2.28x, cores=16, eff=14.3%
+512x512: seq=460.06ms, par=154.13ms, speedup=2.98x, cores=16, eff=18.7%

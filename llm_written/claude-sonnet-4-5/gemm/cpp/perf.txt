@@ -1,0 +1,23 @@
+GEMM Performance Results
+========================
+
+Threads: 16
+
+Test: 256x256 * 256x256
+  t_seq:      0.0253 s
+  t_par:      0.0363 s
+  Speedup:    0.70x
+  Efficiency: 4.4%
+
+Test: 512x512 * 512x512
+  t_seq:      0.1958 s
+  t_par:      0.1066 s
+  Speedup:    1.84x
+  Efficiency: 11.5%
+
+Test: 1024x512 * 512x512
+  t_seq:      0.3746 s
+  t_par:      0.1305 s
+  Speedup:    2.87x
+  Efficiency: 17.9%
+

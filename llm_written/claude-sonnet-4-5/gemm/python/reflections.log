@@ -1,0 +1,92 @@
+[2026-02-07T12:50:09.850611] Analyzing the GEMM implementation:
+
+1. **Structure**: Triple nested loop over tiles (n0, k0, m0). Each iteration computes a partial result for a tile of C.
+
+2. **Dependencies**: 
+   - The innermost m0 loop updates different rows of C (no overlap across m0 iterations for fixed n0, k0)
+   - The k0 loop accumulates into the same C tiles (k-dimension reduction)
+   - The n0 loop updates different columns of C (no overlap across n0 iterations)
+
+3. **Key insight**: The (n0, m0) pairs define independent tiles of C. For each k0, we accumulate into these tiles. The k0 loop creates a reduction dependency.
+
+4. **Parallelization strategy**:
+   - **CHOSEN**: Parallelize over (n0, m0) pairs for each k0 iteration. This gives us (n/NB) * (m/MB) independent tasks per k0. Use ProcessPoolExecutor with fixed worker count and deterministic task ordering.
+   - Why safe: Each (n0, m0) pair writes to a distinct region of C. No data races.
+   - Why deterministic: Fixed task order, fixed worker count, fixed reduction order across k0.
+   
+5. **Rejected alternatives**:
+   - Parallelize only m0 loop: Fewer parallel tasks, less speedup
+   - Parallelize k0 loop: Would require merging partial C matrices, more complex
+   - NumPy vectorization: Would require rewriting data structures entirely
+
+6. **Implementation plan**:
+   - Keep helpers unchanged
+   - Modify gemm() to use ProcessPoolExecutor for the (n0, m0) loop nest
+   - Create worker function that processes one (n0, m0, k0) task
+   - Ensure deterministic ordering by processing tasks in fixed order
+
+---
+[2026-02-07T12:52:08.841866] Test results analysis:
+- ✓ All correctness tests PASS
+- ✓ All determinism tests PASS (identical hashes across 3 runs)
+- ✗ Performance is disappointing: speedups range from 0.39x to 1.32x, with the largest test at 0.97x
+
+The issue is clear: ProcessPoolExecutor has high overhead (process creation, IPC, pickling). For pure Python list-of-lists, this overhead dominates.
+
+Need to REFINE. Options:
+1. Switch to NumPy vectorization (best for Python)
+2. Use ThreadPoolExecutor (won't help due to GIL for CPU-bound work)
+3. Accept the performance and document why
+
+Given the mission priorities (correctness > determinism > performance), and that this is pure Python with list-of-lists, I should:
+- Try NumPy approach (vectorization-first strategy)
+- This requires changing data structures but preserves the API via wrapper
+- This is the RIGHT approach for Python GEMM
+
+Let me refactor to use NumPy.
+
+---
+[2026-02-07T12:53:07.994259] Issue: Correctness failures on larger matrices. The hashes differ between sequential and parallel.
+
+The problem is likely floating-point precision differences. NumPy uses different algorithms and reduction orders than the sequential blocked code. Even though both are "correct" mathematically, they produce slightly different results due to floating-point rounding.
+
+This violates the correctness requirement: outputs MUST match the sequential baseline exactly.
+
+Options:
+1. Tighten the tolerance in matrices_equal() - but the instructions say to avoid tolerance if possible
+2. Implement the blocked algorithm using NumPy operations while preserving exact reduction order
+3. Go back to ProcessPoolExecutor but accept lower performance and document why
+
+Given the strict correctness requirement, I need to ensure EXACT match. Let me check what the actual differences are and then decide on the best approach.
+
+Actually, looking more carefully: the sequential version uses a specific accumulation order due to the blocking. NumPy's matmul uses a different order. For exact reproducibility, I need to either:
+- Match the exact blocking and accumulation order of the sequential version
+- Or accept that this is a fundamental limitation of vectorization
+
+The mission says "outputs MUST match the sequential baseline" - this is priority #1. So I need to go back to a solution that matches exactly, even if performance suffers.
+
+Let me implement a hybrid: use NumPy for the inner tile operations but preserve the exact blocking structure and accumulation order.
+
+---
+[2026-02-07T12:53:58.354931] Still failing correctness. The issue is that even np.dot uses a different accumulation order than the sequential triple-nested loop.
+
+The sequential code does:
+```
+for k in range(kb):
+    s += A_loc[k] * B_loc[k]
+```
+
+This is a specific left-to-right accumulation order. NumPy's dot product may use a different order (tree reduction, SIMD, etc.) which causes different rounding.
+
+To get EXACT match, I need to either:
+1. Replicate the exact same loop structure (no real parallelization benefit)
+2. Accept that NumPy won't match exactly and document this as a limitation
+3. Use a different approach that maintains exact order
+
+Given the strict correctness requirement, let me go back to the ProcessPoolExecutor approach but ensure it matches exactly by using the same inner loop structure. The key is to NOT use NumPy for the innermost accumulation.
+
+Actually, wait - let me re-read the sequential code more carefully. The sequential version already has the exact accumulation logic in `partial_matmul`. I should use that exact function in the parallel version too, not try to replace it with NumPy.
+
+Let me revert to the ProcessPoolExecutor approach but keep the original partial_matmul function to ensure exact match.
+
+---

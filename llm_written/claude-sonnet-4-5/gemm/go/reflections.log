@@ -1,0 +1,36 @@
+[2026-02-07T13:56:31.873731] Analyzing GEMM parallelization:
+
+**Dependencies:**
+- Triple nested loop: n-blocks (outer), k-blocks (middle), m-blocks (inner)
+- Each (n0, k0, m0) block updates C[m0:m1, n0:n1] with A[m0:m1, k0:k1] * B[k0:k1, n0:n1]
+- Key insight: For a fixed (n0, k0) pair, all m-blocks are INDEPENDENT (they write to disjoint rows of C)
+- However, different k0 values accumulate into the same C cells → k-loop has a loop-carried dependency
+- Different n0 values write to disjoint columns of C → n-loop is independent
+
+**Best strategy:**
+Parallelize the innermost m-loop for each (n0, k0) pair. This gives:
+- No data races (each worker writes to distinct rows)
+- Deterministic (fixed partitioning, fixed merge order)
+- Good granularity (many m-blocks to distribute)
+- Minimal refactoring (keep outer structure)
+
+**Rejected alternatives:**
+1. Parallelize n-loop: Fewer tasks, coarser granularity, less load balancing
+2. Parallelize k-loop: UNSAFE - creates race conditions on C without complex synchronization
+3. Task-graph/wavefront: Overkill - no complex dependencies here, just need simple data parallelism
+4. Full 2D tiling across (n, m): More complex, harder to ensure determinism with fixed merge order
+
+**Implementation plan:**
+- Use bounded worker pool (runtime.NumCPU())
+- For each (n0, k0), dispatch m-blocks to workers
+- Each worker computes its assigned m-block independently
+- Wait for all workers to complete before moving to next (n0, k0)
+- Sequential fallback for small matrices (m*n < 10000)
+
+---
+[2026-02-07T14:01:41.261662] Performance issue identified: The current implementation restarts workers after each (n0, k0) iteration by closing and recreating channels. This adds significant overhead.
+
+Better approach: Keep workers running throughout all iterations and use a sync mechanism (WaitGroup) to ensure all m-blocks for a given (n0, k0) complete before moving to the next. This maintains determinism while reducing overhead.
+
+The key insight: We need a barrier between (n0, k0) iterations but don't need to restart workers.
+---

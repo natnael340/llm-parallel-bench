@@ -1,0 +1,11 @@
+[package]
+name = "smith-waterman"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "smith-waterman"
+path = "main.rs"
+
+[dependencies]
+rayon = "1.11.0"

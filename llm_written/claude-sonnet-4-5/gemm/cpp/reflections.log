@@ -1,0 +1,49 @@
+[2026-02-08T17:50:28.026578] Analyzing GEMM for parallelization:
+
+**Dependencies:**
+- Triple loop: n0 (n-blocks), k0 (k-blocks), m0 (m-blocks)
+- partialMatmul accumulates into C[m0:m1][n0:n1]
+- For a given (n0, k0), all m-blocks write to disjoint row ranges → independent
+- Different k0 values accumulate to same C cells → must be serialized OR use reduction
+- Different n0 values write to disjoint column ranges → independent
+
+**Parallelization options:**
+1. **Parallelize m-loop (chosen)**: For each (n0, k0) pair, parallelize over m-blocks. Each thread computes partialMatmul for its m-block independently. No conflicts since row ranges are disjoint. Deterministic by construction (fixed schedule). Simple, safe, good load balance for large m.
+
+2. **Parallelize n-loop**: Outer loop over n-blocks. Good for large n, but requires careful k-loop handling (still sequential per n-block).
+
+3. **Parallelize both n and m with collapse(2)**: Could parallelize n-loop and m-loop together. More parallelism but requires careful k-loop ordering.
+
+4. **Task-based with reduction**: Create tasks for all (n0, k0, m0) combinations, use reduction for C. Complex, harder to ensure determinism.
+
+**Chosen strategy:** Parallelize the m-loop with OpenMP `#pragma omp parallel for` with static scheduling. This ensures:
+- Determinism: static schedule assigns same chunks to same threads for given m, MB
+- Correctness: no data races (disjoint row ranges)
+- Performance: good for large m, minimal overhead
+
+**Rejected alternatives:**
+- Task-based: more complex, determinism requires careful reduction ordering
+- Collapse(2) on n,m: more parallelism but k-loop still sequential, harder to reason about
+- Parallelize k-loop: requires reduction on C, harder to make deterministic
+
+---
+[2026-02-08T17:55:24.288896] Tests show:
+- Correctness: 11/11 PASS ✓
+- Determinism: All 3 runs produce identical hashes ✓
+- Performance: PROBLEM - parallel is SLOWER than sequential (0.19x-0.60x speedup)
+
+The issue is that my current parallelization creates too much overhead. Each parallel region creates Matrix copies (Apack) inside the parallel loop, which is expensive. The problem is:
+1. packMatrix creates new Matrix objects
+2. Each thread is doing this independently
+3. Memory allocation overhead dominates
+
+I need to REFINE the approach. Better strategy:
+- Pre-allocate all Apack buffers outside the parallel region
+- OR parallelize at a different level
+- OR use a different data structure
+
+Let me analyze: the sequential version is already well-optimized with blocking. The parallel overhead from thread creation + memory allocation is killing performance.
+
+Better approach: Parallelize the outer n-loop instead, so we have fewer parallel regions and can amortize the overhead better. Or use collapse(2) on n and m loops.
+
+---

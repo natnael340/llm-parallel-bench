@@ -1,0 +1,20 @@
+=== PERFORMANCE TESTS ===
+
+256x256x256:
+  Sequential: 0.169s
+  Parallel:   0.065s
+  Speedup:    2.59x
+  Efficiency: 16.2% (16 cores)
+
+512x512x512:
+  Sequential: 1.312s
+  Parallel:   0.329s
+  Speedup:    3.99x
+  Efficiency: 24.9% (16 cores)
+
+1024x1024x1024:
+  Sequential: 10.564s
+  Parallel:   1.788s
+  Speedup:    5.91x
+  Efficiency: 36.9% (16 cores)
+
