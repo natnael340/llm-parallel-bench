@@ -1,17 +1,23 @@
 import argparse
-import gc
 import json
 import os
+import pathlib
 import random
-import statistics as stats
-import timeit
-from typing import Any, List, Set, Tuple
+import sys
+from typing import Any
+
+# Add project root to sys.path so `from tests import bench_utils` resolves
+# when this script is run directly from any working directory.
+# parents: [0]=tests/sccs/python  [1]=tests/sccs  [2]=tests  [3]=project root
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
+
+from tests import bench_utils
 from graph_parallel import Graph as GraphParallel
 from graph import Graph as GraphSeq
 
 
-ALGO = os.getenv("ALGO", "seq").lower()
-Graph = GraphParallel if ALGO == "par" else GraphSeq
+IMPL = os.getenv("IMPL", "seq").lower()
+Graph = GraphParallel if IMPL == "par" else GraphSeq
 
 
 def ring_scc(start: int, n: int, graph: Any) -> None:
@@ -21,9 +27,8 @@ def ring_scc(start: int, n: int, graph: Any) -> None:
 
         if (i == v):
             continue
-        
-        graph.add_edge(i, v) 
 
+        graph.add_edge(i, v)
 
 
 def build_graph(n: int, cluster_size: int, no_cluster_in_group: int, graph_class: Any) -> Any:
@@ -31,10 +36,10 @@ def build_graph(n: int, cluster_size: int, no_cluster_in_group: int, graph_class
     random.seed(43)
     for i in range(0, n, cluster_size):
         ring_scc(i, min(i + cluster_size, n), graph)
-        
+
         current_cluster = i // cluster_size
         if current_cluster // no_cluster_in_group == (current_cluster + 1) // no_cluster_in_group:
-            
+
             if (i + cluster_size) < n:
                 u = random.randrange(i, min(i + cluster_size, n) - 1)
                 v = random.randrange(min(i + cluster_size, n), min(i + 2 * cluster_size, n) - 1)
@@ -54,29 +59,23 @@ def main():
 
     graph = build_graph(graph_size, cluster_size, no_cluster_in_group, Graph)
 
-    # warmup
-    graph.reduce_edges()
+    reps, iters = 5, 20
+    bm = bench_utils.run_benchmark(
+        lambda: graph.reduce_edges(),
+        reps=reps, iters=iters, warmup=1, disable_gc=True,
+    )
 
-    reps = 5
-    iters = 20
-
-    gc.disable()
-    try:
-        timings = timeit.repeat(lambda: graph.reduce_edges(), repeat=reps, number=iters)
-    finally:
-        gc.enable()
-
-    per_run_ms = [(t / iters) * 1000 for t in timings]
-    avg = stats.mean(per_run_ms)
-    sd = stats.pstdev(per_run_ms)
-
-    print(f"SCC reduce_edges | graph_size={graph_size} | {avg:.2f} ms/run ± {sd:.2f} (n={reps})")
+    print(bench_utils.format_result(f"SCC reduce_edges | graph_size={graph_size}", bm))
 
     result = {
-        "elapsed_ms": per_run_ms,
-        "mean": avg,
-        "sd": sd,
-        "iterations": reps,
+        "algo": "sccs",
+        "lang": "python",
+        "impl": IMPL,
+        "elapsed_ms": bm["elapsed_ms"],
+        "median": bm["median"],
+        "iqr": bm["iqr"],
+        "reps": bm["iterations"],
+        "iters_per_rep": iters,
     }
 
     with open(args.out, "w") as f:

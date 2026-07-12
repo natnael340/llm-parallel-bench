@@ -1,9 +1,8 @@
 #include <iostream>
 #include "vector"
-#include "chrono"
-#include "math.h"
 #include "../../BFS/cpp/bfs_seq.hpp"
 #include "../../BFS/cpp/graph.h"
+#include "../../bench_utils/cpp/bench_utils.hpp"
 
 using namespace std;
 
@@ -188,49 +187,26 @@ void test_bfs_performance_speed_test(){
     Graph g;
     int size = 2000;
     for (int i = 1; i <= size; ++i) {
-        for (int j=i + 1; j<=size; j++){
-            g.add_edge(i,j);
-            g.add_edge(j,i);
+        for (int j = i + 1; j <= size; j++){
+            g.add_edge(i, j);
+            g.add_edge(j, i);
         }
     }
-    
-    // warm-up
-    bfs(g, 1);
 
-    int reps =5, iters = 20;
+    int reps = 5, iters = 20;
+    auto bm = run_benchmark([&]() { bfs(g, 1); }, reps, iters, 1);
 
-    vector<double> per_run_ms;
-
-    for(int i = 0; i < reps; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        for (int k=0; k<iters; k++) bfs(g, 1);
-        auto end = std::chrono::high_resolution_clock::now();
-        double total_ns = chrono::duration_cast<chrono::nanoseconds>(end - start).count();
-        per_run_ms.push_back((total_ns / 1e6) / double(iters));
-    }
-    
-    double mean = 0.0;
-    for (double val : per_run_ms) mean+=val;
-    mean /= double(reps);
-
-    double sumsq = 0.0;
-    for (double val : per_run_ms) {
-        double d = val - mean;
-        sumsq += d*d;
-    }
-    double sd = std::sqrt(sumsq / double(reps));
-    
     long long undirected = 1LL * size * (size - 1) / 2;
     long long directed   = 1LL * size * (size - 1);
 
-    
-    cout << "BFS complete graph | nodes=" << size
-         << ", undirected edges≈" << undirected
-         << " (directed≈" << directed << ") | "
-         << fixed<< mean << " ms/run ± "
-         << fixed<< sd << " (n=" << reps << ")"
-         << endl;
+    std::ostringstream label;
+    label << "BFS complete graph | nodes=" << size
+          << ", undirected edges≈" << undirected
+          << " (directed≈" << directed << ")";
+    cout << format_result(label.str(), bm) << endl;
 
+    const char* out = std::getenv("BENCH_OUT");
+    write_result(bm, out ? out : "", "bfs", "cpp", "seq", iters);
 }
 
 

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"math"
 	"math/rand"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -20,10 +20,35 @@ type Graph interface {
 }
 
 type BenchmarkResult struct {
-	ElapsedMS  []float64 `json:"elapsed_ms"`
-	Mean       float64   `json:"mean"`
-	StdDev     float64   `json:"sd"`
-	Iterations int       `json:"iterations"`
+	Algo        string    `json:"algo"`
+	Lang        string    `json:"lang"`
+	Impl        string    `json:"impl"`
+	ElapsedMS   []float64 `json:"elapsed_ms"`
+	Median      float64   `json:"median"`
+	IQR         float64   `json:"iqr"`
+	Reps        int       `json:"reps"`
+	ItersPerRep int       `json:"iters_per_rep"`
+}
+
+func medianF(vals []float64) float64 {
+	s := make([]float64, len(vals))
+	copy(s, vals)
+	sort.Float64s(s)
+	n := len(s)
+	if n%2 == 0 {
+		return (s[n/2-1] + s[n/2]) / 2.0
+	}
+	return s[n/2]
+}
+
+func iqrF(vals []float64) float64 {
+	s := make([]float64, len(vals))
+	copy(s, vals)
+	sort.Float64s(s)
+	n := len(s)
+	q1 := s[int(float64(n-1)*0.25)]
+	q3 := s[int(float64(n-1)*0.75)]
+	return q3 - q1
 }
 
 
@@ -85,7 +110,7 @@ func main() {
 	reps := 5
 	iters := 20
 
-	algo := strings.ToLower(os.Getenv("ALGO"))
+	algo := strings.ToLower(os.Getenv("IMPL"))
 	var run func()
 	if algo == "par" {
 		g := graphpar.NewGraph(graphSize)
@@ -107,28 +132,22 @@ func main() {
 		for i := 0; i < iters; i++ {
 			run()
 		}
-		elapsed := time.Since(start).Seconds() * 1000 // total ms for iters runs
+		elapsed := time.Since(start).Seconds() * 1000
 		perRepeatMs = append(perRepeatMs, elapsed/float64(iters))
 	}
 
-	var sum float64
-	for _, v := range perRepeatMs {
-		sum += v
-	}
-	mean := sum / float64(reps)
-
-	var variance float64
-	for _, v := range perRepeatMs {
-		variance += (v - mean) * (v - mean)
-	}
-	variance /= float64(reps)
-	stddev := math.Sqrt(variance)
+	med := medianF(perRepeatMs)
+	spread := iqrF(perRepeatMs)
 
 	result := BenchmarkResult{
-		ElapsedMS:  perRepeatMs,
-		Mean:       mean,
-		StdDev:     stddev,
-		Iterations: reps,
+		Algo:        "sccs",
+		Lang:        "go",
+		Impl:        algo,
+		ElapsedMS:   perRepeatMs,
+		Median:      med,
+		IQR:         spread,
+		Reps:        reps,
+		ItersPerRep: iters,
 	}
 
 	file, err := os.Create(*outPath)
@@ -139,12 +158,12 @@ func main() {
 	defer file.Close()
 
 	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", " ")
+	encoder.SetIndent("", "  ")
 
 	if err := encoder.Encode(result); err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to write JSON: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("SCC ReduceEdges | graph_size=%d | %.2f ms/run ± %.2f (n=%d)\n", graphSize, mean, stddev, reps)
+	fmt.Printf("SCC ReduceEdges | graph_size=%d | %.2f ms/run ± %.2f IQR (n=%d)\n", graphSize, med, spread, reps)
 }

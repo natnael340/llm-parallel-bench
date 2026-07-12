@@ -1,30 +1,15 @@
 // Swap the line below to switch between sequential and parallel implementations.
 using Graph = SCC.Par.Graph;
-// using Graph = SCC.Par.Graph;
+// using Graph = SCC.Seq.Graph;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace SCC
 {
-
-public class BenchmarkResult {
-    [JsonPropertyName("elapsed_ms")]
-    public List<double> ElapsedMilliseconds { get; set; } = new List<double>();
-
-    [JsonPropertyName("mean")]
-    public double Mean { get; set; }
-
-    [JsonPropertyName("sd")]
-    public double StdDev { get; set; }
-
-    [JsonPropertyName("iterations")]
-    public int Iterations { get; set; }
-}
 
 class Program
 {
@@ -89,33 +74,56 @@ class Program
             perRepeatMs.Add(sw.Elapsed.TotalMilliseconds / iters);
         }
 
-        double mean = 0.0;
-        foreach (double t in perRepeatMs) mean += t;
-        mean /= reps;
+        double med = Median(perRepeatMs);
+        double spread = IQR(perRepeatMs);
 
-        double sqSum = 0.0;
-        foreach (double t in perRepeatMs) sqSum += (t - mean) * (t - mean);
-        double stddev = Math.Sqrt(sqSum / reps);
+        string impl = Environment.GetEnvironmentVariable("IMPL") ?? "";
+        WriteResult(filename, "sccs", "csharp", impl, perRepeatMs, med, spread, reps, iters);
 
-        var result = new BenchmarkResult
+        Console.WriteLine($"SCC ReduceEdges | graph_size={graphSize} | {med:F2} ms/run ± {spread:F2} IQR (n={reps})");
+    }
+
+    static double Median(List<double> values)
+    {
+        var s = new List<double>(values);
+        s.Sort();
+        int n = s.Count;
+        return (n % 2 == 0) ? (s[n / 2 - 1] + s[n / 2]) / 2.0 : s[n / 2];
+    }
+
+    static double IQR(List<double> values)
+    {
+        var s = new List<double>(values);
+        s.Sort();
+        int n = s.Count;
+        double q1 = s[(int)((n - 1) * 0.25)];
+        double q3 = s[(int)((n - 1) * 0.75)];
+        return q3 - q1;
+    }
+
+    static void WriteResult(string path, string algo, string lang, string impl,
+                            List<double> elapsedMs, double med, double spread,
+                            int reps, int itersPerRep)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+        var payload = new
         {
-            ElapsedMilliseconds = perRepeatMs,
-            Mean = mean,
-            StdDev = stddev,
-            Iterations = reps
+            algo, lang, impl,
+            elapsed_ms = elapsedMs,
+            median = med,
+            iqr = spread,
+            reps,
+            iters_per_rep = itersPerRep,
         };
-
         try
         {
-            string json = JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(filename, json);
+            string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json);
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error writing JSON to file: {filename}\n{ex.Message}");
+            Console.Error.WriteLine($"Error writing JSON to file: {path}\n{ex.Message}");
         }
-
-        Console.WriteLine($"SCC ReduceEdges | graph_size={graphSize} | {mean:F2} ms/run ± {stddev:F2} (n={reps})");
     }
 
     static Dictionary<string, string> ParseArgs(string[] args)

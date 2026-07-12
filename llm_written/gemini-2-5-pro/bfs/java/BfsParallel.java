@@ -3,7 +3,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class BfsParallel {
-    private static final int SMALL_N_THRESHOLD = 1000;
+    private static final int SMALL_N_THRESHOLD = 5;
 
     public static List<Integer> run(Graph graph, int startVertex) {
         if (!graph.getVertices().containsKey(startVertex)) {
@@ -11,7 +11,7 @@ public class BfsParallel {
         }
 
         if (graph.getVertices().size() < SMALL_N_THRESHOLD) {
-            return Bfs.run(graph, startVertex);
+            return BfsSequential.run(graph, startVertex);
         }
 
         Set<Integer> visited = ConcurrentHashMap.newKeySet();

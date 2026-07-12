@@ -1,11 +1,15 @@
 import unittest
 import pytest
 import os
+from tests import bench_utils
 from .main import SmithWaterman as SmithWatermanSequential
 from .algo_parallel import SmithWaterman as SmithWatermanParallel
 
+IMPL = os.environ.get("IMPL", "par")
+_BaseImpl = SmithWatermanParallel if IMPL == "par" else SmithWatermanSequential
 
-class SmithWaterman(SmithWatermanParallel):
+
+class SmithWaterman(_BaseImpl):
     pass
 
 
@@ -459,27 +463,21 @@ class TestSmithWatermanPerformance(unittest.TestCase):
         self.e = 1e-6  # Small epsilon for floating point comparisons
     
     def test_performance_large_sequences(self):
-        # use the file and timeit with 5 reptetion and 20 iterations with 1 warmup
-        import timeit
-        import statistics
-
         try:
             with open(os.path.join(BASE_DIR, 'large_test_input.txt'), 'r') as f:
                 lines = f.readlines()
                 query = lines[0].strip()
                 reference = lines[1].strip()
-            
+
             def run_alignment():
                 _ = self.sw.findAlignment(query, reference)
-            
-            # warmup
-            run_alignment()
 
-            times = timeit.repeat(run_alignment, number=1, repeat=5)
-            mean_time = statistics.mean(times) * 1000  # Convert to milliseconds
-            sd_time = statistics.stdev(times) * 1000  # Convert to milliseconds
+            reps, iters = 5, 1
+            result = bench_utils.run_benchmark(run_alignment, reps=reps, iters=iters, warmup=1)
+            print(bench_utils.format_result("SW large sequences", result))
+            bench_utils.write_result(
+                result, algo="smith-waterman", lang="python", impl=IMPL, iters_per_rep=iters
+            )
 
-            print(f"Mean time: {mean_time:.4f} ms, SD: {sd_time:.4f} ms")
-        
         except FileNotFoundError:
             self.skipTest("large_test_input.txt not found")

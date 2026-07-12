@@ -1,16 +1,12 @@
 #include <iostream>
-#include <vector>
-#include <chrono>
-#include <cmath>
 #include <cstdlib>
-#include <fstream>
-#include "nlohmann/json.hpp"
 
 //#include "./seq/graph.cpp"
 #include "./par/graph.cpp"
 
+#include "../../bench_utils/cpp/bench_utils.hpp"
+
 using namespace std;
-using json = nlohmann::json;
 
 
 void ringSCC(int start, int end, Graph& g) {
@@ -59,51 +55,15 @@ void benchmarkReduceEdges(const string& filename) {
     int noClusterInGroup = 3;
     Graph g = buildGraph(graphSize, clusterSize, noClusterInGroup);
 
-    const int reps = 5;
-    const int iters = 20;
+    const int reps = 5, iters = 20;
+    auto bm = run_benchmark([&]() { g.ReduceEdges(); }, reps, iters, 1);
 
-    // warmup
-    g.ReduceEdges();
+    const char* impl_env = std::getenv("IMPL");
+    string impl = impl_env ? impl_env : "par";
 
-    vector<double> perRepeatMs;
-    perRepeatMs.reserve(reps);
-
-    for (int r = 0; r < reps; ++r) {
-        auto start = chrono::high_resolution_clock::now();
-        for (int i = 0; i < iters; ++i) {
-            g.ReduceEdges();
-        }
-        auto end = chrono::high_resolution_clock::now();
-        chrono::duration<double, milli> diff = end - start;
-        perRepeatMs.push_back(diff.count() / iters);
-    }
-
-    double sum = 0.0;
-    for (double t : perRepeatMs) sum += t;
-    double mean = sum / reps;
-
-    double sq_sum = 0.0;
-    for (double t : perRepeatMs) sq_sum += (t - mean) * (t - mean);
-    double stddev = sqrt(sq_sum / reps);
-
-    json result = {
-        {"elapsed_ms", perRepeatMs},
-        {"mean", mean},
-        {"sd", stddev},
-        {"iterations", reps}
-    };
-
-    ofstream out(filename);
-    if (!out) {
-        cerr << "Error opening file: " << filename << "\n";
-        return;
-    }
-
-    out << result.dump(2);
-    out.close();
-
-    cout << "SCC ReduceEdges | graph_size=" << graphSize
-         << " | " << mean << " ms/run ± " << stddev << " (n=" << reps << ")\n";
+    string label = "SCC ReduceEdges | graph_size=" + to_string(graphSize);
+    cout << format_result(label, bm) << "\n";
+    write_result(bm, filename, "sccs", "cpp", impl, iters);
 }
 
 

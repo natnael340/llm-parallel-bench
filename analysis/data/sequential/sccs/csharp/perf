@@ -1,0 +1,34 @@
+# ReduceEdge Benchmark Report
+
+## Total ReduceEdge Benchmark
+
+```json
+{
+  "mean": "40.08 ms",
+  "sd": "± 1.93 ms"
+}
+```
+
+## FindSCC Benchmark
+
+```json
+{
+  "mean": "6.07 ms",
+  "sd": "± 2.69 ms"
+}
+```
+
+## Rationale
+
+Both FindSCC and the Total ReduceEdge benchmark are executed because the total benchmark is composed of two fundamentally different components:
+A component that is relatively easy to parallelize
+
+Tarjan’s recursive DFS, which is inherently sequential and very difficult for LLMs to parallelize correctly
+
+Running FindSCC in isolation makes it possible to measure the parallelizable portion independently. This is useful for analyzing the Amdahl’s Law effect, by comparing:
+
+the speedup achieved in the parallelizable FindSCC component, vs.
+
+the limited speedup in the Total ReduceEdge benchmark caused by the sequential Tarjan DFS portion.
+
+This separation helps explain why overall performance gains can remain bounded even when partial parallelization succeeds.

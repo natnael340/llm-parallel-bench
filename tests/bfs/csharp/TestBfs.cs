@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -220,28 +221,51 @@ public class BfsTests
             times.Add(sw.Elapsed.TotalMilliseconds / iters);
         }
 
-        double avg = Average(times);
-        double sd = StandardDeviation(times);
+        double med = Median(times);
+        double spread = IQR(times);
 
         _output.WriteLine($"BFS complete graph | nodes={size}, undirected edges≈{size * (size - 1) / 2:N0} " +
-                          $"(directed≈{size * (size - 1):N0}) | {avg:F2} ms/run ± {sd:F2} (n={reps})");
+                          $"(directed≈{size * (size - 1):N0}) | {med:F2} ms/run ± {spread:F2} IQR (n={reps})");
+
+        string? outPath = Environment.GetEnvironmentVariable("BENCH_OUT");
+        string impl = Environment.GetEnvironmentVariable("IMPL") ?? "";
+        WriteResult(outPath ?? "", "bfs", "csharp", impl, times, med, spread, reps, iters);
     }
 
-    private static double Average(List<double> values)
+    private static double Median(List<double> values)
     {
-        double sum = 0;
-        foreach (var v in values) sum += v;
-        return sum / values.Count;
+        var s = new List<double>(values);
+        s.Sort();
+        int n = s.Count;
+        return (n % 2 == 0) ? (s[n / 2 - 1] + s[n / 2]) / 2.0 : s[n / 2];
     }
 
-    private static double StandardDeviation(List<double> values)
+    private static double IQR(List<double> values)
     {
-        double avg = Average(values);
-        double sumSquares = 0;
-        foreach (var v in values)
+        var s = new List<double>(values);
+        s.Sort();
+        int n = s.Count;
+        double q1 = s[(int)((n - 1) * 0.25)];
+        double q3 = s[(int)((n - 1) * 0.75)];
+        return q3 - q1;
+    }
+
+    private static void WriteResult(string path, string algo, string lang, string impl,
+                                    List<double> elapsedMs, double med, double spread,
+                                    int reps, int itersPerRep)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+        var payload = new
         {
-            sumSquares += (v - avg) * (v - avg);
-        }
-        return Math.Sqrt(sumSquares / values.Count);
+            algo, lang, impl,
+            elapsed_ms = elapsedMs,
+            median = med,
+            iqr = spread,
+            reps,
+            iters_per_rep = itersPerRep,
+        };
+        var json = System.Text.Json.JsonSerializer.Serialize(
+            payload, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(path, json);
     }
 }

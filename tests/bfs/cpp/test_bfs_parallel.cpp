@@ -1,12 +1,15 @@
 #include <iostream>
 #include "vector"
-#include "math.h"
-#include "chrono"
-#include "../../llm_written/gpt-5/bfs/cpp/graph.h"
-#include "../../llm_written/gpt-5/bfs/cpp/bfs_parallel.hpp"
-#include "../../llm_written/gpt-5/bfs/cpp/bfs_seq.hpp"
+#include "../../../llm_written/gemini-2-5-pro/bfs/cpp/graph.h"
+#include "../../../llm_written/gemini-2-5-pro/bfs/cpp/bfs_parallel.hpp"
+#include "../../bench_utils/cpp/bench_utils.hpp"
 
 using std::vector;
+
+// Route the shared test cases through the parallel implementation.
+static vector<int> bfs(Graph& g, int start_vertex) {
+    return bfs_parallel(g, start_vertex);
+}
 
 
 void assertEqual(vector<int>& result, const vector<int>& expected, std::string testName) {
@@ -170,6 +173,35 @@ void test_bfs_order_consistency() {
     }
 }
 
+void test_bfs_large_graph_determinism() {
+    Graph g;
+    int levels = 50;
+    int width = 50;
+    for (int l = 0; l < levels; ++l) {
+        for (int i = 0; i < width; ++i) {
+            int u = l * width + i;
+            for (int j = 0; j < width; ++j) {
+                g.add_edge(u, (l + 1) * width + j);
+            }
+        }
+    }
+
+    vector<int> first_result = bfs(g, 0);
+    bool consistent = true;
+    for (int i = 0; i < 20; ++i) {
+        vector<int> result = bfs(g, 0);
+        if (result != first_result) {
+            consistent = false;
+            break;
+        }
+    }
+    if (consistent) {
+        std::cout << "test_bfs_large_graph_determinism passed" << std::endl;
+    } else {
+        std::cout << "test_bfs_large_graph_determinism failed" << std::endl;
+    }
+}
+
 void test_bfs_performance_stress_test() {
     Graph g;
     int size = 1000;
@@ -189,49 +221,26 @@ void test_bfs_performance_speed_test(){
     Graph g;
     int size = 2000;
     for (int i = 1; i <= size; ++i) {
-        for (int j=i + 1; j<=size; j++){
-            g.add_edge(i,j);
-            g.add_edge(j,i);
+        for (int j = i + 1; j <= size; j++){
+            g.add_edge(i, j);
+            g.add_edge(j, i);
         }
     }
-    
-    // warm-up
-    bfs_seq(g, 1);
 
-    int reps =5, iters = 20;
+    int reps = 5, iters = 20;
+    auto bm = run_benchmark([&]() { bfs_parallel(g, 1); }, reps, iters, 1);
 
-    vector<double> per_run_ms;
-
-    for(int i = 0; i < reps; i++){
-        auto start = std::chrono::high_resolution_clock::now();
-        for (int k=0; k<iters; k++) bfs_seq(g, 1);
-        auto end = std::chrono::high_resolution_clock::now();
-        double total_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        per_run_ms.push_back((total_ns / 1e6) / double(iters));
-    }
-    
-    double mean = 0.0;
-    for (double val : per_run_ms) mean+=val;
-    mean /= double(reps);
-
-    double sumsq = 0.0;
-    for (double val : per_run_ms) {
-        double d = val - mean;
-        sumsq += d*d;
-    }
-    double sd = std::sqrt(sumsq / double(reps));
-    
     long long undirected = 1LL * size * (size - 1) / 2;
     long long directed   = 1LL * size * (size - 1);
 
-    
-    std::cout << "BFS complete graph | nodes=" << size
-         << ", undirected edges≈" << undirected
-         << " (directed≈" << directed << ") | "
-         << std::fixed<< mean << " ms/run ± "
-         << std::fixed<< sd << " (n=" << reps << ")"
-         << std::endl;
+    std::ostringstream label;
+    label << "BFS complete graph | nodes=" << size
+          << ", undirected edges≈" << undirected
+          << " (directed≈" << directed << ")";
+    std::cout << format_result(label.str(), bm) << std::endl;
 
+    const char* out = std::getenv("BENCH_OUT");
+    write_result(bm, out ? out : "", "bfs", "cpp", "par", iters);
 }
 
 
@@ -248,6 +257,7 @@ int main() {
     test_bfs_nonexistent_start_vertex();
     test_bfs_complex_graph();
     test_bfs_order_consistency();
+    test_bfs_large_graph_determinism();
     test_bfs_performance_stress_test();
     test_bfs_performance_speed_test();
 

@@ -1,9 +1,9 @@
 import logging
 import os
-import timeit, gc, statistics as stats
+import unittest
 from typing import Callable
 
-import unittest
+from tests import bench_utils
 from baselines.bfs.python.bfs_seq import Graph, bfs as sbfs
 from .par import bfs as pbfs
 
@@ -12,10 +12,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ALGOS = {"seq": sbfs, "par": pbfs}
-ALGO_CHOICE = os.environ.get("ALGO_CHOICE", "seq")
-bfs: Callable = ALGOS[ALGO_CHOICE]
+IMPL = os.environ.get("IMPL", "seq")
+bfs: Callable = ALGOS[IMPL]
 
-logger.info(f"Using BFS algorithm: {ALGO_CHOICE}")
+logger.info(f"Using BFS algorithm: {IMPL}")
 
 
 class TestBFS(unittest.TestCase):
@@ -150,27 +150,22 @@ class TestBFS(unittest.TestCase):
         self.assertEqual(result[-1], size)
 
     def test_bfs_performance_speed_test(self):
-        # Create a larger connected graph 
         size = 2000
         for i in range(1, size+1):
             for j in range(i+1, size+1):
                 self.graph.add_edge(i, j)
                 self.graph.add_edge(j, i)
-    
-        #warm-up
-        bfs(self.graph, 1)
 
-        reps=5
-        iters = 20
-
-        results = timeit.repeat(lambda: bfs(self.graph, 1), repeat=reps, number=iters)
-        
-        
-        per_run_ms = [(t / iters) * 1000 for t in results]
-        avg = stats.mean(per_run_ms)
-        sd = stats.pstdev(per_run_ms)
-    
-        print(f"BFS complete graph | nodes={size}, undirected edges≈{size*(size-1)//2:,} "
-          f"(directed≈{size*(size-1):,}) | {avg:.2f} ms/run ± {sd:.2f} (n={reps})")
+        reps, iters = 5, 20
+        result = bench_utils.run_benchmark(
+            lambda: bfs(self.graph, 1), reps=reps, iters=iters, warmup=1
+        )
+        label = (
+            f"BFS complete graph | nodes={size}, "
+            f"undirected edges≈{size*(size-1)//2:,} "
+            f"(directed≈{size*(size-1):,})"
+        )
+        print(bench_utils.format_result(label, result))
+        bench_utils.write_result(result, algo="bfs", lang="python", impl=IMPL, iters_per_rep=iters)
 
     

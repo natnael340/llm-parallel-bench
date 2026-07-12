@@ -1,0 +1,1 @@
+GEMM 1024x1024x1024: 1347.605563ms/run ± 39.624381 (1.593555 GFLOPs) [iters=20, repeats=5][PASS] speed_tesT

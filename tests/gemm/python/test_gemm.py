@@ -1,13 +1,16 @@
 # test_gemm.py
 import math
 import copy
+import os
 import random
 import pytest
-import timeit, statistics as stats
-from .gemm_par import gemm
+from tests import bench_utils
+from baselines.gemm.python.gemm_seq import gemm as gemm_seq
+from .gemm_par import gemm as gemm_par
 
+IMPL = os.environ.get("IMPL", "par")
+gemm = gemm_par if IMPL == "par" else gemm_seq
 
-# from GEMM.python.gemm_seq import gemm 
 
 # ---------- helpers ----------
 
@@ -294,29 +297,17 @@ def test_alpha_scaling_linear():
 
 
 def test_gemm_performance_speed():
-    m = k= n = 1024
+    m = k = n = 1024
     A = make_random_matrix(m, k, seed=10)
     B = make_random_matrix(k, n, seed=12)
-    
-    # warmup
-    gemm(A, B, alpha=1.0, C=None, beta=0.0, MB=32, NB=32, KB=128)
 
-    iters = 20
-    reps = 5
-
-    results = timeit.repeat(
+    reps, iters = 5, 5
+    result = bench_utils.run_benchmark(
         lambda: gemm(A, B, alpha=1.0, C=None, beta=0, MB=32, NB=32, KB=128),
-        repeat=reps,
-        number=iters
+        reps=reps, iters=iters, warmup=1,
     )
-
-    per_run_ms = [(t / iters) * 1000 for t in results]
-    avg = stats.mean(per_run_ms)
-    sd = stats.pstdev(per_run_ms)
-
-    # # 2*m*n*k floating ops (mul+add)
-    avg_s = avg / 1000.0
-    gflops = (2.0 * m * n * k) / (avg_s * 1e9)
-    
-    print(f"GEMM {m}x{n}x{k}: {avg:.2f} ms/run ± {sd:.2f} "
-          f"({gflops:.3f} GFLOPs)  [iters={iters}, repeats={reps}]")
+    median_s = result["median"] / 1000.0
+    gflops = (2.0 * m * n * k) / (median_s * 1e9)
+    label = f"GEMM {m}x{n}x{k} ({gflops:.3f} GFLOPs)  [iters={iters}, repeats={reps}]"
+    print(bench_utils.format_result(label, result))
+    bench_utils.write_result(result, algo="gemm", lang="python", impl=IMPL, iters_per_rep=iters)

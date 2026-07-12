@@ -1,14 +1,38 @@
 package bfs_seq_test
 
 import (
-	"testing"
-	"reflect"
-	"time"
+	"encoding/json"
 	"fmt"
-	"math"
+	"os"
+	"reflect"
+	"sort"
+	"testing"
+	"time"
+
 	//bfsgo "github.com/natnael340/llm-parallel-bench/BFS/bfsgo"
 	bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/gpt-5/bfs/go"
 )
+
+func medianF(vals []float64) float64 {
+	s := make([]float64, len(vals))
+	copy(s, vals)
+	sort.Float64s(s)
+	n := len(s)
+	if n%2 == 0 {
+		return (s[n/2-1] + s[n/2]) / 2.0
+	}
+	return s[n/2]
+}
+
+func iqrF(vals []float64) float64 {
+	s := make([]float64, len(vals))
+	copy(s, vals)
+	sort.Float64s(s)
+	n := len(s)
+	q1 := s[int(float64(n-1)*0.25)]
+	q3 := s[int(float64(n-1)*0.75)]
+	return q3 - q1
+}
 
 func TestBFSEmptyGraph(t *testing.T) {
 	g := bfsgo.Graph{}
@@ -201,8 +225,6 @@ func TestBFSPerformanceStressTest(t *testing.T) {
 
 
 func TestBFSSpeed(t *testing.T) {
-	// Create a large graph for benchmarking
-
 	g := bfsgo.Graph{}
 	size := 2000
 	for i := 1; i <= size; i++ {
@@ -212,45 +234,52 @@ func TestBFSSpeed(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 3; i++{
+	// warmup
+	for i := 0; i < 1; i++ {
 		bfsgo.BfsParallel(g, 1)
 	}
-	
 
 	reps := 5
 	iters := 20
 
 	perRunMs := make([]float64, reps)
-	for r := 0; r < reps; r++{
+	for r := 0; r < reps; r++ {
 		start := time.Now()
-		for k:=0; k < iters; k++ {
+		for k := 0; k < iters; k++ {
 			bfsgo.BfsParallel(g, 1)
 		}
 		total := time.Since(start)
-		// per-run in milliseconds (use ns to avoid integer truncation)
 		perRunMs[r] = (float64(total.Nanoseconds()) / 1e6) / float64(iters)
 	}
-	
-	mean := 0.0
-	for _, v := range perRunMs {
-		mean += v 
-	}
-	mean /= float64(reps)
 
-	sumsq := 0.0
-	for _, v := range perRunMs {
-		d := v - mean
-		sumsq += d * d
-	}
-
-	sd := math.Sqrt(sumsq / float64(reps))
+	med := medianF(perRunMs)
+	spread := iqrF(perRunMs)
 
 	undirected := int64(size) * (int64(size) - 1) / 2
 	directed := int64(size) * (int64(size) - 1)
 
 	msg := fmt.Sprintf(
-		"BFS complete graph | nodes=%d, undirected edges≈%d (directed≈%d) | %.2f ms/run ± %.2f (n=%d)",
-		size, undirected, directed, mean, sd, reps,
+		"BFS complete graph | nodes=%d, undirected edges≈%d (directed≈%d) | %.2f ms/run ± %.2f IQR (n=%d)",
+		size, undirected, directed, med, spread, reps,
 	)
 	t.Logf(msg)
+
+	if out := os.Getenv("BENCH_OUT"); out != "" {
+		impl := os.Getenv("IMPL")
+		if impl == "" {
+			impl = "par"
+		}
+		result := map[string]interface{}{
+			"algo":         "bfs",
+			"lang":         "go",
+			"impl":         impl,
+			"elapsed_ms":   perRunMs,
+			"median":       med,
+			"iqr":          spread,
+			"reps":         reps,
+			"iters_per_rep": iters,
+		}
+		data, _ := json.MarshalIndent(result, "", "  ")
+		os.WriteFile(out, data, 0644)
+	}
 }

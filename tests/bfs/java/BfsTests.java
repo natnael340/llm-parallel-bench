@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 import static java.util.Collections.emptyList;
 
@@ -410,26 +411,58 @@ public class BfsTests {
             times[r] = (endTime - startTime) / 1_000_000.0 / iters;
         }
 
-        double avg = average(times);
-        double sd = standardDeviation(times);
+        double med = median(times);
+        double spread = iqr(times);
 
         long directedEdges = (long) size * (size - 1);
-        System.out.printf("       (BFS complete graph | nodes=%d, undirected edges≈%,d (directed≈%,d) | %.2f ms/run ± %.2f (n=%d))%n",
-                          size, directedEdges / 2, directedEdges, avg, sd, reps);
+        System.out.printf("       (BFS complete graph | nodes=%d, undirected edges≈%,d (directed≈%,d) | %.2f ms/run ± %.2f IQR (n=%d))%n",
+                          size, directedEdges / 2, directedEdges, med, spread, reps);
+
+        String out = System.getenv("BENCH_OUT");
+        String impl = System.getenv("IMPL");
+        if (impl == null) impl = "par";
+        writeResult(out, "bfs", "java", impl, times, med, spread, reps, iters);
     }
 
-    private static double average(double[] values) {
-        double sum = 0;
-        for (double v : values) sum += v;
-        return sum / values.length;
+    private static double median(double[] values) {
+        double[] s = values.clone();
+        Arrays.sort(s);
+        int n = s.length;
+        return (n % 2 == 0) ? (s[n / 2 - 1] + s[n / 2]) / 2.0 : s[n / 2];
     }
 
-    private static double standardDeviation(double[] values) {
-        double avg = average(values);
-        double sumSquares = 0;
-        for (double v : values) {
-            sumSquares += (v - avg) * (v - avg);
+    private static double iqr(double[] values) {
+        double[] s = values.clone();
+        Arrays.sort(s);
+        int n = s.length;
+        double q1 = s[(int) ((n - 1) * 0.25)];
+        double q3 = s[(int) ((n - 1) * 0.75)];
+        return q3 - q1;
+    }
+
+    private static void writeResult(String path, String algo, String lang, String impl,
+                                    double[] elapsedMs, double med, double spread,
+                                    int reps, int itersPerRep) {
+        if (path == null || path.isEmpty()) return;
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"algo\": \"").append(algo).append("\",\n");
+        sb.append("  \"lang\": \"").append(lang).append("\",\n");
+        sb.append("  \"impl\": \"").append(impl).append("\",\n");
+        sb.append("  \"elapsed_ms\": [");
+        for (int i = 0; i < elapsedMs.length; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(elapsedMs[i]);
         }
-        return Math.sqrt(sumSquares / values.length);
+        sb.append("],\n");
+        sb.append("  \"median\": ").append(med).append(",\n");
+        sb.append("  \"iqr\": ").append(spread).append(",\n");
+        sb.append("  \"reps\": ").append(reps).append(",\n");
+        sb.append("  \"iters_per_rep\": ").append(itersPerRep).append("\n}\n");
+        try (FileWriter fw = new FileWriter(path)) {
+            fw.write(sb.toString());
+        } catch (IOException ex) {
+            System.err.println("Error writing result JSON: " + ex.getMessage());
+        }
     }
 }
