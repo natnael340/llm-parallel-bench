@@ -68,7 +68,9 @@ fn iqr(vals: &[f64]) -> f64 {
     let mut q = [0.0f64; 3];
     for i in 1..=3 {
         let j = (i * m / NQ).clamp(1, n - 1);
-        let delta = (i * m - j * NQ) as f64;
+        // Signed: the clamp above can make j*NQ exceed i*m (n = 2), and usize
+        // subtraction would underflow to a huge value instead of going negative.
+        let delta = (i * m) as f64 - (j * NQ) as f64;
         q[i - 1] = (s[j - 1] * (NQ as f64 - delta) + s[j] * delta) / NQ as f64;
     }
     q[2] - q[0]
