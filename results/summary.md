@@ -59,10 +59,10 @@
 
 | lang | model | impl | mean (ms) | SD | median (ms) | IQR | speedup (mean) |
 |------|-------|------|-----------|----|-------------|-----|----------------|
-| cpp | baseline | seq | 75.28 | 2.20 | 75.68 | 3.81 | 1.00x |
-| cpp | claude-sonnet-4-5 | par | 25.28 | 1.76 | 25.73 | 3.25 | 2.98x |
-| cpp | gemini-2-5-pro | par | 52.64 | 3.09 | 53.04 | 5.63 | 1.43x |
-| cpp | gpt-5 | par | 25.17 | 4.56 | 23.89 | 8.16 | 2.99x |
+| cpp | baseline | seq | 128.75 | 1.64 | 129.23 | 3.18 | 1.00x |
+| cpp | claude-sonnet-4-5 | par | 37.14 | 4.40 | 35.74 | 6.51 | 3.47x |
+| cpp | gemini-2-5-pro | par | 53.55 | 6.05 | 51.34 | 8.25 | 2.40x |
+| cpp | gpt-5 | par | 33.13 | 13.11 | 28.56 | 21.29 | 3.89x |
 | csharp | baseline | seq | 42.25 | 3.55 | 40.94 | 4.70 | 1.00x |
 | csharp | claude-sonnet-4-5 | par | 26.33 | 5.20 | 24.01 | 6.57 | 1.60x |
 | csharp | gemini-2-5-pro | par | 28.92 | 5.12 | 26.86 | 7.11 | 1.46x |
@@ -79,10 +79,10 @@
 | python | claude-sonnet-4-5 | par | 22869.94 | 179.12 | 22930.84 | 323.50 | 0.01x |
 | python | gemini-2-5-pro | par | 23011.38 | 206.74 | 23046.46 | 405.22 | 0.01x |
 | python | gpt-5 | par | 1918.40 | 44.74 | 1935.96 | 81.93 | 0.14x |
-| rust | baseline | seq | 27.13 | 0.33 | 27.08 | 0.53 | 1.00x |
-| rust | claude-sonnet-4-5 | par | 504.33 | 4.80 | 503.98 | 8.19 | 0.05x |
-| rust | gemini-2-5-pro | par | 14.52 | 1.20 | 13.96 | 2.28 | 1.87x |
-| rust | gpt-5 | par | 10.07 | 0.32 | 10.12 | 0.56 | 2.69x |
+| rust | baseline | seq | 48.12 | 0.84 | 48.33 | 1.52 | 1.00x |
+| rust | claude-sonnet-4-5 | par | 978.65 | 36.41 | 978.21 | 60.31 | 0.05x |
+| rust | gemini-2-5-pro | par | 44.13 | 2.55 | 44.08 | 4.17 | 1.09x |
+| rust | gpt-5 | par | 22.29 | 1.49 | 21.66 | 2.74 | 2.16x |
 
 ## smith-waterman
 
