@@ -1,10 +1,7 @@
 pub mod seq;
-pub mod par;
 
 #[cfg(test)]
 mod tests {
-    // Swap the line below to switch between sequential and parallel implementations.
-    //use crate::seq::Graph;
     use crate::seq::Graph;
 
     use rand::{Rng, SeedableRng};

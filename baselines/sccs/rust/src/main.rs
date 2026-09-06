@@ -1,5 +1,4 @@
 mod seq;
-mod par;
 
 use std::env;
 use std::fs;
@@ -7,9 +6,7 @@ use std::time::Instant;
 
 use serde::Serialize;
 
-// Swap the line below to switch between sequential and parallel implementations.
-//use seq::Graph;
-use par::Graph;
+use seq::Graph;
 
 #[derive(Serialize)]
 struct BenchmarkResult {

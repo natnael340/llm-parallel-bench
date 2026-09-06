@@ -1,0 +1,44 @@
+{
+  "algo": "sccs",
+  "lang": "rust",
+  "harness": "tests/sccs/rust",
+  "bin": "sccs",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
+  "canonical_entry": "Graph::new(usize)/add_edge/find_sccs; bench_reduce_edges(&Graph) -> Vec<(usize,usize)>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/rust/src",
+      "files": ["seq.rs"],
+      "adapter": [
+        "pub use super::seq::Graph;",
+        "pub fn bench_reduce_edges(g: &Graph) -> Vec<(usize, usize)> { g.reduce_edges() }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::par::Graph;",
+        "pub fn bench_reduce_edges(g: &Graph) -> Vec<(usize, usize)> { g.reduce_edges_parallel() }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/rust",
+      "files": ["scc_parallel.rs"],
+      "adapter": [
+        "pub use super::scc_parallel::Graph;",
+        "pub fn bench_reduce_edges(g: &Graph) -> Vec<(usize, usize)> { g.reduce_edges() }"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::Graph;",
+        "pub fn bench_reduce_edges(g: &Graph) -> Vec<(usize, usize)> { g.reduce_edges() }"
+      ]
+    }
+  }
+}
