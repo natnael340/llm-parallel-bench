@@ -1,19 +1,83 @@
-// Swap the line below to switch between sequential and parallel implementations.
-using Graph = SCC.Par.Graph;
-// using Graph = SCC.Seq.Graph;
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
 
 namespace SCC
 {
 
 class Program
 {
-    static void RingSCC(int start, int end, Graph g)
+    // --- correctness: SCC strong-check heuristic (mirrors the Go harness) ---
+    // For SCC of size k>1: (k-1) <= internal edges <= 2*(k-1), and every SCC
+    // node appears in at least one kept internal edge.
+    static bool IsSccStrong(List<int> sccNodes, List<(int, int)> edges)
+    {
+        var nodeSet = new HashSet<int>(sccNodes);
+        int k = sccNodes.Count;
+        if (k <= 1) return true;
+
+        int internalEdges = 0;
+        var touched = new HashSet<int>();
+        foreach (var (u, v) in edges)
+        {
+            if (nodeSet.Contains(u) && nodeSet.Contains(v))
+            {
+                internalEdges++;
+                touched.Add(u);
+                touched.Add(v);
+            }
+        }
+        if (internalEdges < k - 1) return false;
+        if (internalEdges > 2 * (k - 1)) return false;
+        if (touched.Count < k) return false;
+        return true;
+    }
+
+    static bool CheckAllSCCs(BenchImpl g)
+    {
+        var edges = g.ReduceEdges();
+        foreach (var scc in g.FindSCCs())
+        {
+            if (!IsSccStrong(scc, edges)) return false;
+        }
+        return true;
+    }
+
+    static int Report(string name, bool ok)
+    {
+        Console.WriteLine(name + (ok ? " passed" : " failed"));
+        return ok ? 0 : 1;
+    }
+
+    static int RunCorrectnessChecks()
+    {
+        int failures = 0;
+
+        var g1 = new BenchImpl(3);
+        g1.AddEdge(0, 1); g1.AddEdge(1, 2); g1.AddEdge(2, 0);
+        failures += Report("test_scc_3cycle", CheckAllSCCs(g1));
+
+        var g2 = new BenchImpl(2);
+        g2.AddEdge(0, 1); g2.AddEdge(1, 0);
+        failures += Report("test_scc_2node_mutual", CheckAllSCCs(g2));
+
+        var g3 = new BenchImpl(5);
+        g3.AddEdge(0, 1); g3.AddEdge(1, 2); g3.AddEdge(2, 0);
+        g3.AddEdge(3, 4); g3.AddEdge(4, 3);
+        g3.AddEdge(2, 3);
+        failures += Report("test_scc_multiple", CheckAllSCCs(g3));
+
+        var g4 = new BenchImpl(7);
+        g4.AddEdge(0, 1); g4.AddEdge(1, 2); g4.AddEdge(1, 3); g4.AddEdge(1, 4);
+        g4.AddEdge(2, 0); g4.AddEdge(2, 3); g4.AddEdge(3, 5); g4.AddEdge(5, 3);
+        g4.AddEdge(5, 4); g4.AddEdge(5, 6); g4.AddEdge(6, 4); g4.AddEdge(4, 6);
+        failures += Report("test_scc_7node", CheckAllSCCs(g4));
+
+        return failures;
+    }
+
+    // --- benchmark graph construction (shared with all languages) ---
+
+    static void RingSCC(int start, int end, BenchImpl g)
     {
         for (int i = start; i < end; i++)
         {
@@ -24,9 +88,9 @@ class Program
         }
     }
 
-    static Graph BuildGraph(int graphSize, int clusterSize, int noClusterInGroup)
+    static BenchImpl BuildGraph(int graphSize, int clusterSize, int noClusterInGroup)
     {
-        Graph g = new Graph(graphSize);
+        BenchImpl g = new BenchImpl(graphSize);
         Random rand = new Random(43);
 
         for (int i = 0; i < graphSize; i += clusterSize)
@@ -55,75 +119,22 @@ class Program
         int clusterSize = 300;
         int noClusterInGroup = 3;
 
-        Graph g = BuildGraph(graphSize, clusterSize, noClusterInGroup);
+        BenchImpl g = BuildGraph(graphSize, clusterSize, noClusterInGroup);
 
-        const int reps = 5;
-        const int iters = 20;
+        int reps = Bench.Reps(5);
+        int iters = Bench.Iters(20);
 
-        // warmup
-        g.ReduceEdges();
+        var r = Bench.Run(() => g.ReduceEdges(), reps, iters, 1);
 
-        List<double> perRepeatMs = new List<double>(reps);
+        Console.WriteLine(Bench.Format($"SCC ReduceEdges | graph_size={graphSize}", r));
 
-        for (int r = 0; r < reps; r++)
+        var params_ = new Dictionary<string, object>
         {
-            Stopwatch sw = Stopwatch.StartNew();
-            for (int i = 0; i < iters; i++)
-                g.ReduceEdges();
-            sw.Stop();
-            perRepeatMs.Add(sw.Elapsed.TotalMilliseconds / iters);
-        }
-
-        double med = Median(perRepeatMs);
-        double spread = IQR(perRepeatMs);
-
-        string impl = Environment.GetEnvironmentVariable("IMPL") ?? "";
-        WriteResult(filename, "sccs", "csharp", impl, perRepeatMs, med, spread, reps, iters);
-
-        Console.WriteLine($"SCC ReduceEdges | graph_size={graphSize} | {med:F2} ms/run ± {spread:F2} IQR (n={reps})");
-    }
-
-    static double Median(List<double> values)
-    {
-        var s = new List<double>(values);
-        s.Sort();
-        int n = s.Count;
-        return (n % 2 == 0) ? (s[n / 2 - 1] + s[n / 2]) / 2.0 : s[n / 2];
-    }
-
-    static double IQR(List<double> values)
-    {
-        var s = new List<double>(values);
-        s.Sort();
-        int n = s.Count;
-        double q1 = s[(int)((n - 1) * 0.25)];
-        double q3 = s[(int)((n - 1) * 0.75)];
-        return q3 - q1;
-    }
-
-    static void WriteResult(string path, string algo, string lang, string impl,
-                            List<double> elapsedMs, double med, double spread,
-                            int reps, int itersPerRep)
-    {
-        if (string.IsNullOrEmpty(path)) return;
-        var payload = new
-        {
-            algo, lang, impl,
-            elapsed_ms = elapsedMs,
-            median = med,
-            iqr = spread,
-            reps,
-            iters_per_rep = itersPerRep,
+            ["graph_size"] = graphSize,
+            ["cluster_size"] = clusterSize,
+            ["no_cluster_in_group"] = noClusterInGroup,
         };
-        try
-        {
-            string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(path, json);
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Error writing JSON to file: {path}\n{ex.Message}");
-        }
+        Bench.WriteResult(filename, r, "sccs", Bench.Impl(), params_);
     }
 
     static Dictionary<string, string> ParseArgs(string[] args)
@@ -140,24 +151,22 @@ class Program
         return dict;
     }
 
-    static void Main(string[] args)
+    static int Main(string[] args)
     {
         var argDict = ParseArgs(args);
 
-        if (argDict.ContainsKey("test") && argDict["test"] == "all")
+        // Output path: --out flag, else BENCH_OUT env (may be empty: print only).
+        string filename = argDict.TryGetValue("out", out var outArg) ? outArg : Bench.Out();
+
+        int failures = RunCorrectnessChecks();
+        if (failures > 0)
         {
-            SCC.Tests.GraphAllTests.RunAll();
-            return;
+            Console.WriteLine($"{failures} correctness check(s) failed — skipping benchmark");
+            return 1;
         }
 
-        if (!argDict.ContainsKey("out"))
-        {
-            Console.Error.WriteLine("Error: Output file not specified. Use --out <filename>");
-            return;
-        }
-
-        Console.WriteLine("Starting BenchmarkReduceEdges...");
-        BenchmarkReduceEdges(argDict["out"]);
+        BenchmarkReduceEdges(filename);
+        return 0;
     }
 }
 }

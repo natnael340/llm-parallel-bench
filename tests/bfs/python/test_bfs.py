@@ -1,21 +1,20 @@
 import logging
-import os
 import unittest
-from typing import Callable
+
+import pytest
 
 from tests import bench_utils
-from baselines.bfs.python.bfs_seq import Graph, bfs as sbfs
-from .par import bfs as pbfs
+# The implementation under test is staged by bench/run.py (see
+# bench/manifests/bfs/python.json); the adapter exposes the canonical entry.
+from .staging.impl_adapter import Graph, bench_bfs as bfs
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-ALGOS = {"seq": sbfs, "par": pbfs}
-IMPL = os.environ.get("IMPL", "seq")
-bfs: Callable = ALGOS[IMPL]
+CONFIG = bench_utils.get_bench_config(default_reps=5, default_iters=20)
 
-logger.info(f"Using BFS algorithm: {IMPL}")
+logger.info(f"Using BFS implementation: {CONFIG['model']}/{CONFIG['impl']}")
 
 
 class TestBFS(unittest.TestCase):
@@ -149,6 +148,7 @@ class TestBFS(unittest.TestCase):
         self.assertEqual(result[0], 1)
         self.assertEqual(result[-1], size)
 
+    @pytest.mark.perf
     def test_bfs_performance_speed_test(self):
         size = 2000
         for i in range(1, size+1):
@@ -156,7 +156,7 @@ class TestBFS(unittest.TestCase):
                 self.graph.add_edge(i, j)
                 self.graph.add_edge(j, i)
 
-        reps, iters = 5, 20
+        reps, iters = CONFIG["reps"], CONFIG["iters"]
         result = bench_utils.run_benchmark(
             lambda: bfs(self.graph, 1), reps=reps, iters=iters, warmup=1
         )
@@ -166,6 +166,9 @@ class TestBFS(unittest.TestCase):
             f"(directed≈{size*(size-1):,})"
         )
         print(bench_utils.format_result(label, result))
-        bench_utils.write_result(result, algo="bfs", lang="python", impl=IMPL, iters_per_rep=iters)
+        bench_utils.write_result(
+            result, algo="bfs", lang="python", impl=CONFIG["impl"], iters_per_rep=iters,
+            params={"graph_size": size, "graph_kind": "complete"},
+        )
 
     

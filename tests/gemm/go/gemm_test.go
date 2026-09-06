@@ -1,13 +1,14 @@
 // gemm_test.go
-package main
+package gemm_test
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"testing"
-	"time"
-	//gemm "github.com/natnael340/llm-parallel-bench/GEMM/golang"
-	gemm "github.com/natnael340/llm-parallel-bench/llm_written/claude-sonnet-4.5/gemm/go"
+
+	benchutil "github.com/natnael340/llm-parallel-bench/tests/bench_utils/go"
+	gemm "github.com/natnael340/llm-parallel-bench/tests/gemm/go/staging"
 )
 
 // ---------- helpers ----------
@@ -504,46 +505,30 @@ func TestGemmPerformanceSpeed(t *testing.T) {
 		t.Skip("skipping performance test in -short mode")
 	}
 	m, k, n := 1024, 1024, 1024
+	// Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
+	MB, NB, KB := 32, 56, 128
 	A := makeRandomMatrix(m, k, -1, 1, 10)
 	B := makeRandomMatrix(k, n, -1, 1, 12)
 
-	// Warmup
-	if _, err := gemm.Gemm(A, B, 1.0, nil, 0.0, 32, 56, 128); err != nil {
+	reps := benchutil.Reps(5)
+	iters := benchutil.Iters(5)
+
+	r := benchutil.RunBenchmark(func() {
+		if _, err := gemm.Gemm(A, B, 1.0, nil, 0.0, MB, NB, KB); err != nil {
 			t.Fatal(err)
 		}
+	}, reps, iters, 1)
 
-	const iters = 20
-	const reps = 5
-	
-	perRunMs := make([]float64, reps)
-	for i:=0; i < reps; i++ {
-		start := time.Now()
-		for j:=0; j < iters; j++{
-			if _, err := gemm.Gemm(A, B, 1.0, nil, 0.0, 32, 56, 128); err != nil {
-			t.Fatal(err)
-		}
-		}
-		elapsed := time.Since(start)
-		perRunMs[i] = float64(elapsed.Nanoseconds()) / 1e6 / float64(iters)
-	}
-	
-	mean := 0.0
-	for _, v := range perRunMs {
-		mean += v 
-	}
-	mean /= float64(reps)
-
-	sumsq := 0.0
-	for _, v := range perRunMs {
-		d := v - mean
-		sumsq += d * d
-	}
-
-	sd := math.Sqrt(sumsq / float64(reps))
-	meanS := mean / 1000.0 // Convert ms to seconds for GFLOPs
+	meanS := r.Mean / 1000.0 // Convert ms to seconds for GFLOPs
 	gflops := (2.0 * float64(m) * float64(n) * float64(k)) / (meanS * 1e9)
 
 	// 2*m*n*k floating ops (mul+add) per multiply
-	t.Logf("GEMM %dx%dx%d: %.2f ms/run ± %.2f (%.3f GFLOPs) [iters=%d, repeats=%d]",
-		m, k, n, mean, sd, gflops, iters, reps)
+	label := fmt.Sprintf("GEMM %dx%dx%d (%.3f GFLOPs) [iters=%d, repeats=%d]",
+		m, k, n, gflops, iters, reps)
+	t.Log(benchutil.FormatResult(label, r))
+
+	params := map[string]interface{}{"m": m, "n": n, "k": k, "MB": MB, "NB": NB, "KB": KB}
+	if err := benchutil.WriteResult(benchutil.Out(), r, "gemm", benchutil.Impl(), params); err != nil {
+		t.Fatalf("failed to write result JSON: %v", err)
+	}
 }

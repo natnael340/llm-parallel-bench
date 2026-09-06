@@ -1,63 +1,22 @@
-package main
+package sccs_test
 
 import (
 	"fmt"
 	"math/rand"
-	"os"
 	"strings"
 	"testing"
 	"time"
 
-	graphpar "github.com/natnael340/llm-parallel-bench/scc/scssgo/par"
-	graphseq "github.com/natnael340/llm-parallel-bench/scc/scssgo/seq"
+	benchutil "github.com/natnael340/llm-parallel-bench/tests/bench_utils/go"
+	staging "github.com/natnael340/llm-parallel-bench/tests/sccs/go/staging"
 )
-
-// Edge is the local edge type used across all test helpers.
-type Edge struct{ U, V int }
-
-// sccGraph is the interface satisfied by both graphseq.Graph and graphpar.Graph.
-type sccGraph interface {
-	AddEdge(v, w int)
-	FindSCCs() [][]int
-}
-
-// newGraph and reduceEdges are wired up in init() based on ALGO env var.
-var (
-	newGraph    func(int) sccGraph
-	reduceEdges func(sccGraph) []Edge
-)
-
-func init() {
-	algo := strings.ToLower(os.Getenv("ALGO"))
-	if algo == "par" {
-		newGraph = func(v int) sccGraph { return graphpar.NewGraph(v) }
-		reduceEdges = func(g sccGraph) []Edge {
-			raw := g.(*graphpar.Graph).ReduceEdges()
-			out := make([]Edge, len(raw))
-			for i, e := range raw {
-				out[i] = Edge{e.U, e.V}
-			}
-			return out
-		}
-	} else {
-		newGraph = func(v int) sccGraph { return graphseq.NewGraph(v) }
-		reduceEdges = func(g sccGraph) []Edge {
-			raw := g.(*graphseq.Graph).ReduceEdges()
-			out := make([]Edge, len(raw))
-			for i, e := range raw {
-				out[i] = Edge{e.U, e.V}
-			}
-			return out
-		}
-	}
-}
 
 // isSccStrong validates SCC reduction against the professor heuristic.
 // For SCC of size k>1:
 //   - at least (k-1) internal edges (forward spanning tree)
 //   - at most 2*(k-1) internal edges (forward + reverse trees)
 //   - every SCC node appears in at least one kept internal edge
-func isSccStrong(sccNodes []int, edges []Edge) bool {
+func isSccStrong(sccNodes []int, edges []staging.Edge) bool {
 	nodeSet := make(map[int]bool, len(sccNodes))
 	for _, n := range sccNodes {
 		nodeSet[n] = true
@@ -89,7 +48,7 @@ func isSccStrong(sccNodes []int, edges []Edge) bool {
 	return true
 }
 
-func checkAllSCCs(sccs [][]int, edges []Edge) bool {
+func checkAllSCCs(sccs [][]int, edges []staging.Edge) bool {
 	for _, scc := range sccs {
 		if !isSccStrong(scc, edges) {
 			return false
@@ -100,14 +59,14 @@ func checkAllSCCs(sccs [][]int, edges []Edge) bool {
 
 // Test 1: empty graph - should not panic
 func TestEmptyGraph(t *testing.T) {
-	g := newGraph(0)
-	_ = reduceEdges(g)
+	g := staging.BenchNewGraph(0)
+	_ = staging.BenchReduceEdges(g)
 }
 
 // Test 2: single node, no edges
 func TestSingleNodeNoEdges(t *testing.T) {
-	g := newGraph(1)
-	edges := reduceEdges(g)
+	g := staging.BenchNewGraph(1)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatal("single node no edges: SCC strong check failed")
@@ -116,9 +75,9 @@ func TestSingleNodeNoEdges(t *testing.T) {
 
 // Test 3: single node, self-loop
 func TestSingleNodeSelfLoop(t *testing.T) {
-	g := newGraph(1)
+	g := staging.BenchNewGraph(1)
 	g.AddEdge(0, 0)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatal("single node self-loop: SCC strong check failed")
@@ -127,11 +86,11 @@ func TestSingleNodeSelfLoop(t *testing.T) {
 
 // Test 4: simple 3-cycle 0->1->2->0
 func TestSimple3Cycle(t *testing.T) {
-	g := newGraph(3)
+	g := staging.BenchNewGraph(3)
 	g.AddEdge(0, 1)
 	g.AddEdge(1, 2)
 	g.AddEdge(2, 0)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatalf("simple 3-cycle: SCC strong check failed\n  reduced edges: %v", edges)
@@ -140,10 +99,10 @@ func TestSimple3Cycle(t *testing.T) {
 
 // Test 5: two-node mutual SCC
 func Test2NodeMutualSCC(t *testing.T) {
-	g := newGraph(2)
+	g := staging.BenchNewGraph(2)
 	g.AddEdge(0, 1)
 	g.AddEdge(1, 0)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatal("2-node mutual SCC: SCC strong check failed")
@@ -152,14 +111,14 @@ func Test2NodeMutualSCC(t *testing.T) {
 
 // Test 6: dense 3-node SCC (0->1->2->0 plus 0->2, 1->0, 2->1)
 func TestDense3NodeSCC(t *testing.T) {
-	g := newGraph(3)
+	g := staging.BenchNewGraph(3)
 	g.AddEdge(0, 1)
 	g.AddEdge(1, 2)
 	g.AddEdge(2, 0)
 	g.AddEdge(0, 2)
 	g.AddEdge(1, 0)
 	g.AddEdge(2, 1)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatalf("dense 3-node SCC: SCC strong check failed\n  reduced edges: %v", edges)
@@ -169,7 +128,7 @@ func TestDense3NodeSCC(t *testing.T) {
 // Test 7: multiple SCCs
 // SCC1: 0->1->2->0, SCC2: 3<->4, cross: 2->3
 func TestMultipleSCCs(t *testing.T) {
-	g := newGraph(5)
+	g := staging.BenchNewGraph(5)
 	// SCC1
 	g.AddEdge(0, 1)
 	g.AddEdge(1, 2)
@@ -179,7 +138,7 @@ func TestMultipleSCCs(t *testing.T) {
 	g.AddEdge(4, 3)
 	// cross
 	g.AddEdge(2, 3)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatalf("multiple SCCs: SCC strong check failed\n  reduced edges: %v", edges)
@@ -188,7 +147,7 @@ func TestMultipleSCCs(t *testing.T) {
 
 // Test 8: 7-node example graph
 func Test7NodeGraph(t *testing.T) {
-	g := newGraph(7)
+	g := staging.BenchNewGraph(7)
 	g.AddEdge(0, 1)
 	g.AddEdge(1, 2)
 	g.AddEdge(1, 3)
@@ -201,55 +160,23 @@ func Test7NodeGraph(t *testing.T) {
 	g.AddEdge(5, 6)
 	g.AddEdge(6, 4)
 	g.AddEdge(4, 6)
-	edges := reduceEdges(g)
+	edges := staging.BenchReduceEdges(g)
 	sccs := g.FindSCCs()
 	if !checkAllSCCs(sccs, edges) {
 		t.Fatalf("7-node graph: SCC strong check failed\n  reduced edges: %v", edges)
 	}
 }
 
-// Test 9: stress + performance (n=2000, ring + jump edges, 5 runs)
-func TestStressPerformance(t *testing.T) {
-	n := 2000
-	runs := 5
-	var totalMs int64
-
-	for r := 0; r < runs; r++ {
-		g := newGraph(n)
-		for i := 0; i < n; i++ {
-			g.AddEdge(i, (i+1)%n)
-			g.AddEdge(i, (i+13)%n)
-		}
-
-		start := time.Now()
-		edges := reduceEdges(g)
-		elapsed := time.Since(start).Milliseconds()
-		totalMs += elapsed
-
-		if len(edges) == 0 {
-			t.Errorf("stress run %d: no edges returned", r)
-			continue
-		}
-		t.Logf("stress run %d: edges kept: %d, time: %d ms", r, len(edges), elapsed)
-
-		sccs := g.FindSCCs()
-		if !checkAllSCCs(sccs, edges) {
-			t.Errorf("stress run %d: reduced edges broke SCC", r)
-		}
-	}
-	t.Logf("average time over %d runs (n=%d): %.3f ms", runs, n, float64(totalMs)/float64(runs))
-}
-
-// Test 10: determinism - randomized large multi-SCC graph, output must be identical across runs
+// Test 9: determinism - randomized large multi-SCC graph, output must be identical across runs
 func TestDeterminism(t *testing.T) {
 	numScc := 24
 	sccSize := 40
 	n := numScc * sccSize
 	runs := 5
 
-	buildTestGraph := func(seed int64) sccGraph {
+	buildTestGraph := func(seed int64) *staging.Graph {
 		r := rand.New(rand.NewSource(seed))
-		g := newGraph(n)
+		g := staging.BenchNewGraph(n)
 
 		for s := 0; s < numScc; s++ {
 			start := s * sccSize
@@ -282,7 +209,7 @@ func TestDeterminism(t *testing.T) {
 		return g
 	}
 
-	edgeSignature := func(edges []Edge) string {
+	edgeSignature := func(edges []staging.Edge) string {
 		parts := make([]string, len(edges))
 		for i, e := range edges {
 			parts[i] = fmt.Sprintf("%d,%d", e.U, e.V)
@@ -297,9 +224,7 @@ func TestDeterminism(t *testing.T) {
 	baseline := ""
 	baselineCount := -1
 	for r := 0; r < runs; r++ {
-		start := time.Now()
-		edges := reduceEdges(g)
-		elapsed := time.Since(start).Milliseconds()
+		edges := staging.BenchReduceEdges(g)
 
 		if !checkAllSCCs(sccs, edges) {
 			t.Errorf("determinism run %d: reduced edges broke SCC", r)
@@ -312,7 +237,73 @@ func TestDeterminism(t *testing.T) {
 		} else if sig != baseline {
 			t.Errorf("determinism run %d: output differs from run 0 (baseline count=%d, this count=%d)", r, baselineCount, len(edges))
 		}
+	}
+}
 
-		t.Logf("det run %d: seed: %d, SCCs: %d, edges kept: %d, time: %d ms", r, seed, len(sccs), len(edges), elapsed)
+// --- benchmark graph construction (shared with all languages) ---
+
+func ringSCC(start, end int, g *staging.Graph) {
+	for i := start; i < end; i++ {
+		v := (i + 1) % end
+		if v == 0 {
+			v = start
+		}
+		if i == v {
+			continue
+		}
+		g.AddEdge(i, v)
+	}
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func buildBenchGraph(graphSize, clusterSize, noClusterInGroup int) *staging.Graph {
+	rand.Seed(43)
+	g := staging.BenchNewGraph(graphSize)
+
+	for i := 0; i < graphSize; i += clusterSize {
+		ringSCC(i, min(i+clusterSize, graphSize), g)
+
+		currentCluster := i / clusterSize
+		if currentCluster/noClusterInGroup == (currentCluster+1)/noClusterInGroup {
+			if (i + clusterSize) < graphSize {
+				endA := min(i+clusterSize, graphSize)
+				endB := min(i+2*clusterSize, graphSize)
+				u := i + rand.Intn(endA-i)
+				v := endA + rand.Intn(endB-endA)
+				g.AddEdge(u, v)
+			}
+		}
+	}
+	return g
+}
+
+func TestSCCSpeed(t *testing.T) {
+	graphSize := 100000
+	clusterSize := 300
+	noClusterInGroup := 3
+
+	g := buildBenchGraph(graphSize, clusterSize, noClusterInGroup)
+
+	reps := benchutil.Reps(5)
+	iters := benchutil.Iters(20)
+
+	r := benchutil.RunBenchmark(func() { staging.BenchReduceEdges(g) }, reps, iters, 1)
+
+	label := fmt.Sprintf("SCC ReduceEdges | graph_size=%d", graphSize)
+	t.Log(benchutil.FormatResult(label, r))
+
+	params := map[string]interface{}{
+		"graph_size":          graphSize,
+		"cluster_size":        clusterSize,
+		"no_cluster_in_group": noClusterInGroup,
+	}
+	if err := benchutil.WriteResult(benchutil.Out(), r, "sccs", benchutil.Impl(), params); err != nil {
+		t.Fatalf("failed to write result JSON: %v", err)
 	}
 }

@@ -1,37 +1,41 @@
+#include <cstdlib>
 #include <iostream>
-#include "vector"
-#include "../../BFS/cpp/bfs_seq.hpp"
-#include "../../BFS/cpp/graph.h"
-#include "../../bench_utils/cpp/bench_utils.hpp"
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "impl.hpp"          // staged adapter: Graph + bench_bfs(Graph&, int)
+#include "bench_utils.hpp"
 
 using namespace std;
 
+static int g_failures = 0;
 
 void assertEqual(vector<int>& result, const vector<int>& expected, string testName) {
     if (result == expected) {
         cout << testName << " passed" << endl;
     } else {
+        g_failures++;
         cout << testName << " failed" << endl;
-        cout <<"Expected: ";
-        for(int v : expected) cout<< v << " ";
+        cout << "Expected: ";
+        for (int v : expected) cout << v << " ";
         cout << endl;
-        cout<<"Got: ";
-        for(int v : result) cout<< v << " ";
+        cout << "Got: ";
+        for (int v : result) cout << v << " ";
         cout << endl;
     }
 }
 
-void test_bfs_empty(){
+void test_bfs_empty() {
     Graph g;
-    vector<int> result = bfs(g, 1);
-
+    vector<int> result = bench_bfs(g, 1);
     assertEqual(result, {}, "test_bfs_empty");
 }
 
-void test_bfs_single_node(){
+void test_bfs_single_node() {
     Graph g;
     g.add_edge(1, 1);
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     assertEqual(result, {1}, "test_bfs_single_node");
 }
 
@@ -41,7 +45,7 @@ void test_bfs_linear_edge() {
     g.add_edge(2, 3);
     g.add_edge(3, 4);
 
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     assertEqual(result, {1, 2, 3, 4}, "test_bfs_linear_edge");
 }
 
@@ -55,7 +59,7 @@ void test_bfs_complete_graph() {
             }
         }
     }
-    vector<int> result = bfs(g, 3);
+    vector<int> result = bench_bfs(g, 3);
     assertEqual(result, {3, 1, 2, 4}, "test_bfs_complete_graph");
 }
 
@@ -66,7 +70,7 @@ void test_bfs_star_graph() {
     for (int leaf : leaves) {
         g.add_edge(center, leaf);
     }
-    vector<int> result = bfs(g, center);
+    vector<int> result = bench_bfs(g, center);
     vector<int> expected = {center, 2, 3, 4, 5};
     assertEqual(result, expected, "test_bfs_star_graph");
 }
@@ -75,11 +79,10 @@ void test_bfs_cycle() {
     Graph g;
     vector<vector<int>> edges = {{1, 2}, {2, 3}, {3, 4}, {4, 1}};
     for (vector<int> edge : edges) {
-        
         g.add_edge(edge[0], edge[1]);
     }
 
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     vector<int> expected = {1, 2, 4, 3};
     assertEqual(result, expected, "test_bfs_cycle");
 }
@@ -90,7 +93,7 @@ void test_bfs_tree_structure() {
     for (auto& edge : edges) {
         g.add_edge(edge.first, edge.second);
     }
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     vector<int> expected = {1, 2, 3, 4, 5, 6, 7};
     assertEqual(result, expected, "test_bfs_tree_structure");
 }
@@ -104,11 +107,11 @@ void test_bfs_disconnected_components() {
     g.add_edge(4, 5);
     g.add_edge(4, 6);
 
-    vector<int> result1 = bfs(g, 1);
+    vector<int> result1 = bench_bfs(g, 1);
     vector<int> expected1 = {1, 2, 3};
     assertEqual(result1, expected1, "test_bfs_disconnected_components_1");
 
-    vector<int> result2 = bfs(g, 4);
+    vector<int> result2 = bench_bfs(g, 4);
     vector<int> expected2 = {4, 5, 6};
     assertEqual(result2, expected2, "test_bfs_disconnected_components_2");
 }
@@ -119,7 +122,7 @@ void test_bfs_duplicate_edges() {
     g.add_edge(1, 2); // Duplicate
     g.add_edge(2, 3);
 
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     vector<int> expected = {1, 2, 3};
     assertEqual(result, expected, "test_bfs_duplicate_edges");
 }
@@ -128,7 +131,7 @@ void test_bfs_nonexistent_start_vertex() {
     Graph g;
     g.add_edge(1, 2);
 
-    vector<int> result = bfs(g, 999);
+    vector<int> result = bench_bfs(g, 999);
     vector<int> expected = {};
     assertEqual(result, expected, "test_bfs_nonexistent_start_vertex");
 }
@@ -142,7 +145,7 @@ void test_bfs_complex_graph() {
     for (auto& edge : edges) {
         g.add_edge(edge.first, edge.second);
     }
-    vector<int> result = bfs(g, 1);
+    vector<int> result = bench_bfs(g, 1);
     vector<int> expected = {1, 2, 3, 4, 8, 5, 7, 6};
     assertEqual(result, expected, "test_bfs_complex_graph");
 }
@@ -152,10 +155,10 @@ void test_bfs_order_consistency() {
     g.add_edge(1, 3);
     g.add_edge(1, 2); // Added after 3
 
-    vector<int> first_result = bfs(g, 1);
+    vector<int> first_result = bench_bfs(g, 1);
     bool consistent = true;
     for (int i = 0; i < 5; ++i) {
-        vector<int> result = bfs(g, 1);
+        vector<int> result = bench_bfs(g, 1);
         if (result != first_result) {
             consistent = false;
             break;
@@ -164,7 +167,38 @@ void test_bfs_order_consistency() {
     if (consistent) {
         cout << "test_bfs_order_consistency passed" << endl;
     } else {
+        g_failures++;
         cout << "test_bfs_order_consistency failed" << endl;
+    }
+}
+
+void test_bfs_large_graph_determinism() {
+    Graph g;
+    int levels = 50;
+    int width = 50;
+    for (int l = 0; l < levels; ++l) {
+        for (int i = 0; i < width; ++i) {
+            int u = l * width + i;
+            for (int j = 0; j < width; ++j) {
+                g.add_edge(u, (l + 1) * width + j);
+            }
+        }
+    }
+
+    vector<int> first_result = bench_bfs(g, 0);
+    bool consistent = true;
+    for (int i = 0; i < 20; ++i) {
+        vector<int> result = bench_bfs(g, 0);
+        if (result != first_result) {
+            consistent = false;
+            break;
+        }
+    }
+    if (consistent) {
+        cout << "test_bfs_large_graph_determinism passed" << endl;
+    } else {
+        g_failures++;
+        cout << "test_bfs_large_graph_determinism failed" << endl;
     }
 }
 
@@ -174,27 +208,28 @@ void test_bfs_performance_stress_test() {
     for (int i = 1; i < size; ++i) {
         g.add_edge(i, i + 1);
     }
-    vector<int> result = bfs(g, 1);
-    bool passed = (result.size() == size) && (result[0] == 1) && (result[size - 1] == size);
+    vector<int> result = bench_bfs(g, 1);
+    bool passed = (result.size() == (size_t)size) && (result[0] == 1) && (result[size - 1] == size);
     if (passed) {
         cout << "test_bfs_performance_stress_test passed" << endl;
     } else {
+        g_failures++;
         cout << "test_bfs_performance_stress_test failed" << endl;
     }
 }
 
-void test_bfs_performance_speed_test(){
+void test_bfs_performance_speed_test() {
     Graph g;
     int size = 2000;
     for (int i = 1; i <= size; ++i) {
-        for (int j = i + 1; j <= size; j++){
+        for (int j = i + 1; j <= size; j++) {
             g.add_edge(i, j);
             g.add_edge(j, i);
         }
     }
 
-    int reps = 5, iters = 20;
-    auto bm = run_benchmark([&]() { bfs(g, 1); }, reps, iters, 1);
+    int reps = bench_reps(5), iters = bench_iters(20);
+    auto bm = run_benchmark([&]() { bench_bfs(g, 1); }, reps, iters, 1);
 
     long long undirected = 1LL * size * (size - 1) / 2;
     long long directed   = 1LL * size * (size - 1);
@@ -205,10 +240,9 @@ void test_bfs_performance_speed_test(){
           << " (directed≈" << directed << ")";
     cout << format_result(label.str(), bm) << endl;
 
-    const char* out = std::getenv("BENCH_OUT");
-    write_result(bm, out ? out : "", "bfs", "cpp", "seq", iters);
+    std::string params = "{\"graph_size\": " + std::to_string(size) + ", \"graph_kind\": \"complete\"}";
+    write_result(bm, bench_out(), "bfs", "cpp", bench_impl(), iters, params);
 }
-
 
 int main() {
     test_bfs_empty();
@@ -223,8 +257,14 @@ int main() {
     test_bfs_nonexistent_start_vertex();
     test_bfs_complex_graph();
     test_bfs_order_consistency();
+    test_bfs_large_graph_determinism();
     test_bfs_performance_stress_test();
-    test_bfs_performance_speed_test();
 
+    if (g_failures > 0) {
+        cout << g_failures << " test(s) failed — skipping benchmark" << endl;
+        return 1;
+    }
+
+    test_bfs_performance_speed_test();
     return 0;
 }

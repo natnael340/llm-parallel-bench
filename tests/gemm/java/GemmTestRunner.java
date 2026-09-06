@@ -51,17 +51,17 @@ public class GemmTestRunner {
         test("Repeat calls accumulate with beta=1", GemmTestRunner::testRepeatCallsAccumulateWithBetaOne);
         test("Alpha scaling is linear", GemmTestRunner::testAlphaScalingLinear);
 
-        // Performance test
-        test("Performance speed test", GemmTestRunner::testPerformanceSpeed);
-
         // Summary
         System.out.println("\n========================================");
         System.out.printf("Results: %d passed, %d failed, %d total%n", passed, failed, passed + failed);
         System.out.println("========================================");
 
         if (failed > 0) {
+            System.out.println(failed + " test(s) failed — skipping benchmark");
             System.exit(1);
         }
+
+        testPerformanceSpeed();
     }
 
     private static void test(String name, Runnable testFn) {
@@ -187,7 +187,7 @@ public class GemmTestRunner {
         int m = 3, n = 4;
         double[][] I = makeIdentity(m);
         double[][] B = makeRandomMatrix(m, n, -1.0, 1.0, 1);
-        double[][] out = GemmParallel.run(I, B, 1.0, null, 0.0);
+        double[][] out = Impl.run(I, B, 1.0, null, 0.0);
         matAlmostEqual(out, B);
     }
 
@@ -196,7 +196,7 @@ public class GemmTestRunner {
         int n = k;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 2);
         double[][] I = makeIdentity(n);
-        double[][] out = GemmParallel.run(A, I, 1.0, null, 0.0);
+        double[][] out = Impl.run(A, I, 1.0, null, 0.0);
         matAlmostEqual(out, A);
     }
 
@@ -204,7 +204,7 @@ public class GemmTestRunner {
         int m = 4, k = 3, n = 5;
         double[][] A = makeMatrix(m, k, 0.0);
         double[][] B = makeMatrix(k, n, 0.0);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, makeMatrix(m, n, 0.0));
     }
 
@@ -212,7 +212,7 @@ public class GemmTestRunner {
         int m = 2, k = 3, n = 4;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 3);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 4);
-        double[][] out = GemmParallel.run(A, B, 0.0, null, 0.0);
+        double[][] out = Impl.run(A, B, 0.0, null, 0.0);
         matAlmostEqual(out, makeMatrix(m, n, 0.0));
     }
 
@@ -222,7 +222,7 @@ public class GemmTestRunner {
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 6);
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 7);
         double[][] CCopy = deepCopy(C);
-        double[][] out = GemmParallel.run(A, B, 0.0, C, 1.0);
+        double[][] out = Impl.run(A, B, 0.0, C, 1.0);
         if (out != C) {
             throw new AssertionError("Output should be same object as C");
         }
@@ -236,7 +236,7 @@ public class GemmTestRunner {
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 10);
         double[][] CCopy = deepCopy(C);
         double beta = 2.5;
-        double[][] out = GemmParallel.run(A, B, 0.0, C, beta, 2, 3, 1);
+        double[][] out = Impl.run(A, B, 0.0, C, beta, 2, 3, 1);
         if (out != C) {
             throw new AssertionError("Output should be same object as C");
         }
@@ -254,7 +254,7 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 11);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 12);
         double[][] C = makeMatrix(m, n, 7.0);
-        double[][] out = GemmParallel.run(A, B, 1.0, C, 0.0);
+        double[][] out = Impl.run(A, B, 1.0, C, 0.0);
         double[][] ref = naiveGemm(A, B, 1.0, makeMatrix(m, n, 0.0), 0.0);
         matAlmostEqual(out, ref);
     }
@@ -265,7 +265,7 @@ public class GemmTestRunner {
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 14);
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 15);
         double[][] Cref = deepCopy(C);
-        double[][] out = GemmParallel.run(A, B, 0.5, C, 1.0);
+        double[][] out = Impl.run(A, B, 0.5, C, 1.0);
         double[][] ref = naiveGemm(A, B, 0.5, Cref, 1.0);
         matAlmostEqual(out, ref);
     }
@@ -276,7 +276,7 @@ public class GemmTestRunner {
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 17);
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 18);
         double[][] Cref = deepCopy(C);
-        double[][] out = GemmParallel.run(A, B, -1.0, C, -0.5);
+        double[][] out = Impl.run(A, B, -1.0, C, -0.5);
         double[][] ref = naiveGemm(A, B, -1.0, Cref, -0.5);
         matAlmostEqual(out, ref);
     }
@@ -285,7 +285,7 @@ public class GemmTestRunner {
         int m = 10, k = 2, n = 7;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 19);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 20);
-        double[][] out = GemmParallel.run(A, B);
+        double[][] out = Impl.run(A, B);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -294,7 +294,7 @@ public class GemmTestRunner {
         int m = 3, k = 8, n = 20;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 21);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 22);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 2, 7, 3);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 2, 7, 3);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -303,7 +303,7 @@ public class GemmTestRunner {
         int m = 1, k = 5, n = 1;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 23);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 24);
-        double[][] out = GemmParallel.run(A, B);
+        double[][] out = Impl.run(A, B);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -312,7 +312,7 @@ public class GemmTestRunner {
         int m = 1, k = 6, n = 4;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 25);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 26);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 1, 3, 2);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 1, 3, 2);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -321,7 +321,7 @@ public class GemmTestRunner {
         int m = 7, k = 5, n = 1;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 27);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 28);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 4, 1, 3);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 4, 1, 3);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -331,7 +331,7 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 29);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 30);
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 31);
-        double[][] out = GemmParallel.run(A, B, 1.2, deepCopy(C), 0.7, 4, 5, 3);
+        double[][] out = Impl.run(A, B, 1.2, deepCopy(C), 0.7, 4, 5, 3);
         double[][] ref = naiveGemm(A, B, 1.2, C, 0.7);
         matAlmostEqual(out, ref);
     }
@@ -340,7 +340,7 @@ public class GemmTestRunner {
         int m = 13, k = 17, n = 19;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 32);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 33);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 5, 6, 7);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 5, 6, 7);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -349,7 +349,7 @@ public class GemmTestRunner {
         int m = 5, k = 6, n = 4;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 34);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 35);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 1, 1, 1);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 1, 1, 1);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -358,7 +358,7 @@ public class GemmTestRunner {
         int m = 4, k = 3, n = 2;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 36);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 37);
-        double[][] out = GemmParallel.run(A, B, 1.0, null, 0.0, 128, 128, 128);
+        double[][] out = Impl.run(A, B, 1.0, null, 0.0, 128, 128, 128);
         double[][] ref = naiveGemm(A, B, 1.0, null, 0.0);
         matAlmostEqual(out, ref);
     }
@@ -368,7 +368,7 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 38);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 39);
         double[][] C = makeRandomMatrix(m, n, -1.0, 1.0, 40);
-        double[][] out = GemmParallel.run(A, B, 0.3, C, 0.4);
+        double[][] out = Impl.run(A, B, 0.3, C, 0.4);
         if (out != C) {
             throw new AssertionError("Output should be same object as C (mutated in place)");
         }
@@ -378,7 +378,7 @@ public class GemmTestRunner {
         int m = 2, k = 3, n = 2;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 41);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 42);
-        double[][] out = GemmParallel.run(A, B);
+        double[][] out = Impl.run(A, B);
         if (out == A || out == B) {
             throw new AssertionError("Output should be a new object");
         }
@@ -391,7 +391,7 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(3, 4, -1.0, 1.0, 43);
         double[][] B = makeRandomMatrix(5, 2, -1.0, 1.0, 44);
         try {
-            GemmParallel.run(A, B);
+            Impl.run(A, B);
             throw new AssertionError("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
@@ -403,7 +403,7 @@ public class GemmTestRunner {
         double[][] B = makeRandomMatrix(2, 4, -1.0, 1.0, 46);
         double[][] C = makeRandomMatrix(2, 4, -1.0, 1.0, 47);
         try {
-            GemmParallel.run(A, B, 1.0, C, 0.0);
+            Impl.run(A, B, 1.0, C, 0.0);
             throw new AssertionError("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
@@ -414,7 +414,7 @@ public class GemmTestRunner {
         double[][] A = new double[][]{{1.0, 2.0}, {3.0}};
         double[][] B = makeRandomMatrix(2, 2, -1.0, 1.0, 48);
         try {
-            GemmParallel.run(A, B);
+            Impl.run(A, B);
             throw new AssertionError("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
@@ -425,7 +425,7 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(2, 2, -1.0, 1.0, 49);
         double[][] B = new double[][]{{1.0}, {2.0, 3.0}};
         try {
-            GemmParallel.run(A, B);
+            Impl.run(A, B);
             throw new AssertionError("Expected IllegalArgumentException");
         } catch (IllegalArgumentException e) {
             // expected
@@ -435,7 +435,7 @@ public class GemmTestRunner {
     private static void testNaNPropagation() {
         double[][] A = new double[][]{{Double.NaN, 1.0}, {2.0, 3.0}};
         double[][] B = new double[][]{{4.0, 5.0}, {6.0, 7.0}};
-        double[][] out = GemmParallel.run(A, B);
+        double[][] out = Impl.run(A, B);
         if (!Double.isNaN(out[0][0]) || !Double.isNaN(out[0][1])) {
             throw new AssertionError("NaN should propagate");
         }
@@ -444,7 +444,7 @@ public class GemmTestRunner {
     private static void testInfinityPropagation() {
         double[][] A = new double[][]{{Double.POSITIVE_INFINITY, 0.0}, {0.0, 1.0}};
         double[][] B = new double[][]{{1.0, 2.0}, {3.0, 4.0}};
-        double[][] out = GemmParallel.run(A, B);
+        double[][] out = Impl.run(A, B);
         if (!Double.isInfinite(out[0][0]) || !Double.isInfinite(out[0][1])) {
             throw new AssertionError("Infinity should propagate");
         }
@@ -455,8 +455,8 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 51);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 52);
         double[][] C = makeMatrix(m, n, 0.0);
-        GemmParallel.run(A, B, 1.0, C, 1.0);
-        GemmParallel.run(A, B, 1.0, C, 1.0);
+        Impl.run(A, B, 1.0, C, 1.0);
+        Impl.run(A, B, 1.0, C, 1.0);
         double[][] refOnce = naiveGemm(A, B, 1.0, makeMatrix(m, n, 0.0), 1.0);
         double[][] refTwice = naiveGemm(A, B, 1.0, refOnce, 1.0);
         matAlmostEqual(C, refTwice);
@@ -466,9 +466,9 @@ public class GemmTestRunner {
         int m = 4, k = 5, n = 3;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 53);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 54);
-        double[][] C1 = GemmParallel.run(A, B, 1.0, null, 0.0);
+        double[][] C1 = Impl.run(A, B, 1.0, null, 0.0);
         double s = 2.75;
-        double[][] C2 = GemmParallel.run(A, B, s, null, 0.0);
+        double[][] C2 = Impl.run(A, B, s, null, 0.0);
         double[][] scaled = makeMatrix(m, n, 0.0);
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
@@ -480,36 +480,24 @@ public class GemmTestRunner {
 
     private static void testPerformanceSpeed() {
         int m = 1024, k = 1024, n = 1024;
+        // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
+        final int MB = 56, NB = 72, KB = 64;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 10);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 12);
 
-        // Warmup
-        GemmParallel.run(A, B, 1.0, null, 0.0, 56, 72, 64);
+        int reps = Bench.reps(5);
+        int iters = Bench.iters(5);
 
-        int iters = 20;
-        int reps = 5;
-        double[] times = new double[reps];
+        Bench.Result r = Bench.run(() -> Impl.run(A, B, 1.0, null, 0.0, MB, NB, KB), reps, iters, 1);
 
-        for (int r = 0; r < reps; r++) {
-            long startTime = System.nanoTime();
-            for (int i = 0; i < iters; i++) {
-                GemmParallel.run(A, B, 1.0, null, 0.0, 56, 72, 64);
-            }
-            long endTime = System.nanoTime();
-            times[r] = (endTime - startTime) / 1_000_000.0 / iters;
-        }
+        double gflops = (2.0 * m * n * k) / ((r.mean / 1000.0) * 1e9);
+        String label = String.format("GEMM %dx%dx%d (%.3f GFLOPs) [iters=%d, repeats=%d]",
+                                     m, n, k, gflops, iters, reps);
+        System.out.println(Bench.format(label, r));
 
-        double avg = 0;
-        for (double t : times) avg += t;
-        avg /= times.length;
-
-        double variance = 0;
-        for (double t : times) variance += (t - avg) * (t - avg);
-        double sd = Math.sqrt(variance / times.length);
-
-        double avgS = avg / 1000.0;
-        double gflops = (2.0 * m * n * k) / (avgS * 1e9);
-
-        System.out.printf("       (GEMM %dx%dx%d: %.2f ms/run +/- %.2f, %.3f GFLOPs)%n", m, n, k, avg, sd, gflops);
+        String params = String.format(
+            "{\"m\": %d, \"n\": %d, \"k\": %d, \"MB\": %d, \"NB\": %d, \"KB\": %d}",
+            m, n, k, MB, NB, KB);
+        Bench.writeResult(Bench.out(), r, "gemm", Bench.impl(), params);
     }
 }
