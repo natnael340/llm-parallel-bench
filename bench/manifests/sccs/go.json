@@ -1,0 +1,45 @@
+{
+  "algo": "sccs",
+  "lang": "go",
+  "harness": "tests/sccs/go",
+  "test_pattern": ".",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
+  "canonical_entry": "BenchNewGraph(n int) *Graph; g.AddEdge; BenchReduceEdges(g) []Edge; g.FindSCCs()",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/go",
+      "files": ["graph.go"],
+      "adapter": [
+        "func BenchNewGraph(n int) *Graph { return NewGraph(n) }",
+        "func BenchReduceEdges(g *Graph) []Edge { return g.ReduceEdges() }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/go",
+      "files": ["algo_parallel.go"],
+      "adapter": [
+        "import \"runtime\"",
+        "func BenchNewGraph(n int) *Graph { return NewGraph(n) }",
+        "func BenchReduceEdges(g *Graph) []Edge { return g.ReduceEdgesParallel(runtime.NumCPU()) }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/go",
+      "files": ["algo_parallel.go"],
+      "adapter": [
+        "func BenchNewGraph(n int) *Graph { return NewGraph(n) }",
+        "func BenchReduceEdges(g *Graph) []Edge { return g.ReduceEdges() }"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/go",
+      "files": ["main.go"],
+      "adapter": [
+        "func BenchNewGraph(n int) *Graph { return NewGraph(n) }",
+        "func BenchReduceEdges(g *Graph) []Edge { return g.ReduceEdgesParallel() }"
+      ]
+    }
+  }
+}

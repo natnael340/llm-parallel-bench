@@ -1,0 +1,69 @@
+{
+  "algo": "gemm",
+  "lang": "csharp",
+  "harness": "tests/gemm/csharp",
+  "harness_sources": [
+    "GemmTestRunner.cs"
+  ],
+  "default_reps": 5,
+  "default_iters": 5,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 128
+  },
+  "canonical_entry": "BenchImpl.Run(A, B, alpha=, C=, beta=, MB=, NB=, KB=) -> double[][]",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/gemm/csharp",
+      "files": [
+        "Gemm.cs"
+      ],
+      "adapter": [
+        "public static class BenchImpl {",
+        "    public static double[][] Run(double[][] A, double[][] B, double alpha = 1.0, double[][]? C = null, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64)",
+        "        => GemmBenchmark.Gemm.Run(A, B, alpha, C, beta, MB, NB, KB);",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/gemm/csharp",
+      "files": [
+        "algo_parallel.cs"
+      ],
+      "adapter": [
+        "public static class BenchImpl {",
+        "    public static double[][] Run(double[][] A, double[][] B, double alpha = 1.0, double[][]? C = null, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64)",
+        "        => GemmBenchmark.Gemm.Run(A, B, alpha, C, beta, MB, NB, KB);",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/gemm/csharp",
+      "files": [
+        "gemm_parallel.cs"
+      ],
+      "adapter": [
+        "public static class BenchImpl {",
+        "    public static double[][] Run(double[][] A, double[][] B, double alpha = 1.0, double[][]? C = null, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64)",
+        "        => GemmBenchmark.GemmParallel.Run(A, B, alpha, C, beta, MB, NB, KB);",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/gemm/csharp",
+      "files": [
+        "GemmParallel.cs"
+      ],
+      "adapter": [
+        "public static class BenchImpl {",
+        "    public static double[][] Run(double[][] A, double[][] B, double alpha = 1.0, double[][]? C = null, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64)",
+        "        => GemmBenchmark.GemmParallel.Run(A, B, alpha, C, beta, MB, NB, KB);",
+        "}"
+      ]
+    }
+  }
+}

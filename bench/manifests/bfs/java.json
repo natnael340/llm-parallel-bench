@@ -1,0 +1,58 @@
+{
+  "algo": "bfs",
+  "lang": "java",
+  "harness": "tests/bfs/java",
+  "harness_sources": ["BfsTests.java"],
+  "main_class": "BfsTests",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 2000, "graph_kind": "complete" },
+  "canonical_entry": "Impl.run(Graph, int) -> List<Integer>; Graph",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/bfs/java",
+      "files": ["BfsSequential.java", "Graph.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    public static List<Integer> run(Graph g, int startVertex) { return BfsSequential.run(g, startVertex); }",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/bfs/java",
+      "files": ["BfsParallel.java", "Graph.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    public static List<Integer> run(Graph g, int startVertex) { return BfsParallel.run(g, startVertex); }",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/bfs/java",
+      "files": ["BfsParallel.java", "BfsSequential.java", "Graph.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    // Constructed per call on purpose: gpt-5 and gemini also allocate a",
+        "    // ForkJoinPool inside their own per-call path (BfsParallel.java:74 and",
+        "    // :26 respectively), so paying construction here keeps all three",
+        "    // models on equal terms. Hoisting it into a static field measured",
+        "    // claude with a warm shared pool that the others never get.",
+        "    public static List<Integer> run(Graph g, int startVertex) { return new BfsParallel().run(g, startVertex); }",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/bfs/java",
+      "files": ["BfsParallel.java", "BfsSequential.java", "Graph.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    public static List<Integer> run(Graph g, int startVertex) { return BfsParallel.run(g, startVertex); }",
+        "}"
+      ]
+    }
+  }
+}

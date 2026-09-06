@@ -1,0 +1,72 @@
+{
+  "algo": "bfs",
+  "lang": "csharp",
+  "harness": "tests/bfs/csharp",
+  "harness_sources": [
+    "BfsBench.cs"
+  ],
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "canonical_entry": "BenchImpl.Run(Graph, int) -> List<int>; Graph",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/bfs/csharp",
+      "files": [
+        "Bfs.cs",
+        "Graph.cs"
+      ],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public static class BenchImpl {",
+        "    public static List<int> Run(Graph g, int startVertex) => BfsSequential.Run(g, startVertex);",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/bfs/csharp",
+      "files": [
+        "algo_parallel.cs",
+        "algo_sequential.cs",
+        "Graph.cs"
+      ],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public static class BenchImpl {",
+        "    public static List<int> Run(Graph g, int startVertex) => Bfs.Run(g, startVertex);",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/bfs/csharp",
+      "files": [
+        "BfsParallel.cs",
+        "Bfs.cs",
+        "Graph.cs"
+      ],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public static class BenchImpl {",
+        "    public static List<int> Run(Graph g, int startVertex) => BfsParallel.Run(g, startVertex);",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/bfs/csharp",
+      "files": [
+        "BfsParallel.cs",
+        "Bfs.cs",
+        "Graph.cs"
+      ],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public static class BenchImpl {",
+        "    public static List<int> Run(Graph g, int startVertex) => BfsParallel.Run(g, startVertex);",
+        "}"
+      ]
+    }
+  }
+}

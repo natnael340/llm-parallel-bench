@@ -1,0 +1,37 @@
+{
+  "algo": "smith-waterman",
+  "lang": "cpp",
+  "harness": "tests/smith-waterman/cpp",
+  "harness_sources": ["test_smith_waterman.cpp"],
+  "compile_staged_sources": true,
+  "default_reps": 5,
+  "default_iters": 1,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "class SmithWaterman(match, mismatch, gap).findAlignment(query, reference) -> tuple<string,string,int,double>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/cpp",
+      "files": ["smith_waterman.h", "smith_waterman.cpp"],
+      "adapter": ["#include \"smith_waterman.h\""]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/cpp",
+      "files": ["smith_waterman.h", "algo_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": ["#include \"smith_waterman.h\""]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/cpp",
+      "files": ["smith_waterman.h", "algo_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": ["#include \"smith_waterman.h\""]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/cpp",
+      "files": ["smith_waterman_parallel.h", "smith_waterman_parallel.cpp", "smith_waterman_sequential.h", "smith_waterman_sequential.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": ["#include \"smith_waterman_parallel.h\""]
+    }
+  }
+}

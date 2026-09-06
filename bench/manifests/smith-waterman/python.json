@@ -1,0 +1,35 @@
+{
+  "algo": "smith-waterman",
+  "lang": "python",
+  "harness": "tests/smith-waterman/python",
+  "harness_sources": ["test_smith_waterman.py"],
+  "runner": "pytest",
+  "default_reps": 5,
+  "default_iters": 1,
+  "timeout_s": 43200,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "BenchSmithWaterman(matchScore, mismatchScore, gapScore).findAlignment(query, reference)",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/python",
+      "files": ["main.py"],
+      "adapter": "from .main import SmithWaterman as BenchSmithWaterman"
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/python",
+      "files": ["algo_parallel.py"],
+      "adapter": "from .algo_parallel import SmithWatermanParallel as BenchSmithWaterman"
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/python",
+      "files": ["algo_parallel.py"],
+      "adapter": "from .algo_parallel import SmithWaterman as BenchSmithWaterman"
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/python",
+      "files": ["algo_parallel.py"],
+      "adapter": "from .algo_parallel import SmithWaterman as BenchSmithWaterman"
+    }
+  }
+}

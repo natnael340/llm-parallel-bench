@@ -1,0 +1,47 @@
+{
+  "algo": "bfs",
+  "lang": "python",
+  "harness": "tests/bfs/python",
+  "harness_sources": [
+    "test_bfs.py"
+  ],
+  "runner": "pytest",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "canonical_entry": "bench_bfs(graph, start_vertex) -> list[int]; Graph",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/bfs/python",
+      "files": [
+        "bfs_seq.py"
+      ],
+      "adapter": "from .bfs_seq import Graph, bfs as bench_bfs"
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/bfs/python",
+      "files": [
+        "bfs_parallel.py"
+      ],
+      "adapter": "from .bfs_parallel import Graph, bfs as bench_bfs"
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/bfs/python",
+      "files": [
+        "algo_parallel.py"
+      ],
+      "adapter": "from .algo_parallel import Graph, bfs as bench_bfs"
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/bfs/python",
+      "files": [
+        "bfs_parallel.py"
+      ],
+      "adapter": "from .bfs_parallel import Graph, bfs as bench_bfs"
+    }
+  },
+  "timeout_s": 21600
+}

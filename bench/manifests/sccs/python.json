@@ -1,0 +1,48 @@
+{
+  "algo": "sccs",
+  "lang": "python",
+  "harness": "tests/sccs/python",
+  "harness_sources": [
+    "benchmark_scc.py"
+  ],
+  "runner": "script",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "canonical_entry": "BenchGraph(n): add_edge, reduce_edges, find_sccs",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/python",
+      "files": [
+        "graph.py"
+      ],
+      "adapter": "from .graph import Graph as BenchGraph"
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/python",
+      "files": [
+        "algo_parallel.py"
+      ],
+      "adapter": "from .algo_parallel import GraphParallel as BenchGraph"
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/python",
+      "files": [
+        "algo_parallel.py"
+      ],
+      "adapter": "from .algo_parallel import Graph as BenchGraph"
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/python",
+      "files": [
+        "algo_parallel.py"
+      ],
+      "adapter": "from .algo_parallel import Graph as BenchGraph"
+    }
+  },
+  "timeout_s": 21600
+}
