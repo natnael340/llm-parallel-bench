@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    48.532709999999994,
+    41.318165,
+    40.935565000000004,
+    40.265885,
+    40.184974999999994
+  ],
+  "mean": 42.247460000000004,
+  "sd": 3.5450496860551883,
+  "median": 40.935565000000004,
+  "iqr": 1.0522800000000032,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-07-24T01:35:26.7882985Z"
+}

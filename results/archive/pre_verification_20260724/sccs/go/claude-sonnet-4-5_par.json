@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "go",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [
+    82.89953845,
+    62.809626800000004,
+    64.30263705,
+    73.49837995,
+    73.00265974999999
+  ],
+  "mean": 71.3025684,
+  "sd": 8.11373386961543,
+  "median": 73.00265974999999,
+  "iqr": 9.195742899999999,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "cluster_size": 300,
+    "graph_size": 100000,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-07-12T15:49:50Z"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [35.587981, 35.341376, 51.432904, 50.983546, 46.820347],
+  "mean": 44.033231,
+  "sd": 8.026529,
+  "median": 46.820347,
+  "iqr": 15.395565,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-07-12T15:48:52+00:00"
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "python",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "status": "did_not_finish",
+  "detail": "ran ~6.7h then killed",
+  "note": "Killed: parallel Python GEMM impractically slow on 1024^3 due to ProcessPoolExecutor pickle overhead. Sequential Python baseline ~45min; these are >8x slower. Non-viable, not a harness issue.",
+  "elapsed_ms": [],
+  "mean": null,
+  "sd": null,
+  "median": null,
+  "iqr": null,
+  "reps": 0,
+  "iters_per_rep": 0,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024
+  }
+}

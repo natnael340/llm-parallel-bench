@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [128.777607, 108.177842, 129.920870, 117.687803, 135.402175],
+  "mean": 123.993259,
+  "sd": 10.932476,
+  "median": 128.777607,
+  "iqr": 12.233067,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": "2026-07-12T15:39:55+00:00"
+}

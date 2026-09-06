@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "cpp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [122.551069, 177.472913, 186.156324, 111.495266, 87.214142],
+  "mean": 136.977943,
+  "sd": 42.989223,
+  "median": 122.551069,
+  "iqr": 65.977647,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": "2026-07-12T15:39:06+00:00"
+}

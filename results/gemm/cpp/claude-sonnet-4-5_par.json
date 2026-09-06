@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [316.386574, 283.530898, 281.144991, 319.724612, 285.868377],
+  "mean": 297.331090,
+  "sd": 19.028992,
+  "median": 285.868377,
+  "iqr": 32.855676,
+  "reps": 5,
+  "iters_per_rep": 5,
+  "params": {"m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 16},
+  "timestamp": "2026-07-24T10:33:30+00:00"
+}

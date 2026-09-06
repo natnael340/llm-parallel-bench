@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [1025.044338, 938.581682, 939.961523, 935.128017, 934.830569],
+  "mean": 954.709226,
+  "sd": 39.380214,
+  "median": 938.581682,
+  "iqr": 4.833506,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": "2026-07-24T11:58:22+00:00"
+}

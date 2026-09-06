@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [43.761855249999996, 40.3479467, 41.160931, 38.353909, 40.334893],
+  "mean": 40.79190699,
+  "sd": 1.9561804692071563,
+  "median": 40.3479467,
+  "iqr": 0.8260379999999969,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": ""
+}

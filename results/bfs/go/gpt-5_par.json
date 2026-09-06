@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "go",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    19.881986400000002,
+    21.8603294,
+    21.1226945,
+    19.03062975,
+    19.7772111
+  ],
+  "mean": 20.33457023,
+  "sd": 1.1363123479216206,
+  "median": 19.881986400000002,
+  "iqr": 1.3454834000000027,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-07-24T00:29:43Z"
+}

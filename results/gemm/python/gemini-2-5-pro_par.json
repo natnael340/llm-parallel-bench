@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "python",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "status": "did_not_finish",
+  "detail": "killed early; identical ProcessPoolExecutor pattern",
+  "note": "Killed: parallel Python GEMM impractically slow on 1024^3 due to ProcessPoolExecutor pickle overhead. Sequential Python baseline ~45min; these are >8x slower. Non-viable, not a harness issue.",
+  "elapsed_ms": [],
+  "mean": null,
+  "sd": null,
+  "median": null,
+  "iqr": null,
+  "reps": 0,
+  "iters_per_rep": 0,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024
+  }
+}
