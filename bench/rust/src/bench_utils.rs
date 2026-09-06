@@ -4,7 +4,7 @@
 
 use std::env;
 use std::fs;
-use std::time::Instant;
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 pub struct BenchResult {
     pub elapsed_ms: Vec<f64>,
@@ -122,6 +122,50 @@ pub fn format_result(label: &str, r: &BenchResult) -> String {
     )
 }
 
+/// Minimal JSON string escaping. Values reaching the result file come from the
+/// environment (MODEL, IMPL) and from callers, so they are not guaranteed to be
+/// JSON-safe; an unescaped quote or backslash silently produced a file the
+/// runner then failed to parse.
+fn json_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+/// Current UTC time as an ISO-8601 string, matching the other five harnesses.
+/// Implemented from the epoch directly (civil-from-days) to avoid adding a
+/// date dependency to the benchmark crate.
+fn timestamp_utc() -> String {
+    let secs = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+    let (days, rem) = (secs.div_euclid(86_400), secs.rem_euclid(86_400));
+    let (hh, mm, ss) = (rem / 3600, (rem % 3600) / 60, rem % 60);
+
+    let z = days + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if m <= 2 { y + 1 } else { y };
+    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}+00:00", y, m, d, hh, mm, ss)
+}
+
 /// Writes the schema-v2 JSON result to BENCH_OUT (no-op if empty).
 /// `params_json` is a pre-rendered JSON object, e.g. r#"{"graph_size": 2000}"#.
 pub fn write_result(r: &BenchResult, algo: &str, impl_str: &str, params_json: &str) {
@@ -130,12 +174,26 @@ pub fn write_result(r: &BenchResult, algo: &str, impl_str: &str, params_json: &s
         return;
     }
     let params = if params_json.is_empty() { "{}" } else { params_json };
+    // NaN/Infinity are not valid JSON; they arise only from a degenerate run
+    // (reps = 0 makes mean 0/0), and writing them produces a file the runner
+    // cannot parse, with no hint as to the cause.
+    for (name, v) in [("mean", r.mean), ("sd", r.sd), ("median", r.median), ("iqr", r.iqr)] {
+        if !v.is_finite() {
+            eprintln!("bench: refusing to write non-finite {} ({}); check BENCH_REPS/BENCH_ITERS", name, v);
+            std::process::exit(2);
+        }
+    }
     let elapsed: Vec<String> = r.elapsed_ms.iter().map(|v| format!("{}", v)).collect();
     let json = format!(
-        "{{\n  \"schema_version\": 2,\n  \"algo\": \"{}\",\n  \"lang\": \"rust\",\n  \"impl\": \"{}\",\n  \"model\": \"{}\",\n  \"elapsed_ms\": [{}],\n  \"mean\": {},\n  \"sd\": {},\n  \"median\": {},\n  \"iqr\": {},\n  \"reps\": {},\n  \"iters_per_rep\": {},\n  \"params\": {},\n  \"timestamp\": \"\"\n}}\n",
-        algo, impl_str, model(), elapsed.join(", "),
-        r.mean, r.sd, r.median, r.iqr, r.reps, r.iters, params
+        "{{\n  \"schema_version\": 2,\n  \"algo\": \"{}\",\n  \"lang\": \"rust\",\n  \"impl\": \"{}\",\n  \"model\": \"{}\",\n  \"elapsed_ms\": [{}],\n  \"mean\": {},\n  \"sd\": {},\n  \"median\": {},\n  \"iqr\": {},\n  \"reps\": {},\n  \"iters_per_rep\": {},\n  \"params\": {},\n  \"timestamp\": \"{}\"\n}}\n",
+        json_escape(algo), json_escape(impl_str), json_escape(&model()), elapsed.join(", "),
+        r.mean, r.sd, r.median, r.iqr, r.reps, r.iters, params, timestamp_utc()
     );
-    let _ = fs::write(&path, json);
+    // A discarded write error meant a failed write left the previous result in
+    // place, which the runner would then read as if this run had produced it.
+    if let Err(e) = fs::write(&path, json) {
+        eprintln!("bench: cannot write result to {}: {}", path, e);
+        std::process::exit(2);
+    }
 }
 

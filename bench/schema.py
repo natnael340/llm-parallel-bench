@@ -65,6 +65,12 @@ def validate(data: dict, expect: dict = None) -> None:
         if not isinstance(data[field], typ):
             raise SchemaError(f"field {field} has type {type(data[field]).__name__}")
 
+    # The type loop above only proves schema_version is an int; v2 is the only
+    # layout this validator describes, so anything else must be rejected rather
+    # than silently validated against the wrong field set.
+    if data["schema_version"] != 2:
+        raise SchemaError(f"unsupported schema_version: {data['schema_version']!r} (expected 2)")
+
     if data["lang"] not in KNOWN_LANGS:
         raise SchemaError(f"unknown lang: {data['lang']}")
     if data["impl"] not in KNOWN_IMPLS:
@@ -76,13 +82,15 @@ def validate(data: dict, expect: dict = None) -> None:
     if not all(isinstance(v, (int, float)) and v >= 0 for v in elapsed):
         raise SchemaError("elapsed_ms must be non-negative numbers")
 
-    # Cross-check stored stats against the raw samples. iqr is included so a
-    # harness using a different quantile definition is caught at the run that
-    # produced it, rather than silently contradicting summary.csv later.
+    # Cross-check every stored statistic against the raw samples. sd and iqr
+    # are included so a harness using a different dispersion definition (all
+    # six use the sample n-1 SD) is caught at the run that produced it,
+    # rather than silently contradicting summary.csv later.
     if len(elapsed) > 1:
         for name, recomputed in (
             ("mean", statistics.mean(elapsed)),
             ("median", statistics.median(elapsed)),
+            ("sd", statistics.stdev(elapsed)),
             ("iqr", iqr(elapsed)),
         ):
             if abs(recomputed - data[name]) > max(1e-6, 1e-3 * abs(recomputed)):
