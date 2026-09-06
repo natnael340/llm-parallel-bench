@@ -1,322 +1,116 @@
 # Benchmark Testing Guide
 
-All benchmarks write a JSON result file and print a summary line. Two env vars control every run:
+All benchmarks run through a single plug-and-play runner. You never edit a
+source file to switch implementation, model, or language — the runner stages
+the selected code, generates an adapter, builds, and runs it.
 
-| Variable | Values | Effect |
-|----------|--------|--------|
-| `IMPL` | `seq` \| `par` | Selects sequential (baseline) or parallel implementation |
-| `BENCH_OUT` | `/path/to/result.json` | Where to write the JSON result (skipped if unset) |
+```bash
+# one combo
+python bench/run.py run --algo bfs --lang go --model gpt-5 --impl par
 
-JSON schema (all languages, all algorithms):
+# the sequential baseline (impl defaults to seq for --model baseline)
+python bench/run.py run --algo bfs --lang go --model baseline
+
+# the whole matrix (baseline seq + every model's par, all algos/langs)
+python bench/run.py matrix
+
+# a filtered slice; --smoke does a reps=1 iters=1 build+correctness sanity check
+python bench/run.py matrix --algo bfs,sccs --lang cpp,go,rust --smoke
+
+# list every runnable combo
+python bench/run.py list
+
+# roll all results/ JSONs up into a research-ready table
+python bench/aggregate.py
+```
+
+Algorithms: `bfs`, `gemm`, `sccs`, `smith-waterman`.
+Languages: `python`, `go`, `cpp`, `java`, `csharp`, `rust`.
+Models: `baseline` (sequential), `gpt-5`, `claude-sonnet-4-5`, `gemini-2-5-pro`.
+
+## How it works
+
+Each `algo × lang` has a manifest at `bench/manifests/<algo>/<lang>.json` that
+lists, per variant (`<model>/<impl>`), which implementation files to copy and a
+small adapter mapping a canonical entry symbol onto whatever that implementation
+exposes. The runner:
+
+1. copies the selected variant's files into a gitignored staging dir
+   (`tests/<algo>/<lang>/staging/`, or `bench/rust/src/staged/` for Rust) and
+   generates the adapter — **`llm_written/` and `baselines/` are never edited**;
+2. builds the harness against the staging dir;
+3. runs the benchmark with the env contract below;
+4. validates the emitted JSON against schema v2 and writes it to
+   `results/<algo>/<lang>/<model>_<impl>.json`.
+
+Only one variant is staged per run, so the sequential and parallel legs of a
+combo go through the identical harness and timing loop.
+
+## Env contract
+
+The runner sets these; you only set them by hand if you run a staged binary
+directly (see `--print-cmd`).
+
+| Variable | Meaning |
+|----------|---------|
+| `IMPL` | `seq` or `par` |
+| `MODEL` | model name, or `baseline` |
+| `BENCH_OUT` | path to write the result JSON |
+| `BENCH_REPS` | timed repeats (default per manifest) |
+| `BENCH_ITERS` | calls per repeat (default per manifest) |
+| `SW_INPUT` | Smith-Waterman only: shared large-sequence input file |
+
+## Result schema (v2)
+
+Uniform across all languages and algorithms. Raw `elapsed_ms` is always stored,
+so any statistic can be recomputed later.
+
 ```json
-{ "algo": "bfs", "lang": "python", "impl": "seq",
-  "elapsed_ms": [1.2, 1.3, ...], "median": 1.25, "iqr": 0.05,
-  "reps": 5, "iters_per_rep": 20 }
-```
-
----
-
-## Python
-
-Runs from the project root. Swap with `IMPL=seq|par`.
-
-### BFS
-```bash
-# Correctness + performance (benchmark)
-IMPL=seq BENCH_OUT=results/bfs_python_seq.json pytest tests/bfs/python/test_bfs.py --run-perf -v -s
-IMPL=par BENCH_OUT=results/bfs_python_par.json pytest tests/bfs/python/test_bfs.py --run-perf -v -s
-```
-
-**Swap target:** `tests/bfs/python/par.py` — drop any parallel implementation here and rename its entry-point function to `bfs`.
-
-### GEMM
-```bash
-IMPL=seq BENCH_OUT=results/gemm_python_seq.json pytest tests/gemm/python/test_gemm.py --run-perf -v -s
-IMPL=par BENCH_OUT=results/gemm_python_par.json pytest tests/gemm/python/test_gemm.py --run-perf -v -s
-```
-
-### SCC
-```bash
-# Runs as a standalone script; always requires --out
-IMPL=seq python tests/sccs/python/benchmark_scc.py --out results/scc_python_seq.json
-IMPL=par python tests/sccs/python/benchmark_scc.py --out results/scc_python_par.json
-```
-
-**Note:** run from the project root so the local graph imports resolve.
-
-### Smith-Waterman
-```bash
-IMPL=seq BENCH_OUT=results/sw_python_seq.json pytest tests/smith-waterman/python/test_smith_waterman.py --run-perf -v -s
-IMPL=par BENCH_OUT=results/sw_python_par.json pytest tests/smith-waterman/python/test_smith_waterman.py --run-perf -v -s
-```
-
-**Note:** requires `tests/smith-waterman/python/main.py` (baseline) and `algo_parallel.py` (parallel) to be present. Copy from `baselines/smith-waterman/python/` and `llm_written/<model>/smith-waterman/python/` respectively.
-
----
-
-## Go
-
-Module root: project root (`go.mod` module `github.com/natnael340/llm-parallel-bench`).
-
-### BFS
-
-The test file imports a specific LLM model's implementation. **To swap model, edit line ~11 of `tests/bfs/go/bfs_test.go`:**
-
-```go
-// Current (GPT-5 parallel):
-bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/gpt-5/bfs/go"
-
-// Switch to baseline (sequential):
-bfsgo "github.com/natnael340/llm-parallel-bench/baselines/bfs/go"
-
-// Switch to Claude Sonnet 4.5:
-bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/claude-sonnet-4-5/bfs/go"
-
-// Switch to Gemini 2.5 Pro:
-bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/gemini-2-5-pro/bfs/go"
-```
-
-Also update the function call in `TestBFSSpeed` to match (e.g. `bfsgo.Bfs()` for baseline vs `bfsgo.BfsParallel()` for parallel).
-
-```bash
-# Run correctness tests
-go test ./tests/bfs/go/... -v
-
-# Run performance test only
-IMPL=par BENCH_OUT=results/bfs_go_par.json go test ./tests/bfs/go/... -run TestBFSSpeed -v
-```
-
-### SCC
-
-`IMPL` env var controls seq vs par at runtime — no file edits needed.
-
-```bash
-# Sequential baseline
-IMPL=seq go run tests/sccs/go/benchmark.go --out results/scc_go_seq.json
-
-# Parallel
-IMPL=par go run tests/sccs/go/benchmark.go --out results/scc_go_par.json
-```
-
-**To switch SCC model:** edit the imports at the top of `tests/sccs/go/benchmark.go`:
-```go
-graphpar "github.com/natnael340/llm-parallel-bench/scc/scssgo/par"
-graphseq "github.com/natnael340/llm-parallel-bench/scc/scssgo/seq"
-```
-
----
-
-## C++
-
-No build system — compile manually with `g++`. All commands run from the relevant test subdirectory.
-
-### BFS — Sequential (baseline)
-
-```bash
-cd tests/bfs/cpp
-
-g++ -std=c++17 -O2 -o test_bfs_seq \
-    test_bfs.cpp \
-    ../../../baselines/bfs/cpp/bfs_seq.cpp \
-    ../../../baselines/bfs/cpp/graph.cpp \
-    -I../../../baselines/bfs/cpp \
-    -I../../bench_utils/cpp
-
-BENCH_OUT=../../../results/bfs_cpp_seq.json ./test_bfs_seq
-```
-
-### BFS — Parallel (LLM-written)
-
-The parallel test file hardcodes which model to include. **To swap model, edit `tests/bfs/cpp/test_bfs_parallel.cpp` lines 4–6:**
-
-```cpp
-// Current (GPT-5):
-#include "../../llm_written/gpt-5/bfs/cpp/graph.h"
-#include "../../llm_written/gpt-5/bfs/cpp/bfs_parallel.hpp"
-#include "../../llm_written/gpt-5/bfs/cpp/bfs_seq.hpp"
-
-// Switch to Claude Sonnet 4.5:
-#include "../../llm_written/claude-sonnet-4-5/bfs/cpp/graph.h"
-#include "../../llm_written/claude-sonnet-4-5/bfs/cpp/bfs_parallel.hpp"
-
-// Switch to Gemini 2.5 Pro:
-#include "../../llm_written/gemini-2-5-pro/bfs/cpp/graph.h"
-#include "../../llm_written/gemini-2-5-pro/bfs/cpp/bfs_parallel.hpp"
-```
-
-```bash
-cd tests/bfs/cpp
-
-g++ -std=c++17 -O2 -o test_bfs_par \
-    test_bfs_parallel.cpp \
-    ../../../llm_written/gpt-5/bfs/cpp/bfs_parallel.cpp \
-    ../../../llm_written/gpt-5/bfs/cpp/graph.cpp \
-    -I../../../llm_written/gpt-5/bfs/cpp \
-    -I../../bench_utils/cpp
-
-BENCH_OUT=../../../results/bfs_cpp_par.json ./test_bfs_par
-```
-
-### SCC
-
-Toggle the `#include` comment at lines 9–10 of `tests/sccs/cpp/benchmark.cpp`:
-
-```cpp
-// Sequential:
-#include "./seq/graph.cpp"
-//#include "./par/graph.cpp"
-
-// Parallel (default):
-//#include "./seq/graph.cpp"
-#include "./par/graph.cpp"
-```
-
-```bash
-cd tests/sccs/cpp
-
-# Sequential
-g++ -std=c++17 -O2 -o benchmark benchmark.cpp -I../../bench_utils/cpp
-IMPL=seq ./benchmark --out ../../../results/scc_cpp_seq.json
-
-# Parallel (after toggling include above and recompiling)
-g++ -std=c++17 -O2 -o benchmark benchmark.cpp -I../../bench_utils/cpp
-IMPL=par ./benchmark --out ../../../results/scc_cpp_par.json
-```
-
----
-
-## Java
-
-No build system — compile with `javac`, run with `java`.
-
-### BFS
-
-The `Bfs` wrapper class in `tests/bfs/java/TestBfs.java` (lines 5–9) hardcodes which implementation to call. **To swap, edit that class:**
-
-```java
-// Current (parallel):
-class Bfs {
-    public static List<Integer> run(Graph graph, int start) {
-        BfsParallel bfs = new BfsParallel();
-        return bfs.run(graph, start);
-    }
-}
-
-// Switch to sequential baseline:
-class Bfs {
-    public static List<Integer> run(Graph graph, int start) {
-        BfsSequential bfs = new BfsSequential();
-        return bfs.run(graph, start);
-    }
+{
+  "schema_version": 2,
+  "algo": "bfs", "lang": "go", "impl": "par", "model": "gpt-5",
+  "elapsed_ms": [12.1, 12.4, 12.2, 12.3, 12.2],
+  "mean": 12.24, "sd": 0.11, "median": 12.2, "iqr": 0.15,
+  "reps": 5, "iters_per_rep": 20,
+  "params": { "graph_size": 2000 },
+  "timestamp": "..."
 }
 ```
 
-```bash
-cd tests/bfs/java
+`bench/aggregate.py` walks `results/**/*.json`, recomputes the stats from
+`elapsed_ms` (warns on any disagreement), joins each parallel row to its
+baseline sequential row per `algo × lang`, and writes `results/summary.csv`
+(with `speedup_mean` / `speedup_median`) plus a paper-ready `results/summary.md`.
+`python bench/aggregate.py --verify` only checks stored-vs-raw and exits non-zero
+on mismatch.
 
-# Sequential (baseline)
-javac -cp . \
-    BfsTests.java \
-    ../../../baselines/bfs/java/BfsSequential.java \
-    ../../../baselines/bfs/java/Graph.java
+## Zero-interference guarantees
 
-IMPL=seq BENCH_OUT=../../../results/bfs_java_seq.json java -cp .:../../../baselines/bfs/java BfsTests
+Timing happens inside each benchmark process, never in the runner, so runner
+overhead cannot leak into `elapsed_ms`:
 
-# Parallel (GPT-5)
-javac -cp . \
-    BfsTests.java \
-    ../../../llm_written/gpt-5/bfs/java/BfsParallel.java \
-    ../../../llm_written/gpt-5/bfs/java/Graph.java
+- all staging and compilation finish before the benchmark process starts;
+- the benchmark is a single subprocess awaited with a blocking wait (0% runner
+  CPU); benchmarks never run in parallel;
+- `--exec` replaces the runner process with the benchmark entirely
+  (`os.execvpe`), so nothing else is alive during measurement;
+- `--print-cmd` prints the bare staged/built command + env to run by hand.
 
-IMPL=par BENCH_OUT=../../../results/bfs_java_par.json java -cp .:../../../llm_written/gpt-5/bfs/java BfsTests
-```
+## Reps / iters per algorithm
 
-### SCC
+BFS and SCC default to `reps=5 × iters=20`. GEMM and Smith-Waterman default to
+`reps=5 × iters=5` and `iters=1` respectively (each call is expensive). Override
+with `--reps` / `--iters`; whatever is used is recorded in the JSON. The runner
+uses the same reps/iters for a combo's seq and par legs.
 
-Toggle the import comment at lines 1–2 of `tests/sccs/java/Benchmark.java`:
+## Notes
 
-```java
-// Sequential:
-import seq.Graph;
-//import par.Graph;
-
-// Parallel:
-//import seq.Graph;
-import par.Graph;
-```
-
-```bash
-cd tests/sccs/java
-
-# Sequential
-javac -cp .:../../../baselines/sccs/java/ \
-    Benchmark.java ../../../baselines/sccs/java/Graph.java
-
-IMPL=seq java -cp .:../../../baselines/sccs/java/ Benchmark \
-    --out ../../../results/scc_java_seq.json
-
-# Parallel (GPT-5)
-javac -cp .:../../../llm_written/gpt-5/sccs/java/ \
-    Benchmark.java ../../../llm_written/gpt-5/sccs/java/AlgoParallel.java
-
-IMPL=par java -cp .:../../../llm_written/gpt-5/sccs/java/ Benchmark \
-    --out ../../../results/scc_java_par.json
-```
-
----
-
-## C#
-
-### BFS
-
-Toggle the `using` alias at line 7 of `tests/bfs/csharp/TestBfs.cs`:
-
-```csharp
-// Sequential (baseline):
-using Bfs = BfsSequential;
-
-// Parallel (LLM-written):
-using Bfs = BfsParallel;
-```
-
-```bash
-# Run from the directory containing the .csproj that includes TestBfs.cs
-IMPL=seq BENCH_OUT=results/bfs_cs_seq.json dotnet test
-IMPL=par BENCH_OUT=results/bfs_cs_par.json dotnet test
-```
-
-### SCC
-
-Toggle the `using` alias at line 2 of `tests/sccs/csharp/benchmark.cs`:
-
-```csharp
-// Parallel (default):
-using Graph = SCC.Par.Graph;
-
-// Sequential:
-using Graph = SCC.Seq.Graph;
-```
-
-```bash
-IMPL=seq dotnet run -- --out results/scc_cs_seq.json
-IMPL=par dotnet run -- --out results/scc_cs_par.json
-```
-
----
-
-## Results directory
-
-```bash
-mkdir -p results
-```
-
-All `BENCH_OUT` paths above write JSON files there. Because `elapsed_ms` (raw per-repeat timings)
-is always stored, you can recompute mean, std, or any other statistic later without re-running:
-
-```python
-import json, statistics
-d = json.load(open("results/bfs_python_par.json"))
-print("median:", d["median"], "iqr:", d["iqr"])
-print("mean:", statistics.mean(d["elapsed_ms"]))
-print("stdev:", statistics.stdev(d["elapsed_ms"]))
-```
+- The full matrix takes hours (pure-Python GEMM/SW dominate). `matrix` resumes
+  by default — combos whose result JSON already exists are skipped unless
+  `--force`. Use `--algo` / `--lang` / `--model` / `--impl` / `--skip-lang` to
+  slice, and per-combo `--timeout`.
+- Correctness is a gate: every harness runs its assertions before the timed
+  section and exits non-zero on failure, so the runner rejects the result.
+  Failures are recorded in `results/failures.json` and the matrix continues.
+- GEMM tile sizes (`MB/NB/KB`) are sweep-tuned per language and recorded in each
+  result's `params`, so cross-language GFLOPs comparisons stay honest.
