@@ -1,0 +1,30 @@
+[package]
+name = "bench_rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "bfs"
+path = "src/bin/bfs.rs"
+
+[[bin]]
+name = "gemm"
+path = "src/bin/gemm.rs"
+
+[[bin]]
+name = "sccs"
+path = "src/bin/sccs.rs"
+
+[[bin]]
+name = "smith_waterman"
+path = "src/bin/smith_waterman.rs"
+
+[dependencies]
+rayon = "1"
+num_cpus = "1"
+
+[profile.release]
+opt-level = 3
