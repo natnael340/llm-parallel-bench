@@ -1,0 +1,34 @@
+{
+  "algo": "gemm",
+  "lang": "python",
+  "harness": "tests/gemm/python",
+  "harness_sources": ["test_gemm.py"],
+  "runner": "pytest",
+  "default_reps": 5,
+  "default_iters": 5,
+  "timeout_s": 43200,
+  "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 128 },
+  "canonical_entry": "bench_gemm(A, B, alpha=, C=, beta=, MB=, NB=, KB=)",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/gemm/python",
+      "files": ["gemm_seq.py"],
+      "adapter": "from .gemm_seq import gemm as bench_gemm"
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/gemm/python",
+      "files": ["gemm_parallel.py"],
+      "adapter": "from .gemm_parallel import gemm as bench_gemm"
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/gemm/python",
+      "files": ["gemm_parallel.py"],
+      "adapter": "from .gemm_parallel import gemm as bench_gemm"
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/gemm/python",
+      "files": ["gemm_parallel.py"],
+      "adapter": "from .gemm_parallel import gemm as bench_gemm"
+    }
+  }
+}

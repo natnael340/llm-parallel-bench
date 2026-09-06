@@ -1,0 +1,62 @@
+{
+  "algo": "sccs",
+  "lang": "cpp",
+  "harness": "tests/sccs/cpp",
+  "harness_sources": ["benchmark.cpp"],
+  "compile_staged_sources": false,
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
+  "canonical_entry": "BenchGraph(n): AddEdge, FindSCCs; bench_reduce_edges(BenchGraph&) -> vector<pair<int,int>>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/cpp",
+      "files": ["graph.cpp"],
+      "adapter": [
+        "#include <vector>",
+        "#include <utility>",
+        "#include \"graph.cpp\"",
+        "using BenchGraph = Graph;",
+        "inline std::vector<std::pair<int,int>> bench_reduce_edges(BenchGraph& g) { return g.ReduceEdges(); }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/cpp",
+      "files": ["algo_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include <utility>",
+        "#define main staged_impl_main",
+        "#include \"algo_parallel.cpp\"",
+        "#undef main",
+        "using BenchGraph = Graph;",
+        "inline std::vector<std::pair<int,int>> bench_reduce_edges(BenchGraph& g) { return g.ReduceEdgesParallel(); }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/cpp",
+      "files": ["algo_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include <utility>",
+        "#include \"algo_parallel.cpp\"",
+        "using BenchGraph = Graph;",
+        "inline std::vector<std::pair<int,int>> bench_reduce_edges(BenchGraph& g) { return g.ReduceEdges(); }"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/cpp",
+      "files": ["algo_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include <utility>",
+        "#include \"algo_parallel.cpp\"",
+        "using BenchGraph = GraphParallel;",
+        "inline std::vector<std::pair<int,int>> bench_reduce_edges(BenchGraph& g) { return g.ReduceEdges(); }"
+      ]
+    }
+  }
+}

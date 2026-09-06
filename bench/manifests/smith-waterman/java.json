@@ -1,0 +1,82 @@
+{
+  "algo": "smith-waterman",
+  "lang": "java",
+  "harness": "tests/smith-waterman/java",
+  "harness_sources": ["TestSmithWaterman.java"],
+  "main_class": "TestSmithWaterman",
+  "default_reps": 5,
+  "default_iters": 1,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "Impl(match, mismatch, gap).findAlignment(query, reference) -> Impl.Result{a, b, score, identity}",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/java",
+      "files": ["SmithWaterman.java"],
+      "adapter": [
+        "public class Impl {",
+        "    public static class Result { public String a, b; public int score; public double identity; }",
+        "    private final SmithWaterman sw;",
+        "    public Impl(int m, int mm, int g) { sw = new SmithWaterman(m, mm, g); }",
+        "    public Result findAlignment(String q, String r) {",
+        "        SmithWaterman.AlignmentResult res = sw.findAlignment(q, r);",
+        "        Result out = new Result();",
+        "        out.a = res.alignedA; out.b = res.alignedB; out.score = res.score; out.identity = res.identity;",
+        "        return out;",
+        "    }",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/java",
+      "files": ["AlgoParallel.java"],
+      "adapter": [
+        "public class Impl {",
+        "    public static class Result { public String a, b; public int score; public double identity; }",
+        "    private final AlgoParallel sw;",
+        "    public Impl(int m, int mm, int g) { sw = new AlgoParallel(m, mm, g); }",
+        "    public Result findAlignment(String q, String r) {",
+        "        AlgoParallel.AlignmentResult res = sw.findAlignment(q, r);",
+        "        Result out = new Result();",
+        "        out.a = res.alignedA; out.b = res.alignedB; out.score = res.score; out.identity = res.identity;",
+        "        return out;",
+        "    }",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/java",
+      "files": ["SmithWaterman.java"],
+      "adapter": [
+        "public class Impl {",
+        "    public static class Result { public String a, b; public int score; public double identity; }",
+        "    private final SmithWaterman sw;",
+        "    public Impl(int m, int mm, int g) { sw = new SmithWaterman(m, mm, g); }",
+        "    public Result findAlignment(String q, String r) {",
+        "        SmithWaterman.AlignmentResult res = sw.findAlignment(q, r);",
+        "        Result out = new Result();",
+        "        out.a = res.alignedA; out.b = res.alignedB; out.score = res.score; out.identity = res.identity;",
+        "        return out;",
+        "    }",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/java",
+      "files": ["SmithWatermanParallel.java"],
+      "adapter": [
+        "public class Impl {",
+        "    public static class Result { public String a, b; public int score; public double identity; }",
+        "    private final SmithWatermanParallel sw;",
+        "    public Impl(int m, int mm, int g) { sw = new SmithWatermanParallel(m, mm, g); }",
+        "    public Result findAlignment(String q, String r) {",
+        "        SmithWatermanParallel.AlignmentResult res = sw.findAlignment(q, r);",
+        "        Result out = new Result();",
+        "        out.a = res.alignedA; out.b = res.alignedB; out.score = res.score; out.identity = res.identity;",
+        "        return out;",
+        "    }",
+        "}"
+      ]
+    }
+  }
+}

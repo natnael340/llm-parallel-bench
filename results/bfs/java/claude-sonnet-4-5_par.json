@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [234.2187372, 196.33105640000002, 208.7360466, 211.28135809999998, 205.30428815],
+  "mean": 211.17429729,
+  "sd": 14.069306545030699,
+  "median": 208.7360466,
+  "iqr": 21.932375374999992,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": "2026-08-11T13:07:46.208866759Z"
+}

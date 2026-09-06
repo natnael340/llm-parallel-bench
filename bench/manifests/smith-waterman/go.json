@@ -1,0 +1,44 @@
+{
+  "algo": "smith-waterman",
+  "lang": "go",
+  "harness": "tests/smith-waterman/go",
+  "test_pattern": ".",
+  "default_reps": 5,
+  "default_iters": 1,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "NewSmithWaterman(m, mm, g) *SmithWaterman; BenchFindAlignment(sw, query, reference) (string, string, int, float64)",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/go",
+      "files": ["main.go"],
+      "adapter": [
+        "func BenchFindAlignment(sw *SmithWaterman, query, reference string) (string, string, int, float64) { return sw.FindAlignment(query, reference) }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/go",
+      "files": ["algo_parallel.go"],
+      "adapter": [
+        "import \"runtime\"",
+        "func BenchFindAlignment(sw *SmithWaterman, query, reference string) (string, string, int, float64) { return sw.FindAlignmentParallel(query, reference, runtime.NumCPU()) }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/go",
+      "files": ["algo_parallel.go"],
+      "adapter": "func BenchFindAlignment(sw *SmithWaterman, query, reference string) (string, string, int, float64) { return sw.FindAlignment(query, reference) }"
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/go",
+      "files": ["algo_parallel.go"],
+      "adapter": [
+        "func BenchFindAlignment(sw *SmithWaterman, query, reference string) (string, string, int, float64) {",
+        "    H := sw.constructMatrixSequential(query, reference)",
+        "    i, j := sw.FindHighestScore(H)",
+        "    return sw.Traceback(H, query, reference, i, j)",
+        "}"
+      ]
+    }
+  }
+}

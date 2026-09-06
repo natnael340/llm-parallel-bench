@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "rust",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [2470.844278, 2561.40547, 2593.598382, 2366.936042, 2420.2933230000003],
+  "mean": 2482.615499,
+  "sd": 94.77527616181507,
+  "median": 2470.844278,
+  "iqr": 183.88724349999984,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": ""
+}

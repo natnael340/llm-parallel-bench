@@ -1,0 +1,69 @@
+{
+  "algo": "sccs",
+  "lang": "java",
+  "harness": "tests/sccs/java",
+  "harness_sources": ["Benchmark.java"],
+  "main_class": "Benchmark",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
+  "canonical_entry": "Impl(n): addEdge, reduceEdges -> List<int[]>, findSCCs -> List<List<Integer>>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/java",
+      "files": ["Graph.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    private final Graph g;",
+        "    public Impl(int n) { g = new Graph(n); }",
+        "    public void addEdge(int u, int v) { g.addEdge(u, v); }",
+        "    public List<int[]> reduceEdges() { return g.reduceEdges(); }",
+        "    public List<List<Integer>> findSCCs() { return g.findSCCs(); }",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/java",
+      "files": ["AlgoParallel.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    private final AlgoParallel g;",
+        "    public Impl(int n) { g = new AlgoParallel(n); }",
+        "    public void addEdge(int u, int v) { g.addEdge(u, v); }",
+        "    public List<int[]> reduceEdges() { return g.reduceEdges(); }",
+        "    public List<List<Integer>> findSCCs() { return g.findSCCs(); }",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/java",
+      "files": ["GraphParallel.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    private final GraphParallel g;",
+        "    public Impl(int n) { g = new GraphParallel(n); }",
+        "    public void addEdge(int u, int v) { g.addEdge(u, v); }",
+        "    public List<int[]> reduceEdges() { return g.reduceEdges(); }",
+        "    public List<List<Integer>> findSCCs() { return g.findSCCs(); }",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/java",
+      "files": ["Graph_parallel.java"],
+      "adapter": [
+        "import java.util.List;",
+        "public class Impl {",
+        "    private final Graph_parallel g;",
+        "    public Impl(int n) { g = new Graph_parallel(n); }",
+        "    public void addEdge(int u, int v) { g.addEdge(u, v); }",
+        "    public List<int[]> reduceEdges() { return g.reduceEdges(); }",
+        "    public List<List<Integer>> findSCCs() { return g.findSCCs(); }",
+        "}"
+      ]
+    }
+  }
+}

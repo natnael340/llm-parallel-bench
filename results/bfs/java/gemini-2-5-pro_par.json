@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "status": "failed_correctness",
+  "detail": "fails BFS order test; previously published 30.05 ms, 19.41x",
+  "note": "Fails BfsTests 'Unordered edge insertion produces correct BFS': expected [1, 4, 2, 3, 5, 6], got [1, 2, 3, 4, 5, 6] -- same-level nodes are not emitted in insertion order. 23/24 correctness tests pass. Previously published a timing because the harness ran its timed section before the failure gate and the runner left the stale result in place.",
+  "elapsed_ms": [],
+  "mean": null,
+  "sd": null,
+  "median": null,
+  "iqr": null,
+  "reps": 0,
+  "iters_per_rep": 0,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  }
+}

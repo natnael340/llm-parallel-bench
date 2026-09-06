@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [12343.461165, 12148.713982, 12327.057124, 12400.438957, 12198.411277],
+  "mean": 12283.616501,
+  "sd": 105.56346147129818,
+  "median": 12327.057124,
+  "iqr": 145.04988800000137,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": "2026-07-24T12:18:49.620263802Z"
+}

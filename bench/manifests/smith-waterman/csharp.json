@@ -1,0 +1,57 @@
+{
+  "algo": "smith-waterman",
+  "lang": "csharp",
+  "harness": "tests/smith-waterman/csharp",
+  "harness_sources": ["TestSmithWaterman.cs"],
+  "default_reps": 5,
+  "default_iters": 1,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "BenchImpl(match, mismatch, gap).FindAlignment(query, reference) -> (string, string, int, double)",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/csharp",
+      "files": ["SmithWaterman.cs"],
+      "adapter": [
+        "public class BenchImpl {",
+        "    private readonly SmithWatermanAlignment.SmithWaterman sw;",
+        "    public BenchImpl(int m, int mm, int g) { sw = new SmithWatermanAlignment.SmithWaterman(m, mm, g); }",
+        "    public (string, string, int, double) FindAlignment(string q, string r) => sw.FindAlignment(q, r);",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/csharp",
+      "files": ["algo_parallel.cs"],
+      "adapter": [
+        "public class BenchImpl {",
+        "    private readonly SmithWatermanAlignment.SmithWaterman sw;",
+        "    public BenchImpl(int m, int mm, int g) { sw = new SmithWatermanAlignment.SmithWaterman(m, mm, g); }",
+        "    public (string, string, int, double) FindAlignment(string q, string r) => sw.FindAlignment(q, r);",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/csharp",
+      "files": ["algo_parallel.cs"],
+      "adapter": [
+        "public class BenchImpl {",
+        "    private readonly SmithWatermanAlignment.SmithWaterman sw;",
+        "    public BenchImpl(int m, int mm, int g) { sw = new SmithWatermanAlignment.SmithWaterman(m, mm, g); }",
+        "    public (string, string, int, double) FindAlignment(string q, string r) => sw.FindAlignment(q, r);",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/csharp",
+      "files": ["algo_parallel.cs", "algo_sequential.cs"],
+      "adapter": [
+        "public class BenchImpl {",
+        "    private readonly SmithWatermanAlignment.SmithWatermanParallel sw;",
+        "    public BenchImpl(int m, int mm, int g) { sw = new SmithWatermanAlignment.SmithWatermanParallel(m, mm, g); }",
+        "    public (string, string, int, double) FindAlignment(string q, string r) => sw.FindAlignment(q, r);",
+        "}"
+      ]
+    }
+  }
+}

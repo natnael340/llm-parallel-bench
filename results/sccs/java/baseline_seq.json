@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [44.7418026, 38.7331178, 27.302719500000002, 27.2584073, 27.178833200000003],
+  "mean": 33.04297608,
+  "sd": 8.216450085508013,
+  "median": 27.302719500000002,
+  "iqr": 11.474710500000004,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-07-24T01:35:32.763251304Z"
+}

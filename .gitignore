@@ -7,6 +7,9 @@
 obj/
 bin/
 target/
+# ...but the Rust harness keeps its cargo [[bin]] targets in src/bin/, which
+# the rule above would otherwise exclude from the repo entirely.
+!bench/rust/src/bin/
 
 # Java bytecode
 *.class
@@ -21,3 +24,14 @@ __pycache__/
 *.AssemblyInfoInputs.cache
 *.assets.cache
 *.CoreCompileInputs.cache
+
+# Benchmark harness: staging dirs, build outputs, and generated Rust modules
+tests/**/staging/
+bench/build/
+bench/rust/target/
+# Staged implementations are regenerated per run, but the placeholder module
+# must stay tracked so `pub mod staged;` in lib.rs resolves on a fresh clone.
+# Excluding the directory itself would stop git descending into it at all,
+# which is what silently dropped mod.rs before.
+bench/rust/src/staged/*
+!bench/rust/src/staged/mod.rs

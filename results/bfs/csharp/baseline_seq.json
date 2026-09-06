@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "csharp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    186.00514,
+    182.53578,
+    181.41392000000002,
+    176.012815,
+    169.33697
+  ],
+  "mean": 179.06092500000005,
+  "sd": 6.513056120620336,
+  "median": 181.41392000000002,
+  "iqr": 6.522964999999999,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-07-23T23:41:36.2715987Z"
+}

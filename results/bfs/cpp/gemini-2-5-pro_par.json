@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [2212.894000, 2210.654670, 2229.278675, 2251.332377, 2254.261454],
+  "mean": 2231.684235,
+  "sd": 20.596617,
+  "median": 2229.278675,
+  "iqr": 38.438376,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": "2026-07-24T01:33:32+00:00"
+}

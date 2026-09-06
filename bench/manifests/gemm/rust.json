@@ -1,0 +1,52 @@
+{
+  "algo": "gemm",
+  "lang": "rust",
+  "harness": "tests/gemm/rust",
+  "bin": "gemm",
+  "default_reps": 5,
+  "default_iters": 5,
+  "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 64 },
+  "canonical_entry": "Matrix = Vec<Vec<f64>>; bench_gemm(a, b, alpha, Option<c>, beta, mb, nb, kb) -> Result<Matrix, String>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/gemm/rust/src",
+      "files": ["lib.rs"],
+      "adapter": [
+        "pub type Matrix = Vec<Vec<f64>>;",
+        "pub fn bench_gemm(a: &Matrix, b: &Matrix, alpha: f64, c: Option<Matrix>, beta: f64, mb: usize, nb: usize, kb: usize) -> Result<Matrix, String> {",
+        "    super::lib::gemm(a, b, alpha, c, beta, mb, nb, kb).map_err(|e| e.to_string())",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/gemm/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub type Matrix = Vec<Vec<f64>>;",
+        "pub fn bench_gemm(a: &Matrix, b: &Matrix, alpha: f64, c: Option<Matrix>, beta: f64, mb: usize, nb: usize, kb: usize) -> Result<Matrix, String> {",
+        "    super::algo_parallel::gemm(a, b, alpha, c, beta, mb, nb, kb).map_err(|e| e.to_string())",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/gemm/rust",
+      "files": ["gemm_parallel.rs"],
+      "adapter": [
+        "pub type Matrix = Vec<Vec<f64>>;",
+        "pub fn bench_gemm(a: &Matrix, b: &Matrix, alpha: f64, c: Option<Matrix>, beta: f64, mb: usize, nb: usize, kb: usize) -> Result<Matrix, String> {",
+        "    super::gemm_parallel::gemm(a, b, alpha, c, beta, mb, nb, kb).map_err(|e| e.to_string())",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/gemm/rust",
+      "files": ["gemm_parallel.rs"],
+      "adapter": [
+        "pub type Matrix = Vec<Vec<f64>>;",
+        "pub fn bench_gemm(a: &Matrix, b: &Matrix, alpha: f64, c: Option<Matrix>, beta: f64, mb: usize, nb: usize, kb: usize) -> Result<Matrix, String> {",
+        "    super::gemm_parallel::gemm_parallel(a, b, alpha, c, beta, mb, nb, kb).map_err(|e| e.to_string())",
+        "}"
+      ]
+    }
+  }
+}

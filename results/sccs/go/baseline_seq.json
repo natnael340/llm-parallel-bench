@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "go",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    61.39317975,
+    60.4861557,
+    58.72896910000001,
+    59.80778715,
+    62.284763899999994
+  ],
+  "mean": 60.540171120000004,
+  "sd": 1.377587056527225,
+  "median": 60.4861557,
+  "iqr": 1.5853925999999987,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "cluster_size": 300,
+    "graph_size": 100000,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-07-24T01:35:05Z"
+}

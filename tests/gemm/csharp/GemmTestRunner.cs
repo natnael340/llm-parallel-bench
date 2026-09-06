@@ -55,16 +55,18 @@ public static class GemmTestRunner
         Test("Repeat calls accumulate with beta=1", TestRepeatCallsAccumulateWithBetaOne);
         Test("Alpha scaling is linear", TestAlphaScalingLinear);
 
-        // Performance test
-        Test("Performance speed test", TestPerformanceSpeed);
-
         // Summary
         Console.WriteLine("\n========================================");
         Console.WriteLine($"Results: {_passed} passed, {_failed} failed, {_passed + _failed} total");
         Console.WriteLine("========================================");
 
         if (_failed > 0)
+        {
+            Console.WriteLine($"{_failed} test(s) failed — skipping benchmark");
             Environment.Exit(1);
+        }
+
+        TestPerformanceSpeed();
     }
 
     private static void Test(string name, Action testFn)
@@ -203,7 +205,7 @@ public static class GemmTestRunner
         int m = 3, n = 4;
         var I = MakeIdentity(m);
         var B = MakeRandomMatrix(m, n, seed: 1);
-        var outM = GemmParallel.Run(I, B, alpha: 1.0, C: null, beta: 0.0);
+        var outM = BenchImpl.Run(I, B, alpha: 1.0, C: null, beta: 0.0);
         MatAlmostEqual(outM, B);
     }
 
@@ -213,7 +215,7 @@ public static class GemmTestRunner
         int n = k;
         var A = MakeRandomMatrix(m, k, seed: 2);
         var I = MakeIdentity(n);
-        var outM = GemmParallel.Run(A, I, alpha: 1.0, C: null, beta: 0.0);
+        var outM = BenchImpl.Run(A, I, alpha: 1.0, C: null, beta: 0.0);
         MatAlmostEqual(outM, A);
     }
 
@@ -222,7 +224,7 @@ public static class GemmTestRunner
         int m = 4, k = 3, n = 5;
         var A = MakeMatrix(m, k, 0.0);
         var B = MakeMatrix(k, n, 0.0);
-        var outM = GemmParallel.Run(A, B, alpha: 1.0, C: null, beta: 0.0);
+        var outM = BenchImpl.Run(A, B, alpha: 1.0, C: null, beta: 0.0);
         MatAlmostEqual(outM, MakeMatrix(m, n, 0.0));
     }
 
@@ -231,7 +233,7 @@ public static class GemmTestRunner
         int m = 2, k = 3, n = 4;
         var A = MakeRandomMatrix(m, k, seed: 3);
         var B = MakeRandomMatrix(k, n, seed: 4);
-        var outM = GemmParallel.Run(A, B, alpha: 0.0, C: null, beta: 0.0);
+        var outM = BenchImpl.Run(A, B, alpha: 0.0, C: null, beta: 0.0);
         MatAlmostEqual(outM, MakeMatrix(m, n, 0.0));
     }
 
@@ -242,7 +244,7 @@ public static class GemmTestRunner
         var B = MakeRandomMatrix(k, n, seed: 6);
         var C = MakeRandomMatrix(m, n, seed: 7);
         var CCopy = DeepCopy(C);
-        var outM = GemmParallel.Run(A, B, alpha: 0.0, C: C, beta: 1.0);
+        var outM = BenchImpl.Run(A, B, alpha: 0.0, C: C, beta: 1.0);
         if (!ReferenceEquals(outM, C))
             throw new Exception("Output should be same object as C");
         MatAlmostEqual(outM, CCopy);
@@ -256,7 +258,7 @@ public static class GemmTestRunner
         var C = MakeRandomMatrix(m, n, seed: 10);
         var CCopy = DeepCopy(C);
         double beta = 2.5;
-        var outM = GemmParallel.Run(A, B, alpha: 0.0, C: C, beta: beta, MB: 2, NB: 3, KB: 1);
+        var outM = BenchImpl.Run(A, B, alpha: 0.0, C: C, beta: beta, MB: 2, NB: 3, KB: 1);
         if (!ReferenceEquals(outM, C))
             throw new Exception("Output should be same object as C");
         var expected = MakeMatrix(m, n);
@@ -272,7 +274,7 @@ public static class GemmTestRunner
         var A = MakeRandomMatrix(m, k, seed: 11);
         var B = MakeRandomMatrix(k, n, seed: 12);
         var C = MakeMatrix(m, n, 7.0);
-        var outM = GemmParallel.Run(A, B, alpha: 1.0, C: C, beta: 0.0);
+        var outM = BenchImpl.Run(A, B, alpha: 1.0, C: C, beta: 0.0);
         var refM = NaiveGemm(A, B, alpha: 1.0, C: MakeMatrix(m, n, 0.0), beta: 0.0);
         MatAlmostEqual(outM, refM);
     }
@@ -284,7 +286,7 @@ public static class GemmTestRunner
         var B = MakeRandomMatrix(k, n, seed: 14);
         var C = MakeRandomMatrix(m, n, seed: 15);
         var Cref = DeepCopy(C);
-        var outM = GemmParallel.Run(A, B, alpha: 0.5, C: C, beta: 1.0);
+        var outM = BenchImpl.Run(A, B, alpha: 0.5, C: C, beta: 1.0);
         var refM = NaiveGemm(A, B, alpha: 0.5, C: Cref, beta: 1.0);
         MatAlmostEqual(outM, refM);
     }
@@ -296,7 +298,7 @@ public static class GemmTestRunner
         var B = MakeRandomMatrix(k, n, seed: 17);
         var C = MakeRandomMatrix(m, n, seed: 18);
         var Cref = DeepCopy(C);
-        var outM = GemmParallel.Run(A, B, alpha: -1.0, C: C, beta: -0.5);
+        var outM = BenchImpl.Run(A, B, alpha: -1.0, C: C, beta: -0.5);
         var refM = NaiveGemm(A, B, alpha: -1.0, C: Cref, beta: -0.5);
         MatAlmostEqual(outM, refM);
     }
@@ -306,7 +308,7 @@ public static class GemmTestRunner
         int m = 10, k = 2, n = 7;
         var A = MakeRandomMatrix(m, k, seed: 19);
         var B = MakeRandomMatrix(k, n, seed: 20);
-        var outM = GemmParallel.Run(A, B);
+        var outM = BenchImpl.Run(A, B);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -316,7 +318,7 @@ public static class GemmTestRunner
         int m = 3, k = 8, n = 20;
         var A = MakeRandomMatrix(m, k, seed: 21);
         var B = MakeRandomMatrix(k, n, seed: 22);
-        var outM = GemmParallel.Run(A, B, MB: 2, NB: 7, KB: 3);
+        var outM = BenchImpl.Run(A, B, MB: 2, NB: 7, KB: 3);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -326,7 +328,7 @@ public static class GemmTestRunner
         int m = 1, k = 5, n = 1;
         var A = MakeRandomMatrix(m, k, seed: 23);
         var B = MakeRandomMatrix(k, n, seed: 24);
-        var outM = GemmParallel.Run(A, B);
+        var outM = BenchImpl.Run(A, B);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -336,7 +338,7 @@ public static class GemmTestRunner
         int m = 1, k = 6, n = 4;
         var A = MakeRandomMatrix(m, k, seed: 25);
         var B = MakeRandomMatrix(k, n, seed: 26);
-        var outM = GemmParallel.Run(A, B, MB: 1, NB: 3, KB: 2);
+        var outM = BenchImpl.Run(A, B, MB: 1, NB: 3, KB: 2);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -346,7 +348,7 @@ public static class GemmTestRunner
         int m = 7, k = 5, n = 1;
         var A = MakeRandomMatrix(m, k, seed: 27);
         var B = MakeRandomMatrix(k, n, seed: 28);
-        var outM = GemmParallel.Run(A, B, MB: 4, NB: 1, KB: 3);
+        var outM = BenchImpl.Run(A, B, MB: 4, NB: 1, KB: 3);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -357,7 +359,7 @@ public static class GemmTestRunner
         var A = MakeRandomMatrix(m, k, seed: 29);
         var B = MakeRandomMatrix(k, n, seed: 30);
         var C = MakeRandomMatrix(m, n, seed: 31);
-        var outM = GemmParallel.Run(A, B, alpha: 1.2, C: DeepCopy(C), beta: 0.7, MB: 4, NB: 5, KB: 3);
+        var outM = BenchImpl.Run(A, B, alpha: 1.2, C: DeepCopy(C), beta: 0.7, MB: 4, NB: 5, KB: 3);
         var refM = NaiveGemm(A, B, alpha: 1.2, C: C, beta: 0.7);
         MatAlmostEqual(outM, refM);
     }
@@ -367,7 +369,7 @@ public static class GemmTestRunner
         int m = 13, k = 17, n = 19;
         var A = MakeRandomMatrix(m, k, seed: 32);
         var B = MakeRandomMatrix(k, n, seed: 33);
-        var outM = GemmParallel.Run(A, B, MB: 5, NB: 6, KB: 7);
+        var outM = BenchImpl.Run(A, B, MB: 5, NB: 6, KB: 7);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -377,7 +379,7 @@ public static class GemmTestRunner
         int m = 5, k = 6, n = 4;
         var A = MakeRandomMatrix(m, k, seed: 34);
         var B = MakeRandomMatrix(k, n, seed: 35);
-        var outM = GemmParallel.Run(A, B, MB: 1, NB: 1, KB: 1);
+        var outM = BenchImpl.Run(A, B, MB: 1, NB: 1, KB: 1);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -387,7 +389,7 @@ public static class GemmTestRunner
         int m = 4, k = 3, n = 2;
         var A = MakeRandomMatrix(m, k, seed: 36);
         var B = MakeRandomMatrix(k, n, seed: 37);
-        var outM = GemmParallel.Run(A, B, MB: 128, NB: 128, KB: 128);
+        var outM = BenchImpl.Run(A, B, MB: 128, NB: 128, KB: 128);
         var refM = NaiveGemm(A, B);
         MatAlmostEqual(outM, refM);
     }
@@ -398,7 +400,7 @@ public static class GemmTestRunner
         var A = MakeRandomMatrix(m, k, seed: 38);
         var B = MakeRandomMatrix(k, n, seed: 39);
         var C = MakeRandomMatrix(m, n, seed: 40);
-        var outM = GemmParallel.Run(A, B, alpha: 0.3, C: C, beta: 0.4);
+        var outM = BenchImpl.Run(A, B, alpha: 0.3, C: C, beta: 0.4);
         if (!ReferenceEquals(outM, C))
             throw new Exception("Output should be same object as C (mutated in place)");
     }
@@ -408,7 +410,7 @@ public static class GemmTestRunner
         int m = 2, k = 3, n = 2;
         var A = MakeRandomMatrix(m, k, seed: 41);
         var B = MakeRandomMatrix(k, n, seed: 42);
-        var outM = GemmParallel.Run(A, B);
+        var outM = BenchImpl.Run(A, B);
         if (ReferenceEquals(outM, A) || ReferenceEquals(outM, B))
             throw new Exception("Output should be a new object");
         if (outM.Length != m || outM[0].Length != n)
@@ -421,7 +423,7 @@ public static class GemmTestRunner
         var B = MakeRandomMatrix(5, 2, seed: 44);
         try
         {
-            GemmParallel.Run(A, B);
+            BenchImpl.Run(A, B);
             throw new Exception("Expected ArgumentException");
         }
         catch (ArgumentException) { }
@@ -434,7 +436,7 @@ public static class GemmTestRunner
         var C = MakeRandomMatrix(2, 4, seed: 47);
         try
         {
-            GemmParallel.Run(A, B, C: C);
+            BenchImpl.Run(A, B, C: C);
             throw new Exception("Expected ArgumentException");
         }
         catch (ArgumentException) { }
@@ -446,7 +448,7 @@ public static class GemmTestRunner
         var B = MakeRandomMatrix(2, 2, seed: 48);
         try
         {
-            GemmParallel.Run(A, B);
+            BenchImpl.Run(A, B);
             throw new Exception("Expected ArgumentException");
         }
         catch (ArgumentException) { }
@@ -458,7 +460,7 @@ public static class GemmTestRunner
         var B = new double[][] { new double[] { 1.0 }, new double[] { 2.0, 3.0 } };
         try
         {
-            GemmParallel.Run(A, B);
+            BenchImpl.Run(A, B);
             throw new Exception("Expected ArgumentException");
         }
         catch (ArgumentException) { }
@@ -468,7 +470,7 @@ public static class GemmTestRunner
     {
         var A = new double[][] { new double[] { double.NaN, 1.0 }, new double[] { 2.0, 3.0 } };
         var B = new double[][] { new double[] { 4.0, 5.0 }, new double[] { 6.0, 7.0 } };
-        var outM = GemmParallel.Run(A, B);
+        var outM = BenchImpl.Run(A, B);
         if (!double.IsNaN(outM[0][0]) || !double.IsNaN(outM[0][1]))
             throw new Exception("NaN should propagate");
     }
@@ -477,7 +479,7 @@ public static class GemmTestRunner
     {
         var A = new double[][] { new double[] { double.PositiveInfinity, 0.0 }, new double[] { 0.0, 1.0 } };
         var B = new double[][] { new double[] { 1.0, 2.0 }, new double[] { 3.0, 4.0 } };
-        var outM = GemmParallel.Run(A, B);
+        var outM = BenchImpl.Run(A, B);
         if (!double.IsInfinity(outM[0][0]) || !double.IsInfinity(outM[0][1]))
             throw new Exception("Infinity should propagate");
     }
@@ -488,8 +490,8 @@ public static class GemmTestRunner
         var A = MakeRandomMatrix(m, k, seed: 51);
         var B = MakeRandomMatrix(k, n, seed: 52);
         var C = MakeMatrix(m, n, 0.0);
-        GemmParallel.Run(A, B, alpha: 1.0, C: C, beta: 1.0);
-        GemmParallel.Run(A, B, alpha: 1.0, C: C, beta: 1.0);
+        BenchImpl.Run(A, B, alpha: 1.0, C: C, beta: 1.0);
+        BenchImpl.Run(A, B, alpha: 1.0, C: C, beta: 1.0);
         var refOnce = NaiveGemm(A, B, alpha: 1.0, C: MakeMatrix(m, n, 0.0), beta: 1.0);
         var refTwice = NaiveGemm(A, B, alpha: 1.0, C: refOnce, beta: 1.0);
         MatAlmostEqual(C, refTwice);
@@ -500,9 +502,9 @@ public static class GemmTestRunner
         int m = 4, k = 5, n = 3;
         var A = MakeRandomMatrix(m, k, seed: 53);
         var B = MakeRandomMatrix(k, n, seed: 54);
-        var C1 = GemmParallel.Run(A, B, alpha: 1.0, C: null, beta: 0.0);
+        var C1 = BenchImpl.Run(A, B, alpha: 1.0, C: null, beta: 0.0);
         double s = 2.75;
-        var C2 = GemmParallel.Run(A, B, alpha: s, C: null, beta: 0.0);
+        var C2 = BenchImpl.Run(A, B, alpha: s, C: null, beta: 0.0);
         var scaled = MakeMatrix(m, n);
         for (int i = 0; i < m; i++)
             for (int j = 0; j < n; j++)
@@ -513,33 +515,25 @@ public static class GemmTestRunner
     private static void TestPerformanceSpeed()
     {
         int m = 1024, k = 1024, n = 1024;
+        // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
+        const int MB = 32, NB = 32, KB = 128;
         var A = MakeRandomMatrix(m, k, seed: 10);
         var B = MakeRandomMatrix(k, n, seed: 12);
 
-        // Warmup
-        GemmParallel.Run(A, B, alpha: 1.0, C: null, beta: 0.0, MB: 16, NB: 64, KB: 16);
+        int reps = Bench.Reps(5);
+        int iters = Bench.Iters(5);
 
-        int iters = 20;
-        int reps = 5;
-        var times = new List<double>();
+        var r = Bench.Run(() => BenchImpl.Run(A, B, alpha: 1.0, C: null, beta: 0.0, MB: MB, NB: NB, KB: KB),
+                          reps, iters, 1);
 
-        for (int r = 0; r < reps; r++)
+        double gflops = (2.0 * m * n * k) / ((r.Mean / 1000.0) * 1e9);
+        string label = $"GEMM {m}x{n}x{k} ({gflops:F3} GFLOPs) [iters={iters}, repeats={reps}]";
+        Console.WriteLine(Bench.Format(label, r));
+
+        var params_ = new Dictionary<string, object>
         {
-            var sw = Stopwatch.StartNew();
-            for (int i = 0; i < iters; i++)
-            {
-                GemmParallel.Run(A, B, alpha: 1.0, C: null, beta: 0.0, MB: 32, NB: 32, KB: 128);
-            }
-            sw.Stop();
-            times.Add(sw.Elapsed.TotalMilliseconds / iters);
-        }
-
-        double avg = times.Average();
-        double sd = Math.Sqrt(times.Select(t => (t - avg) * (t - avg)).Average());
-
-        double avgS = avg / 1000.0;
-        double gflops = (2.0 * m * n * k) / (avgS * 1e9);
-
-        Console.WriteLine($"       (GEMM {m}x{n}x{k}: {avg:F2} ms/run +/- {sd:F2}, {gflops:F3} GFLOPs)");
+            ["m"] = m, ["n"] = n, ["k"] = k, ["MB"] = MB, ["NB"] = NB, ["KB"] = KB,
+        };
+        Bench.WriteResult(Bench.Out(), r, "gemm", Bench.Impl(), params_);
     }
 }

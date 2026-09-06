@@ -1,0 +1,68 @@
+{
+  "algo": "sccs",
+  "lang": "csharp",
+  "harness": "tests/sccs/csharp",
+  "harness_sources": ["benchmark.cs"],
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
+  "canonical_entry": "BenchImpl(n): AddEdge, ReduceEdges -> List<(int,int)>, FindSCCs -> List<List<int>>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/sccs/csharp",
+      "files": ["Graph.cs"],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public class BenchImpl {",
+        "    private readonly SCC.Seq.Graph g;",
+        "    public BenchImpl(int n) { g = new SCC.Seq.Graph(n); }",
+        "    public void AddEdge(int u, int v) => g.AddEdge(u, v);",
+        "    public List<(int, int)> ReduceEdges() => g.ReduceEdges();",
+        "    public List<List<int>> FindSCCs() => g.FindSCCs();",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/sccs/csharp",
+      "files": ["algo_parallel.cs"],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public class BenchImpl {",
+        "    private readonly llm_written.Graph g;",
+        "    public BenchImpl(int n) { g = new llm_written.Graph(n); }",
+        "    public void AddEdge(int u, int v) => g.AddEdge(u, v);",
+        "    public List<(int, int)> ReduceEdges() => g.ReduceEdges();",
+        "    public List<List<int>> FindSCCs() => g.FindSCCs();",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/sccs/csharp",
+      "files": ["algo_parallel.cs"],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public class BenchImpl {",
+        "    private readonly GraphParallel g;",
+        "    public BenchImpl(int n) { g = new GraphParallel(n); }",
+        "    public void AddEdge(int u, int v) => g.AddEdge(u, v);",
+        "    public List<(int, int)> ReduceEdges() => g.ReduceEdges();",
+        "    public List<List<int>> FindSCCs() => g.FindSCCs();",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/sccs/csharp",
+      "files": ["algo_parallel.cs"],
+      "adapter": [
+        "using System.Collections.Generic;",
+        "public class BenchImpl {",
+        "    private readonly GraphParallel g;",
+        "    public BenchImpl(int n) { g = new GraphParallel(n); }",
+        "    public void AddEdge(int u, int v) => g.AddEdge(u, v);",
+        "    public List<(int, int)> ReduceEdges() => g.ReduceEdges();",
+        "    public List<List<int>> FindSCCs() => g.FindSCCs();",
+        "}"
+      ]
+    }
+  }
+}

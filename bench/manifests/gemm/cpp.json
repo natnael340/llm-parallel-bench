@@ -1,0 +1,53 @@
+{
+  "algo": "gemm",
+  "lang": "cpp",
+  "harness": "tests/gemm/cpp",
+  "harness_sources": ["test_gemm.cpp"],
+  "compile_staged_sources": true,
+  "default_reps": 5,
+  "default_iters": 5,
+  "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 16 },
+  "canonical_entry": "bench_gemm(A, B, alpha, Matrix* C, beta, MB, NB, KB) -> Matrix",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/gemm/cpp",
+      "files": ["gemm_seq.hpp", "gemm_seq.cpp"],
+      "adapter": [
+        "#include <vector>",
+        "#include \"gemm_seq.hpp\"",
+        "inline Matrix bench_gemm(const Matrix& A, const Matrix& B, double alpha = 1.0, Matrix* Cptr = nullptr, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64) { return gemm(A, B, alpha, Cptr, beta, MB, NB, KB); }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/gemm/cpp",
+      "files": ["gemm_seq.hpp", "gemm_parallel_impl.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include \"gemm_seq.hpp\"",
+        "inline Matrix bench_gemm(const Matrix& A, const Matrix& B, double alpha = 1.0, Matrix* Cptr = nullptr, double beta = 0.0, int MB = 64, int NB = 64, int KB = 64) { return gemm(A, B, alpha, Cptr, beta, MB, NB, KB); }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/gemm/cpp",
+      "files": ["gemm_common.hpp", "gemm_common.cpp", "gemm_parallel.hpp", "gemm_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include \"gemm_common.hpp\"",
+        "#include \"gemm_parallel.hpp\"",
+        "inline Matrix bench_gemm(const Matrix& A, const Matrix& B, double alpha = 1.0, Matrix* Cptr = nullptr, double beta = 0.0, int MB = defaultMB, int NB = defaultNB, int KB = defaultKB) { return gemm_parallel(A, B, alpha, Cptr, beta, MB, NB, KB); }"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/gemm/cpp",
+      "files": ["gemm_parallel.hpp", "gemm_parallel.cpp"],
+      "cxxflags": ["-fopenmp"],
+      "adapter": [
+        "#include <vector>",
+        "#include \"gemm_parallel.hpp\"",
+        "inline Matrix bench_gemm(const Matrix& A, const Matrix& B, double alpha = 1.0, Matrix* Cptr = nullptr, double beta = 0.0, int MB = 0, int NB = 0, int KB = 0) { return gemm(A, B, alpha, Cptr, beta, MB, NB, KB); }"
+      ]
+    }
+  }
+}

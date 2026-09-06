@@ -1,15 +1,17 @@
 # test_gemm.py
 import math
 import copy
-import os
 import random
 import pytest
 from tests import bench_utils
-from baselines.gemm.python.gemm_seq import gemm as gemm_seq
-from .gemm_par import gemm as gemm_par
+# The implementation under test is staged by bench/run.py (see
+# bench/manifests/gemm/python.json); the adapter exposes the canonical entry.
+from .staging.impl_adapter import bench_gemm as gemm
 
-IMPL = os.environ.get("IMPL", "par")
-gemm = gemm_par if IMPL == "par" else gemm_seq
+CONFIG = bench_utils.get_bench_config(default_reps=5, default_iters=5)
+
+# Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
+TILES = {"MB": 32, "NB": 32, "KB": 128}
 
 
 # ---------- helpers ----------
@@ -296,18 +298,22 @@ def test_alpha_scaling_linear():
     mat_almost_equal(C2, scaled)
 
 
+@pytest.mark.perf
 def test_gemm_performance_speed():
     m = k = n = 1024
     A = make_random_matrix(m, k, seed=10)
     B = make_random_matrix(k, n, seed=12)
 
-    reps, iters = 5, 5
+    reps, iters = CONFIG["reps"], CONFIG["iters"]
     result = bench_utils.run_benchmark(
-        lambda: gemm(A, B, alpha=1.0, C=None, beta=0, MB=32, NB=32, KB=128),
+        lambda: gemm(A, B, alpha=1.0, C=None, beta=0, **TILES),
         reps=reps, iters=iters, warmup=1,
     )
-    median_s = result["median"] / 1000.0
-    gflops = (2.0 * m * n * k) / (median_s * 1e9)
+    mean_s = result["mean"] / 1000.0
+    gflops = (2.0 * m * n * k) / (mean_s * 1e9)
     label = f"GEMM {m}x{n}x{k} ({gflops:.3f} GFLOPs)  [iters={iters}, repeats={reps}]"
     print(bench_utils.format_result(label, result))
-    bench_utils.write_result(result, algo="gemm", lang="python", impl=IMPL, iters_per_rep=iters)
+    bench_utils.write_result(
+        result, algo="gemm", lang="python", impl=CONFIG["impl"], iters_per_rep=iters,
+        params={"m": m, "n": n, "k": k, **TILES},
+    )

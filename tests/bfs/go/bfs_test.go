@@ -1,51 +1,26 @@
-package bfs_seq_test
+package bfs_test
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
-	"sort"
 	"testing"
-	"time"
 
-	//bfsgo "github.com/natnael340/llm-parallel-bench/BFS/bfsgo"
-	bfsgo "github.com/natnael340/llm-parallel-bench/llm_written/gpt-5/bfs/go"
+	benchutil "github.com/natnael340/llm-parallel-bench/tests/bench_utils/go"
+	staging "github.com/natnael340/llm-parallel-bench/tests/bfs/go/staging"
 )
 
-func medianF(vals []float64) float64 {
-	s := make([]float64, len(vals))
-	copy(s, vals)
-	sort.Float64s(s)
-	n := len(s)
-	if n%2 == 0 {
-		return (s[n/2-1] + s[n/2]) / 2.0
-	}
-	return s[n/2]
-}
-
-func iqrF(vals []float64) float64 {
-	s := make([]float64, len(vals))
-	copy(s, vals)
-	sort.Float64s(s)
-	n := len(s)
-	q1 := s[int(float64(n-1)*0.25)]
-	q3 := s[int(float64(n-1)*0.75)]
-	return q3 - q1
-}
-
 func TestBFSEmptyGraph(t *testing.T) {
-	g := bfsgo.Graph{}
-	result := bfsgo.BfsParallel(g, 1)
+	g := staging.Graph{}
+	result := staging.BenchBfs(g, 1)
 	if !reflect.DeepEqual(result, []int{}) {
 		t.Errorf("Expected %v, but got %v", []int{}, result)
 	}
 }
 
 func TestBFSSingleNode(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 1)
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -53,11 +28,11 @@ func TestBFSSingleNode(t *testing.T) {
 }
 
 func TestBFSLinearEdge(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 2)
 	g.AddEdge(2, 3)
 	g.AddEdge(3, 4)
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 3, 4}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -65,7 +40,7 @@ func TestBFSLinearEdge(t *testing.T) {
 }
 
 func TestBFSCompleteGraph(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	nodes := []int{1, 2, 3, 4}
 	for _, i := range nodes {
 		for _, j := range nodes {
@@ -74,7 +49,7 @@ func TestBFSCompleteGraph(t *testing.T) {
 			}
 		}
 	}
-	result := bfsgo.BfsParallel(g, 3)
+	result := staging.BenchBfs(g, 3)
 	expected := []int{3, 1, 2, 4}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -82,13 +57,13 @@ func TestBFSCompleteGraph(t *testing.T) {
 }
 
 func TestBFSStarGraph(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	center := 1
 	leaves := []int{2, 3, 4, 5}
 	for _, leaf := range leaves {
 		g.AddEdge(center, leaf)
 	}
-	result := bfsgo.BfsParallel(g, center)
+	result := staging.BenchBfs(g, center)
 	expected := append([]int{center}, leaves...)
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -96,12 +71,12 @@ func TestBFSStarGraph(t *testing.T) {
 }
 
 func TestBFSCycle(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	edges := [][2]int{{1, 2}, {2, 3}, {3, 4}, {4, 1}}
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 4, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -109,12 +84,12 @@ func TestBFSCycle(t *testing.T) {
 }
 
 func TestBFSTreeStructure(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	edges := [][2]int{{1, 2}, {1, 3}, {2, 4}, {2, 5}, {3, 6}, {3, 7}}
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 3, 4, 5, 6, 7}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -122,17 +97,17 @@ func TestBFSTreeStructure(t *testing.T) {
 }
 
 func TestBFSDisconnectedComponents(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 2)
 	g.AddEdge(2, 3)
 	g.AddEdge(4, 5)
 	g.AddEdge(4, 6)
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
 	}
-	result2 := bfsgo.BfsParallel(g, 4)
+	result2 := staging.BenchBfs(g, 4)
 	expected2 := []int{4, 5, 6}
 	if !reflect.DeepEqual(result2, expected2) {
 		t.Errorf("Expected %v, but got %v", expected2, result2)
@@ -140,11 +115,11 @@ func TestBFSDisconnectedComponents(t *testing.T) {
 }
 
 func TestBFSDuplicateEdges(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 2)
 	g.AddEdge(1, 2) // Duplicate
 	g.AddEdge(2, 3)
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 3}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -152,9 +127,9 @@ func TestBFSDuplicateEdges(t *testing.T) {
 }
 
 func TestBFSNonexistentStartVertex(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 2)
-	result := bfsgo.BfsParallel(g, 999)
+	result := staging.BenchBfs(g, 999)
 	expected := []int{}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -162,7 +137,7 @@ func TestBFSNonexistentStartVertex(t *testing.T) {
 }
 
 func TestBFSComplexGraph(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	edges := [][2]int{
 		{1, 2}, {1, 3}, {2, 4}, {3, 4}, {4, 5},
 		{5, 6}, {6, 7}, {5, 7}, {7, 8}, {3, 8},
@@ -170,7 +145,7 @@ func TestBFSComplexGraph(t *testing.T) {
 	for _, e := range edges {
 		g.AddEdge(e[0], e[1])
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 2, 3, 4, 8, 5, 7, 6}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -178,12 +153,12 @@ func TestBFSComplexGraph(t *testing.T) {
 }
 
 func TestBFSOrderConsistency(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 3)
 	g.AddEdge(1, 2)
 	var results [][]int
 	for i := 0; i < 5; i++ {
-		results = append(results, bfsgo.BfsParallel(g, 1))
+		results = append(results, staging.BenchBfs(g, 1))
 	}
 	for i := 1; i < len(results); i++ {
 		if !reflect.DeepEqual(results[0], results[i]) {
@@ -193,11 +168,10 @@ func TestBFSOrderConsistency(t *testing.T) {
 }
 
 func TestUnorderedNeighbors(t *testing.T) {
-	// build the graph from the remaining lines
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	g.AddEdge(1, 3)
 	g.AddEdge(1, 2)
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	expected := []int{1, 3, 2}
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
@@ -205,12 +179,12 @@ func TestUnorderedNeighbors(t *testing.T) {
 }
 
 func TestBFSPerformanceStressTest(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	size := 1000
 	for i := 1; i < size; i++ {
 		g.AddEdge(i, i+1)
 	}
-	result := bfsgo.BfsParallel(g, 1)
+	result := staging.BenchBfs(g, 1)
 	if len(result) != size {
 		t.Errorf("Expected length %d, got %d", size, len(result))
 	}
@@ -222,10 +196,8 @@ func TestBFSPerformanceStressTest(t *testing.T) {
 	}
 }
 
-
-
 func TestBFSSpeed(t *testing.T) {
-	g := bfsgo.Graph{}
+	g := staging.Graph{}
 	size := 2000
 	for i := 1; i <= size; i++ {
 		for j := i + 1; j <= size; j++ {
@@ -234,52 +206,19 @@ func TestBFSSpeed(t *testing.T) {
 		}
 	}
 
-	// warmup
-	for i := 0; i < 1; i++ {
-		bfsgo.BfsParallel(g, 1)
-	}
+	reps := benchutil.Reps(5)
+	iters := benchutil.Iters(20)
 
-	reps := 5
-	iters := 20
-
-	perRunMs := make([]float64, reps)
-	for r := 0; r < reps; r++ {
-		start := time.Now()
-		for k := 0; k < iters; k++ {
-			bfsgo.BfsParallel(g, 1)
-		}
-		total := time.Since(start)
-		perRunMs[r] = (float64(total.Nanoseconds()) / 1e6) / float64(iters)
-	}
-
-	med := medianF(perRunMs)
-	spread := iqrF(perRunMs)
+	r := benchutil.RunBenchmark(func() { staging.BenchBfs(g, 1) }, reps, iters, 1)
 
 	undirected := int64(size) * (int64(size) - 1) / 2
 	directed := int64(size) * (int64(size) - 1)
+	label := fmt.Sprintf("BFS complete graph | nodes=%d, undirected edges≈%d (directed≈%d)",
+		size, undirected, directed)
+	t.Log(benchutil.FormatResult(label, r))
 
-	msg := fmt.Sprintf(
-		"BFS complete graph | nodes=%d, undirected edges≈%d (directed≈%d) | %.2f ms/run ± %.2f IQR (n=%d)",
-		size, undirected, directed, med, spread, reps,
-	)
-	t.Logf(msg)
-
-	if out := os.Getenv("BENCH_OUT"); out != "" {
-		impl := os.Getenv("IMPL")
-		if impl == "" {
-			impl = "par"
-		}
-		result := map[string]interface{}{
-			"algo":         "bfs",
-			"lang":         "go",
-			"impl":         impl,
-			"elapsed_ms":   perRunMs,
-			"median":       med,
-			"iqr":          spread,
-			"reps":         reps,
-			"iters_per_rep": iters,
-		}
-		data, _ := json.MarshalIndent(result, "", "  ")
-		os.WriteFile(out, data, 0644)
+	params := map[string]interface{}{"graph_size": size, "graph_kind": "complete"}
+	if err := benchutil.WriteResult(benchutil.Out(), r, "bfs", benchutil.Impl(), params); err != nil {
+		t.Fatalf("failed to write result JSON: %v", err)
 	}
 }

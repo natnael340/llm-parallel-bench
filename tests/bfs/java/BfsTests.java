@@ -5,8 +5,7 @@ import static java.util.Collections.emptyList;
 
 class Bfs {
     public static List<Integer> run(Graph graph, int start) {
-        BfsParallel bfs = new BfsParallel();
-        return bfs.run(graph, start);
+        return Impl.run(graph, start); // staged adapter selects the implementation
     }
 }
 
@@ -51,13 +50,20 @@ public class BfsTests {
         test("Performance stress test with large linear graph", BfsTests::testLargeLinearGraph);
         test("Performance with wide graph (many neighbors)", BfsTests::testWideGraph);
         test("Performance with deep graph (long chain)", BfsTests::testDeepGraph);
-        test("Performance speed test with complete graph", BfsTests::testPerformanceSpeedTest);
 
         // Summary
         System.out.println("\n========================================");
         System.out.printf("Results: %d passed, %d failed, %d total%n", passed, failed, passed + failed);
         System.out.println("========================================");
 
+        if (failed > 0) {
+            System.exit(1);
+        }
+
+        // The timed benchmark writes BENCH_OUT, so it must run only after the
+        // correctness gate above: a wrong implementation that exits non-zero
+        // must not leave a publishable result behind.
+        test("Performance speed test with complete graph", BfsTests::testPerformanceSpeedTest);
         if (failed > 0) {
             System.exit(1);
         }
@@ -395,74 +401,17 @@ public class BfsTests {
             }
         }
 
-        // Warm-up
-        Bfs.run(graph, 1);
+        int reps = Bench.reps(5);
+        int iters = Bench.iters(20);
 
-        int reps = 5;
-        int iters = 20;
-        double[] times = new double[reps];
-
-        for (int r = 0; r < reps; r++) {
-            long startTime = System.nanoTime();
-            for (int i = 0; i < iters; i++) {
-                Bfs.run(graph, 1);
-            }
-            long endTime = System.nanoTime();
-            times[r] = (endTime - startTime) / 1_000_000.0 / iters;
-        }
-
-        double med = median(times);
-        double spread = iqr(times);
+        Bench.Result r = Bench.run(() -> Bfs.run(graph, 1), reps, iters, 1);
 
         long directedEdges = (long) size * (size - 1);
-        System.out.printf("       (BFS complete graph | nodes=%d, undirected edges≈%,d (directed≈%,d) | %.2f ms/run ± %.2f IQR (n=%d))%n",
-                          size, directedEdges / 2, directedEdges, med, spread, reps);
+        String label = String.format("BFS complete graph | nodes=%d, undirected edges≈%,d (directed≈%,d)",
+                                     size, directedEdges / 2, directedEdges);
+        System.out.println("       (" + Bench.format(label, r) + ")");
 
-        String out = System.getenv("BENCH_OUT");
-        String impl = System.getenv("IMPL");
-        if (impl == null) impl = "par";
-        writeResult(out, "bfs", "java", impl, times, med, spread, reps, iters);
-    }
-
-    private static double median(double[] values) {
-        double[] s = values.clone();
-        Arrays.sort(s);
-        int n = s.length;
-        return (n % 2 == 0) ? (s[n / 2 - 1] + s[n / 2]) / 2.0 : s[n / 2];
-    }
-
-    private static double iqr(double[] values) {
-        double[] s = values.clone();
-        Arrays.sort(s);
-        int n = s.length;
-        double q1 = s[(int) ((n - 1) * 0.25)];
-        double q3 = s[(int) ((n - 1) * 0.75)];
-        return q3 - q1;
-    }
-
-    private static void writeResult(String path, String algo, String lang, String impl,
-                                    double[] elapsedMs, double med, double spread,
-                                    int reps, int itersPerRep) {
-        if (path == null || path.isEmpty()) return;
-        StringBuilder sb = new StringBuilder();
-        sb.append("{\n");
-        sb.append("  \"algo\": \"").append(algo).append("\",\n");
-        sb.append("  \"lang\": \"").append(lang).append("\",\n");
-        sb.append("  \"impl\": \"").append(impl).append("\",\n");
-        sb.append("  \"elapsed_ms\": [");
-        for (int i = 0; i < elapsedMs.length; i++) {
-            if (i > 0) sb.append(", ");
-            sb.append(elapsedMs[i]);
-        }
-        sb.append("],\n");
-        sb.append("  \"median\": ").append(med).append(",\n");
-        sb.append("  \"iqr\": ").append(spread).append(",\n");
-        sb.append("  \"reps\": ").append(reps).append(",\n");
-        sb.append("  \"iters_per_rep\": ").append(itersPerRep).append("\n}\n");
-        try (FileWriter fw = new FileWriter(path)) {
-            fw.write(sb.toString());
-        } catch (IOException ex) {
-            System.err.println("Error writing result JSON: " + ex.getMessage());
-        }
+        String params = String.format("{\"graph_size\": %d, \"graph_kind\": \"complete\"}", size);
+        Bench.writeResult(Bench.out(), r, "bfs", Bench.impl(), params);
     }
 }

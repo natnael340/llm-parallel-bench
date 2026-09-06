@@ -1,10 +1,10 @@
-/// Imports the parallel GEMM (General Matrix Multiply) implementation and utility functions.
+/// Imports the sequential GEMM (General Matrix Multiply) implementation and utility functions.
 ///
 /// # Imports
-/// - `gemm_parallel` - Aliased as `gemm`, provides the parallel matrix multiplication function
+/// - `gemm` - The sequential (baseline) matrix multiplication function
 /// - `zeros` - Utility function to create zero-initialized matrices
 /// - `Matrix` - The matrix data structure type used in GEMM operations
-use gemm::{gemm_parallel as gemm, zeros, Matrix};
+use gemm::{gemm, zeros, Matrix};
 use std::time::Instant;
 
 static mut PASSED: u32 = 0;

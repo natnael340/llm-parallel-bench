@@ -1,0 +1,1391 @@
+=================== ALGO: bfs ===================
+----- group baseline/seq -----
+[01:38:36] >>> bfs/python baseline/seq
+== bfs/python baseline/seq (reps=5, iters=20)
+   ok in 118s: mean 1110.80 ms ± 7.86 SD | median 1110.61 ms ± 15.10 IQR
+   | .........BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 1110.80 ms/run ± 7.86 SD | median 1110.61 ms/run ± 15.10 IQR (n=5)
+   | .....
+   | 14 passed in 114.89s (0:01:54)
+    OK  mean=1110.803 ms  sd=7.857  median=1110.608  reps=5x20
+[01:40:34] >>> bfs/go baseline/seq
+== bfs/go baseline/seq (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/go/bench_test ./tests/bfs/go/
+   ok in 20s: mean 188.76 ms ± 3.88 SD | median 187.79 ms ± 1.61 IQR
+   | === RUN   TestUnorderedNeighbors
+   | --- PASS: TestUnorderedNeighbors (0.00s)
+   | === RUN   TestBFSPerformanceStressTest
+   | --- PASS: TestBFSPerformanceStressTest (0.00s)
+   | === RUN   TestBFSSpeed
+   |     bfs_test.go:218: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 188.76 ms/run ± 3.88 SD | median 187.79 ms/run ± 1.61 IQR (n=5)
+   | --- PASS: TestBFSSpeed (19.57s)
+   | PASS
+    OK  mean=188.763 ms  sd=3.878  median=187.790  reps=5x20
+[01:40:55] >>> bfs/cpp baseline/seq
+== bfs/cpp baseline/seq (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/test_bfs.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_seq.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/graph.cpp -I /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp
+   ok in 7s: mean 63.04 ms ± 1.13 SD | median 62.48 ms ± 0.76 IQR
+   | test_bfs_disconnected_components_2 passed
+   | test_bfs_duplicate_edges passed
+   | test_bfs_nonexistent_start_vertex passed
+   | test_bfs_complex_graph passed
+   | test_bfs_order_consistency passed
+   | test_bfs_large_graph_determinism passed
+   | test_bfs_performance_stress_test passed
+   | BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 63.04 ms/run ± 1.13 SD | median 62.48 ms/run ± 0.76 IQR (n=5)
+    OK  mean=63.040 ms  sd=1.128  median=62.483  reps=5x20
+[01:41:07] >>> bfs/csharp baseline/seq
+== bfs/csharp baseline/seq (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/bfs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/csharp --nologo -v q
+   ok in 19s: mean 179.06 ms ± 6.51 SD | median 181.41 ms ± 6.52 IQR
+   | [PASS] Order consistency is maintained across runs
+   | [PASS] Unordered edge insertion produces correct BFS
+   | [PASS] Performance stress test with large linear graph
+   | 
+   | ========================================
+   | Results: 14 passed, 0 failed, 14 total
+   | ========================================
+   | BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 179.06 ms/run ± 6.51 SD | median 181.41 ms/run ± 6.52 IQR (n=5)
+    OK  mean=179.061 ms  sd=6.513  median=181.414  reps=5x20
+[01:41:36] >>> bfs/java baseline/seq
+== bfs/java baseline/seq (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/bfs/java/classes /home/malik/projects/llm-parallel-bench/tests/bfs/java/BfsTests.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsSequential.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Graph.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 78s: mean 731.68 ms ± 299.46 SD | median 583.38 ms ± 183.96 IQR
+   |        (Deep graph: depth=10000 in 17.24 ms)
+   | [PASS] Performance with deep graph (long chain)
+   |        (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 731.68 ms/run ± 299.46 SD | median 583.38 ms/run ± 183.96 IQR (n=5))
+   | [PASS] Performance speed test with complete graph
+   | 
+   | ========================================
+   | Results: 25 passed, 0 failed, 25 total
+   | ========================================
+    OK  mean=731.684 ms  sd=299.463  median=583.376  reps=5x20
+[01:42:56] >>> bfs/rust baseline/seq
+== bfs/rust baseline/seq (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin bfs
+   ok in 21s: mean 192.54 ms ± 4.09 SD | median 193.15 ms ± 0.82 IQR
+   | test_bfs_empty passed
+   | test_bfs_linear passed
+   | test_bfs_complete passed
+   | test_bfs_disconnected passed
+   | test_bfs_nonexistent_start passed
+   | BFS complete graph | mean 192.54 ms/run ± 4.09 SD | median 193.15 ms/run ± 0.82 IQR (n=5)
+    OK  mean=192.544 ms  sd=4.087  median=193.152  reps=5x20
+----- group gpt-5/par -----
+[01:43:19] >>> bfs/python gpt-5/par
+== bfs/python gpt-5/par (reps=5, iters=20)
+   ok in 2781s: mean 26817.96 ms ± 369.81 SD | median 26744.25 ms ± 710.62 IQR
+   | .........BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 26817.96 ms/run ± 369.81 SD | median 26744.25 ms/run ± 710.62 IQR (n=5)
+   | .....
+   | 14 passed in 2712.03s (0:45:12)
+    OK  mean=26817.960 ms  sd=369.809  median=26744.255  reps=5x20
+[02:29:40] >>> bfs/go gpt-5/par
+== bfs/go gpt-5/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/go/bench_test ./tests/bfs/go/
+   ok in 2s: mean 20.33 ms ± 1.14 SD | median 19.88 ms ± 1.35 IQR
+   | === RUN   TestUnorderedNeighbors
+   | --- PASS: TestUnorderedNeighbors (0.00s)
+   | === RUN   TestBFSPerformanceStressTest
+   | --- PASS: TestBFSPerformanceStressTest (0.00s)
+   | === RUN   TestBFSSpeed
+   |     bfs_test.go:218: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 20.33 ms/run ± 1.14 SD | median 19.88 ms/run ± 1.35 IQR (n=5)
+   | --- PASS: TestBFSSpeed (2.46s)
+   | PASS
+    OK  mean=20.335 ms  sd=1.136  median=19.882  reps=5x20
+[02:29:43] >>> bfs/cpp gpt-5/par
+== bfs/cpp gpt-5/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/test_bfs.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_parallel.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_seq.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/graph.cpp -I /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 10s: mean 86.31 ms ± 1.23 SD | median 86.01 ms ± 0.98 IQR
+   | test_bfs_disconnected_components_2 passed
+   | test_bfs_duplicate_edges passed
+   | test_bfs_nonexistent_start_vertex passed
+   | test_bfs_complex_graph passed
+   | test_bfs_order_consistency passed
+   | test_bfs_large_graph_determinism passed
+   | test_bfs_performance_stress_test passed
+   | BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 86.31 ms/run ± 1.23 SD | median 86.01 ms/run ± 0.98 IQR (n=5)
+    OK  mean=86.314 ms  sd=1.232  median=86.013  reps=5x20
+[02:29:58] >>> bfs/csharp gpt-5/par
+== bfs/csharp gpt-5/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/bfs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/csharp --nologo -v q
+   ok in 2s: mean 14.95 ms ± 1.11 SD | median 14.75 ms ± 0.96 IQR
+   | [PASS] Order consistency is maintained across runs
+   | [PASS] Unordered edge insertion produces correct BFS
+   | [PASS] Performance stress test with large linear graph
+   | 
+   | ========================================
+   | Results: 14 passed, 0 failed, 14 total
+   | ========================================
+   | BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 14.95 ms/run ± 1.11 SD | median 14.75 ms/run ± 0.96 IQR (n=5)
+    OK  mean=14.948 ms  sd=1.113  median=14.754  reps=5x20
+[02:30:08] >>> bfs/java gpt-5/par
+FAILED [run] benchmark failed (rc=1)
+Running BFS Tests...
+
+[PASS] Empty graph returns empty list
+[PASS] Single node with self-loop returns single node
+[PASS] Linear graph returns nodes in order
+[PASS] Complete graph returns correct BFS order
+[PASS] Star graph returns center then leaves
+[PASS] Cycle is handled correctly
+[PASS] Tree structure returns level order
+[PASS] Complex graph returns correct order
+[PASS] Disconnected components only visits connected component
+[PASS] Duplicate edges are handled correctly
+[PASS] Nonexistent start vertex returns empty list
+[PASS] Negative vertex numbers work correctly
+[PASS] Large vertex numbers work correctly
+[PASS] Single isolated node
+[PASS] Binary tree structure
+[PASS] Grid graph traversal
+[PASS] Hub and spoke with chains
+[PASS] Multiple parallel edges between same nodes
+[PASS] Order consistency is maintained across runs
+[PASS] Different starting vertices produce valid orderings
+[FAIL] Unordered edge insertion produces correct BFS
+       Expected [1, 4, 2, 3, 5, 6] but got [1, 2, 3, 4, 5, 6]
+[PASS] Performance stress test with large linear graph
+       (Wide graph: center + 5000 neighbors in 24.05 ms)
+[PASS] Performance with wide graph (many neighbors)
+       (Deep graph: depth=10000 in 3625.99 ms)
+[PASS] Performance with deep graph (long chain)
+       (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 184.79 ms/run ± 6.45 SD | median 182.62 ms/run ± 2.37 IQR (n=5))
+[PASS] Performance speed test with complete graph
+
+========================================
+Results: 24 passed, 1 failed, 25 total
+========================================
+
+== bfs/java gpt-5/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/bfs/java/classes /home/malik/projects/llm-parallel-bench/tests/bfs/java/BfsTests.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsParallel.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Graph.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+    FAIL (see failures.json / log above)
+[02:30:36] >>> bfs/rust gpt-5/par
+== bfs/rust gpt-5/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin bfs
+   ok in 3s: mean 23.64 ms ± 0.67 SD | median 23.93 ms ± 0.72 IQR
+   | test_bfs_empty passed
+   | test_bfs_linear passed
+   | test_bfs_complete passed
+   | test_bfs_disconnected passed
+   | test_bfs_nonexistent_start passed
+   | BFS complete graph | mean 23.64 ms/run ± 0.67 SD | median 23.93 ms/run ± 0.72 IQR (n=5)
+    OK  mean=23.639 ms  sd=0.671  median=23.928  reps=5x20
+----- group claude-sonnet-4-5/par -----
+[02:30:41] >>> bfs/python claude-sonnet-4-5/par
+== bfs/python claude-sonnet-4-5/par (reps=5, iters=20)
+   ok in 2548s: mean 24594.71 ms ± 147.31 SD | median 24630.42 ms ± 273.89 IQR
+   | .........BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 24594.71 ms/run ± 147.31 SD | median 24630.42 ms/run ± 273.89 IQR (n=5)
+   | .....
+   | 14 passed in 2488.24s (0:41:28)
+    OK  mean=24594.713 ms  sd=147.306  median=24630.416  reps=5x20
+[03:13:09] >>> bfs/go claude-sonnet-4-5/par
+FAILED [run] benchmark failed (rc=1)
+=== RUN   TestBFSEmptyGraph
+--- PASS: TestBFSEmptyGraph (0.00s)
+=== RUN   TestBFSSingleNode
+--- PASS: TestBFSSingleNode (0.00s)
+=== RUN   TestBFSLinearEdge
+--- PASS: TestBFSLinearEdge (0.00s)
+=== RUN   TestBFSCompleteGraph
+--- PASS: TestBFSCompleteGraph (0.00s)
+=== RUN   TestBFSStarGraph
+--- PASS: TestBFSStarGraph (0.00s)
+=== RUN   TestBFSCycle
+--- PASS: TestBFSCycle (0.00s)
+=== RUN   TestBFSTreeStructure
+--- PASS: TestBFSTreeStructure (0.00s)
+=== RUN   TestBFSDisconnectedComponents
+--- PASS: TestBFSDisconnectedComponents (0.00s)
+=== RUN   TestBFSDuplicateEdges
+--- PASS: TestBFSDuplicateEdges (0.00s)
+=== RUN   TestBFSNonexistentStartVertex
+--- PASS: TestBFSNonexistentStartVertex (0.00s)
+=== RUN   TestBFSComplexGraph
+--- PASS: TestBFSComplexGraph (0.00s)
+=== RUN   TestBFSOrderConsistency
+--- PASS: TestBFSOrderConsistency (0.00s)
+=== RUN   TestUnorderedNeighbors
+    bfs_test.go:177: Expected [1 3 2], but got [1 2 3]
+--- FAIL: TestUnorderedNeighbors (0.00s)
+=== RUN   TestBFSPerformanceStressTest
+--- PASS: TestBFSPerformanceStressTest (0.00s)
+=== RUN   TestBFSSpeed
+    bfs_test.go:218: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 540.26 ms/run ± 2.73 SD | median 540.21 ms/run ± 1.01 IQR (n=5)
+--- PASS: TestBFSSpeed (54.98s)
+FAIL
+
+== bfs/go claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/go/bench_test ./tests/bfs/go/
+    FAIL (see failures.json / log above)
+[03:14:06] >>> bfs/cpp claude-sonnet-4-5/par
+== bfs/cpp claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/test_bfs.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_parallel.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/graph.cpp -I /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 8s: mean 77.61 ms ± 6.69 SD | median 74.50 ms ± 10.34 IQR
+   | test_bfs_disconnected_components_2 passed
+   | test_bfs_duplicate_edges passed
+   | test_bfs_nonexistent_start_vertex passed
+   | test_bfs_complex_graph passed
+   | test_bfs_order_consistency passed
+   | test_bfs_large_graph_determinism passed
+   | test_bfs_performance_stress_test passed
+   | BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 77.61 ms/run ± 6.69 SD | median 74.50 ms/run ± 10.34 IQR (n=5)
+    OK  mean=77.610 ms  sd=6.685  median=74.497  reps=5x20
+[03:14:19] >>> bfs/csharp claude-sonnet-4-5/par
+== bfs/csharp claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/bfs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/csharp --nologo -v q
+   ok in 19s: mean 178.31 ms ± 5.34 SD | median 178.58 ms ± 7.89 IQR
+   | [PASS] Order consistency is maintained across runs
+   | [PASS] Unordered edge insertion produces correct BFS
+   | [PASS] Performance stress test with large linear graph
+   | 
+   | ========================================
+   | Results: 14 passed, 0 failed, 14 total
+   | ========================================
+   | BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 178.31 ms/run ± 5.34 SD | median 178.58 ms/run ± 7.89 IQR (n=5)
+    OK  mean=178.309 ms  sd=5.339  median=178.581  reps=5x20
+[03:14:46] >>> bfs/java claude-sonnet-4-5/par
+== bfs/java claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/bfs/java/classes /home/malik/projects/llm-parallel-bench/tests/bfs/java/BfsTests.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsParallel.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsSequential.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Graph.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 20s: mean 176.86 ms ± 31.74 SD | median 163.03 ms ± 0.47 IQR
+   |        (Deep graph: depth=10000 in 11.74 ms)
+   | [PASS] Performance with deep graph (long chain)
+   |        (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 176.86 ms/run ± 31.74 SD | median 163.03 ms/run ± 0.47 IQR (n=5))
+   | [PASS] Performance speed test with complete graph
+   | 
+   | ========================================
+   | Results: 25 passed, 0 failed, 25 total
+   | ========================================
+    OK  mean=176.861 ms  sd=31.743  median=163.026  reps=5x20
+[03:15:09] >>> bfs/rust claude-sonnet-4-5/par
+FAILED [build] build failed (rc=101)
+   Compiling bench_rust v0.1.0 (/home/malik/projects/llm-parallel-bench/bench/rust)
+error: expected identifier, found `(`
+   --> src/staged/bfs_parallel.rs:170:9
+    |
+ 91 | impl BfsParallel {
+    |                  - while parsing this item list starting here
+...
+170 |     fn  (
+    |         ^ expected identifier
+...
+202 | }
+    | - the item list ends here
+
+error[E0573]: expected type, found local variable `graph`
+   --> src/staged/bfs_parallel.rs:125:26
+    |
+  5 | pub struct Graph {
+    | ---------------- similarly named struct `Graph` defined here
+...
+125 |                 Self::  (graph, &current_level, &visited)
+    |                          ^^^^^ help: a struct with a similar name exists: `Graph`
+
+error[E0573]: expected type, found local variable `current_level`
+   --> src/staged/bfs_parallel.rs:125:34
+    |
+125 |                 Self::  (graph, &current_level, &visited)
+    |                                  ^^^^^^^^^^^^^ not a type
+
+error[E0573]: expected type, found local variable `visited`
+   --> src/staged/bfs_parallel.rs:125:50
+    |
+125 |                 Self::  (graph, &current_level, &visited)
+    |                                                  ^^^^^^^ not a type
+
+error[E0214]: parenthesized type parameters may only be used with a `Fn` trait
+   --> src/staged/bfs_parallel.rs:125:17
+    |
+125 |                 Self::  (graph, &current_level, &visited)
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ only `Fn` traits may use parentheses
+    |
+help: use angle brackets instead
+    |
+125 -                 Self::  (graph, &current_level, &visited)
+125 +                 Self::  <graph, &current_level, &visited>
+    |
+
+error[E0109]: type arguments are not allowed on self constructor
+   --> src/staged/bfs_parallel.rs:125:26
+    |
+125 |                 Self::  (graph, &current_level, &visited)
+    |                 ----     ^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^ type argument not allowed
+    |                 |
+    |                 not allowed on self constructor
+
+error[E0308]: `if` and `else` have incompatible types
+   --> src/staged/bfs_parallel.rs:125:17
+    |
+122 |               let next_level = if current_level.len() < Self::SMALL_LEVEL_THRESHOLD {
+    |  ______________________________-
+123 | |                 Self::process_level_sequential(graph, &current_level, &visited)
+    | |                 --------------------------------------------------------------- expected because of this
+124 | |             } else {
+125 | |                 Self::  (graph, &current_level, &visited)
+    | |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Vec<i32>`, found `BfsParallel`
+126 | |             };
+    | |_____________- `if` and `else` have incompatible types
+    |
+    = note: expected struct `Vec<i32>`
+               found struct `BfsParallel`
+
+warning: unused import: `rayon::prelude`
+ --> src/staged/bfs_parallel.rs:2:5
+  |
+2 | use rayon::prelude::*;
+  |     ^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0109, E0214, E0308, E0573.
+For more information about an error, try `rustc --explain E0109`.
+warning: `bench_rust` (lib) generated 1 warning
+error: could not compile `bench_rust` (lib) due to 7 previous errors; 1 warning emitted
+
+== bfs/rust claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin bfs
+    FAIL (see failures.json / log above)
+----- group gemini-2-5-pro/par -----
+[03:15:10] >>> bfs/python gemini-2-5-pro/par
+== bfs/python gemini-2-5-pro/par (reps=5, iters=20)
+   ok in 857s: mean 8323.73 ms ± 82.72 SD | median 8309.03 ms ± 138.64 IQR
+   | .........BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 8323.73 ms/run ± 82.72 SD | median 8309.03 ms/run ± 138.64 IQR (n=5)
+   | .....
+   | 14 passed in 843.63s (0:14:03)
+    OK  mean=8323.732 ms  sd=82.723  median=8309.035  reps=5x20
+[03:29:27] >>> bfs/go gemini-2-5-pro/par
+== bfs/go gemini-2-5-pro/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/go/bench_test ./tests/bfs/go/
+   ok in 8s: mean 74.33 ms ± 2.24 SD | median 74.32 ms ± 1.78 IQR
+   | === RUN   TestUnorderedNeighbors
+   | --- PASS: TestUnorderedNeighbors (0.00s)
+   | === RUN   TestBFSPerformanceStressTest
+   | --- PASS: TestBFSPerformanceStressTest (0.01s)
+   | === RUN   TestBFSSpeed
+   |     bfs_test.go:218: BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 74.33 ms/run ± 2.24 SD | median 74.32 ms/run ± 1.78 IQR (n=5)
+   | --- PASS: TestBFSSpeed (7.92s)
+   | PASS
+    OK  mean=74.331 ms  sd=2.245  median=74.325  reps=5x20
+[03:29:36] >>> bfs/cpp gemini-2-5-pro/par
+== bfs/cpp gemini-2-5-pro/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/test_bfs.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_parallel.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/bfs_seq.cpp /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging/graph.cpp -I /home/malik/projects/llm-parallel-bench/tests/bfs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 231s: mean 2231.68 ms ± 20.60 SD | median 2229.28 ms ± 38.44 IQR
+   | test_bfs_disconnected_components_2 passed
+   | test_bfs_duplicate_edges passed
+   | test_bfs_nonexistent_start_vertex passed
+   | test_bfs_complex_graph passed
+   | test_bfs_order_consistency passed
+   | test_bfs_large_graph_determinism passed
+   | test_bfs_performance_stress_test passed
+   | BFS complete graph | nodes=2000, undirected edges≈1999000 (directed≈3998000) | mean 2231.68 ms/run ± 20.60 SD | median 2229.28 ms/run ± 38.44 IQR (n=5)
+    OK  mean=2231.684 ms  sd=20.597  median=2229.279  reps=5x20
+[03:33:32] >>> bfs/csharp gemini-2-5-pro/par
+== bfs/csharp gemini-2-5-pro/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/bfs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/bfs/csharp --nologo -v q
+   ok in 19s: mean 177.31 ms ± 6.41 SD | median 179.28 ms ± 8.83 IQR
+   | [PASS] Order consistency is maintained across runs
+   | [PASS] Unordered edge insertion produces correct BFS
+   | [PASS] Performance stress test with large linear graph
+   | 
+   | ========================================
+   | Results: 14 passed, 0 failed, 14 total
+   | ========================================
+   | BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 177.31 ms/run ± 6.41 SD | median 179.28 ms/run ± 8.83 IQR (n=5)
+    OK  mean=177.313 ms  sd=6.413  median=179.280  reps=5x20
+[03:33:59] >>> bfs/java gemini-2-5-pro/par
+FAILED [run] benchmark failed (rc=1)
+Running BFS Tests...
+
+[PASS] Empty graph returns empty list
+[PASS] Single node with self-loop returns single node
+[PASS] Linear graph returns nodes in order
+[PASS] Complete graph returns correct BFS order
+[PASS] Star graph returns center then leaves
+[PASS] Cycle is handled correctly
+[PASS] Tree structure returns level order
+[PASS] Complex graph returns correct order
+[PASS] Disconnected components only visits connected component
+[PASS] Duplicate edges are handled correctly
+[PASS] Nonexistent start vertex returns empty list
+[PASS] Negative vertex numbers work correctly
+[PASS] Large vertex numbers work correctly
+[PASS] Single isolated node
+[PASS] Binary tree structure
+[PASS] Grid graph traversal
+[PASS] Hub and spoke with chains
+[PASS] Multiple parallel edges between same nodes
+[PASS] Order consistency is maintained across runs
+[PASS] Different starting vertices produce valid orderings
+[FAIL] Unordered edge insertion produces correct BFS
+       Expected [1, 4, 2, 3, 5, 6] but got [1, 2, 3, 4, 5, 6]
+[PASS] Performance stress test with large linear graph
+       (Wide graph: center + 5000 neighbors in 21.28 ms)
+[PASS] Performance with wide graph (many neighbors)
+       (Deep graph: depth=10000 in 1687.45 ms)
+[PASS] Performance with deep graph (long chain)
+       (BFS complete graph | nodes=2000, undirected edges≈1,999,000 (directed≈3,998,000) | mean 29.08 ms/run ± 2.37 SD | median 30.05 ms/run ± 3.93 IQR (n=5))
+[PASS] Performance speed test with complete graph
+
+========================================
+Results: 24 passed, 1 failed, 25 total
+========================================
+
+== bfs/java gemini-2-5-pro/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/bfs/java/classes /home/malik/projects/llm-parallel-bench/tests/bfs/java/BfsTests.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsParallel.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/BfsSequential.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Graph.java /home/malik/projects/llm-parallel-bench/tests/bfs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+    FAIL (see failures.json / log above)
+[03:34:08] >>> bfs/rust gemini-2-5-pro/par
+== bfs/rust gemini-2-5-pro/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin bfs
+   ok in 20s: mean 192.60 ms ± 3.74 SD | median 193.58 ms ± 1.64 IQR
+   | test_bfs_empty passed
+   | test_bfs_linear passed
+   | test_bfs_complete passed
+   | test_bfs_disconnected passed
+   | test_bfs_nonexistent_start passed
+   | BFS complete graph | mean 192.60 ms/run ± 3.74 SD | median 193.58 ms/run ± 1.64 IQR (n=5)
+    OK  mean=192.605 ms  sd=3.736  median=193.578  reps=5x20
+=================== ALGO: sccs ===================
+----- group baseline/seq -----
+[03:34:30] >>> sccs/python baseline/seq
+== sccs/python baseline/seq (reps=5, iters=20)
+   ok in 28s: mean 266.73 ms ± 3.13 SD | median 265.72 ms ± 5.85 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC reduce_edges | graph_size=100000 | mean 266.73 ms/run ± 3.13 SD | median 265.72 ms/run ± 5.85 IQR (n=5)
+    OK  mean=266.730 ms  sd=3.135  median=265.721  reps=5x20
+[03:34:58] >>> sccs/go baseline/seq
+== sccs/go baseline/seq (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/go/bench_test ./tests/sccs/go/
+   ok in 6s: mean 60.54 ms ± 1.38 SD | median 60.49 ms ± 1.59 IQR
+   | === RUN   Test7NodeGraph
+   | --- PASS: Test7NodeGraph (0.00s)
+   | === RUN   TestDeterminism
+   | --- PASS: TestDeterminism (0.02s)
+   | === RUN   TestSCCSpeed
+   |     sccs_test.go:299: SCC ReduceEdges | graph_size=100000 | mean 60.54 ms/run ± 1.38 SD | median 60.49 ms/run ± 1.59 IQR (n=5)
+   | --- PASS: TestSCCSpeed (6.15s)
+   | PASS
+    OK  mean=60.540 ms  sd=1.378  median=60.486  reps=5x20
+[03:35:05] >>> sccs/cpp baseline/seq
+== sccs/cpp baseline/seq (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/benchmark.cpp -I /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp
+   ok in 6s: mean 63.17 ms ± 0.72 SD | median 63.09 ms ± 1.32 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 63.17 ms/run ± 0.72 SD | median 63.09 ms/run ± 1.32 IQR (n=5)
+    OK  mean=63.170 ms  sd=0.716  median=63.089  reps=5x20
+[03:35:16] >>> sccs/csharp baseline/seq
+== sccs/csharp baseline/seq (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/sccs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/csharp --nologo -v q
+   ok in 5s: mean 42.25 ms ± 3.55 SD | median 40.94 ms ± 1.05 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 42.25 ms/run ± 3.55 SD | median 40.94 ms/run ± 1.05 IQR (n=5)
+    OK  mean=42.247 ms  sd=3.545  median=40.936  reps=5x20
+[03:35:26] >>> sccs/java baseline/seq
+== sccs/java baseline/seq (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/sccs/java/classes /home/malik/projects/llm-parallel-bench/tests/sccs/java/Benchmark.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Graph.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 4s: mean 33.04 ms ± 8.22 SD | median 27.30 ms ± 11.47 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 33.04 ms/run ± 8.22 SD | median 27.30 ms/run ± 11.47 IQR (n=5)
+    OK  mean=33.043 ms  sd=8.216  median=27.303  reps=5x20
+[03:35:32] >>> sccs/rust baseline/seq
+== sccs/rust baseline/seq (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin sccs
+   ok in 3s: mean 27.13 ms ± 0.33 SD | median 27.08 ms ± 0.21 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 27.13 ms/run ± 0.33 SD | median 27.08 ms/run ± 0.21 IQR (n=5)
+    OK  mean=27.135 ms  sd=0.328  median=27.081  reps=5x20
+----- group gpt-5/par -----
+[03:35:37] >>> sccs/python gpt-5/par
+== sccs/python gpt-5/par (reps=5, iters=20)
+   ok in 205s: mean 1918.40 ms ± 44.74 SD | median 1935.96 ms ± 81.93 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC reduce_edges | graph_size=100000 | mean 1918.40 ms/run ± 44.74 SD | median 1935.96 ms/run ± 81.93 IQR (n=5)
+    OK  mean=1918.398 ms  sd=44.736  median=1935.957  reps=5x20
+[03:39:02] >>> sccs/go gpt-5/par
+== sccs/go gpt-5/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/go/bench_test ./tests/sccs/go/
+   ok in 5s: mean 49.70 ms ± 2.13 SD | median 49.06 ms ± 1.48 IQR
+   | === RUN   Test7NodeGraph
+   | --- PASS: Test7NodeGraph (0.00s)
+   | === RUN   TestDeterminism
+   | --- PASS: TestDeterminism (0.02s)
+   | === RUN   TestSCCSpeed
+   |     sccs_test.go:299: SCC ReduceEdges | graph_size=100000 | mean 49.70 ms/run ± 2.13 SD | median 49.06 ms/run ± 1.48 IQR (n=5)
+   | --- PASS: TestSCCSpeed (5.06s)
+   | PASS
+    OK  mean=49.705 ms  sd=2.128  median=49.064  reps=5x20
+[03:39:08] >>> sccs/cpp gpt-5/par
+== sccs/cpp gpt-5/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/benchmark.cpp -I /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 1s: mean 12.53 ms ± 0.84 SD | median 12.23 ms ± 0.22 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 12.53 ms/run ± 0.84 SD | median 12.23 ms/run ± 0.22 IQR (n=5)
+    OK  mean=12.529 ms  sd=0.842  median=12.229  reps=5x20
+[03:39:15] >>> sccs/csharp gpt-5/par
+== sccs/csharp gpt-5/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/sccs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/csharp --nologo -v q
+   ok in 4s: mean 30.61 ms ± 6.18 SD | median 28.23 ms ± 0.81 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 30.61 ms/run ± 6.18 SD | median 28.23 ms/run ± 0.81 IQR (n=5)
+    OK  mean=30.610 ms  sd=6.177  median=28.234  reps=5x20
+[03:39:22] >>> sccs/java gpt-5/par
+== sccs/java gpt-5/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/sccs/java/classes /home/malik/projects/llm-parallel-bench/tests/sccs/java/Benchmark.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/AlgoParallel.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 5s: mean 45.69 ms ± 4.89 SD | median 47.20 ms ± 1.76 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 45.69 ms/run ± 4.89 SD | median 47.20 ms/run ± 1.76 IQR (n=5)
+    OK  mean=45.685 ms  sd=4.887  median=47.196  reps=5x20
+[03:39:30] >>> sccs/rust gpt-5/par
+== sccs/rust gpt-5/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin sccs
+   ok in 1s: mean 10.07 ms ± 0.32 SD | median 10.12 ms ± 0.24 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 10.07 ms/run ± 0.32 SD | median 10.12 ms/run ± 0.24 IQR (n=5)
+    OK  mean=10.073 ms  sd=0.321  median=10.120  reps=5x20
+----- group claude-sonnet-4-5/par -----
+[03:39:33] >>> sccs/python claude-sonnet-4-5/par
+== sccs/python claude-sonnet-4-5/par (reps=5, iters=20)
+   ok in 2349s: mean 22869.94 ms ± 179.12 SD | median 22930.84 ms ± 323.50 IQR
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | SCC reduce_edges | graph_size=100000 | mean 22869.94 ms/run ± 179.12 SD | median 22930.84 ms/run ± 323.50 IQR (n=5)
+    OK  mean=22869.938 ms  sd=179.120  median=22930.839  reps=5x20
+[04:18:42] >>> sccs/go claude-sonnet-4-5/par
+FAILED [run] benchmark failed (rc=1)
+=== RUN   TestEmptyGraph
+--- PASS: TestEmptyGraph (0.00s)
+=== RUN   TestSingleNodeNoEdges
+--- PASS: TestSingleNodeNoEdges (0.00s)
+=== RUN   TestSingleNodeSelfLoop
+--- PASS: TestSingleNodeSelfLoop (0.00s)
+=== RUN   TestSimple3Cycle
+--- PASS: TestSimple3Cycle (0.00s)
+=== RUN   Test2NodeMutualSCC
+--- PASS: Test2NodeMutualSCC (0.00s)
+=== RUN   TestDense3NodeSCC
+--- PASS: TestDense3NodeSCC (0.00s)
+=== RUN   TestMultipleSCCs
+--- PASS: TestMultipleSCCs (0.00s)
+=== RUN   Test7NodeGraph
+--- PASS: Test7NodeGraph (0.00s)
+=== RUN   TestDeterminism
+    sccs_test.go:238: determinism run 1: output differs from run 0 (baseline count=1872, this count=1872)
+    sccs_test.go:238: determinism run 2: output differs from run 0 (baseline count=1872, this count=1872)
+    sccs_test.go:238: determinism run 3: output differs from run 0 (baseline count=1872, this count=1872)
+    sccs_test.go:238: determinism run 4: output differs from run 0 (baseline count=1872, this count=1872)
+--- FAIL: TestDeterminism (0.02s)
+=== RUN   TestSCCSpeed
+    sccs_test.go:299: SCC ReduceEdges | graph_size=100000 | mean 40.97 ms/run ± 1.62 SD | median 40.97 ms/run ± 1.37 IQR (n=5)
+--- PASS: TestSCCSpeed (4.17s)
+FAIL
+
+== sccs/go claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/go/bench_test ./tests/sccs/go/
+    FAIL (see failures.json / log above)
+[04:18:48] >>> sccs/cpp claude-sonnet-4-5/par
+== sccs/cpp claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/benchmark.cpp -I /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 2s: mean 18.13 ms ± 1.40 SD | median 17.65 ms ± 1.09 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 18.13 ms/run ± 1.40 SD | median 17.65 ms/run ± 1.09 IQR (n=5)
+    OK  mean=18.131 ms  sd=1.395  median=17.650  reps=5x20
+[04:18:53] >>> sccs/csharp claude-sonnet-4-5/par
+== sccs/csharp claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/sccs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/csharp --nologo -v q
+   ok in 3s: mean 26.33 ms ± 5.20 SD | median 24.01 ms ± 0.91 IQR
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | Found 334 SCC(s).
+   | Reduced SCC edges: 199332
+   | SCC ReduceEdges | graph_size=100000 | mean 26.33 ms/run ± 5.20 SD | median 24.01 ms/run ± 0.91 IQR (n=5)
+    OK  mean=26.326 ms  sd=5.201  median=24.009  reps=5x20
+[04:19:03] >>> sccs/java claude-sonnet-4-5/par
+== sccs/java claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/sccs/java/classes /home/malik/projects/llm-parallel-bench/tests/sccs/java/Benchmark.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/GraphParallel.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 3s: mean 22.70 ms ± 5.42 SD | median 20.81 ms ± 0.70 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 22.70 ms/run ± 5.42 SD | median 20.81 ms/run ± 0.70 IQR (n=5)
+    OK  mean=22.705 ms  sd=5.422  median=20.807  reps=5x20
+[04:19:09] >>> sccs/rust claude-sonnet-4-5/par
+== sccs/rust claude-sonnet-4-5/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin sccs
+   ok in 52s: mean 504.33 ms ± 4.80 SD | median 503.98 ms ± 3.24 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 504.33 ms/run ± 4.80 SD | median 503.98 ms/run ± 3.24 IQR (n=5)
+    OK  mean=504.329 ms  sd=4.805  median=503.975  reps=5x20
+----- group gemini-2-5-pro/par -----
+[04:20:02] >>> sccs/python gemini-2-5-pro/par
+== sccs/python gemini-2-5-pro/par (reps=5, iters=20)
+   ok in 2370s: mean 23011.38 ms ± 206.74 SD | median 23046.46 ms ± 405.22 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC reduce_edges | graph_size=100000 | mean 23011.38 ms/run ± 206.74 SD | median 23046.46 ms/run ± 405.22 IQR (n=5)
+    OK  mean=23011.375 ms  sd=206.739  median=23046.457  reps=5x20
+[04:59:32] >>> sccs/go gemini-2-5-pro/par
+== sccs/go gemini-2-5-pro/par (reps=5, iters=20)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/go/bench_test ./tests/sccs/go/
+   ok in 3s: mean 28.84 ms ± 1.29 SD | median 28.59 ms ± 1.51 IQR
+   | === RUN   Test7NodeGraph
+   | --- PASS: Test7NodeGraph (0.00s)
+   | === RUN   TestDeterminism
+   | --- PASS: TestDeterminism (0.02s)
+   | === RUN   TestSCCSpeed
+   |     sccs_test.go:299: SCC ReduceEdges | graph_size=100000 | mean 28.84 ms/run ± 1.29 SD | median 28.59 ms/run ± 1.51 IQR (n=5)
+   | --- PASS: TestSCCSpeed (2.95s)
+   | PASS
+    OK  mean=28.843 ms  sd=1.288  median=28.590  reps=5x20
+[04:59:36] >>> sccs/cpp gemini-2-5-pro/par
+== sccs/cpp gemini-2-5-pro/par (reps=5, iters=20)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/benchmark.cpp -I /home/malik/projects/llm-parallel-bench/tests/sccs/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp
+   ok in 8s: mean 75.06 ms ± 0.19 SD | median 75.06 ms ± 0.20 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 75.06 ms/run ± 0.19 SD | median 75.06 ms/run ± 0.20 IQR (n=5)
+    OK  mean=75.056 ms  sd=0.194  median=75.059  reps=5x20
+[04:59:47] >>> sccs/csharp gemini-2-5-pro/par
+== sccs/csharp gemini-2-5-pro/par (reps=5, iters=20)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/sccs/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/sccs/csharp --nologo -v q
+   ok in 3s: mean 28.92 ms ± 5.12 SD | median 26.86 ms ± 1.82 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 28.92 ms/run ± 5.12 SD | median 26.86 ms/run ± 1.82 IQR (n=5)
+    OK  mean=28.923 ms  sd=5.121  median=26.856  reps=5x20
+[04:59:58] >>> sccs/java gemini-2-5-pro/par
+== sccs/java gemini-2-5-pro/par (reps=5, iters=20)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/sccs/java/classes /home/malik/projects/llm-parallel-bench/tests/sccs/java/Benchmark.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Graph_parallel.java /home/malik/projects/llm-parallel-bench/tests/sccs/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 3s: mean 24.35 ms ± 4.97 SD | median 22.92 ms ± 3.08 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 24.35 ms/run ± 4.97 SD | median 22.92 ms/run ± 3.08 IQR (n=5)
+    OK  mean=24.351 ms  sd=4.967  median=22.924  reps=5x20
+[05:00:04] >>> sccs/rust gemini-2-5-pro/par
+== sccs/rust gemini-2-5-pro/par (reps=5, iters=20)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin sccs
+   ok in 2s: mean 14.52 ms ± 1.20 SD | median 13.96 ms ± 1.94 IQR
+   | test_scc_3cycle passed
+   | test_scc_2node_mutual passed
+   | test_scc_multiple passed
+   | test_scc_7node passed
+   | SCC ReduceEdges | graph_size=100000 | mean 14.52 ms/run ± 1.20 SD | median 13.96 ms/run ± 1.94 IQR (n=5)
+    OK  mean=14.522 ms  sd=1.198  median=13.961  reps=5x20
+=================== ALGO: gemm ===================
+----- group baseline/seq -----
+[05:00:07] >>> gemm/python baseline/seq
+== gemm/python baseline/seq (reps=5, iters=5)
+   ok in 2698s: mean 103092.94 ms ± 434.16 SD | median 103319.87 ms ± 757.29 IQR
+   | .............................GEMM 1024x1024x1024 (0.021 GFLOPs)  [iters=5, repeats=5] | mean 103092.94 ms/run ± 434.16 SD | median 103319.87 ms/run ± 757.29 IQR (n=5)
+   | .
+   | 30 passed in 2681.04s (0:44:41)
+    OK  mean=103092.938 ms  sd=434.159  median=103319.870  reps=5x5
+[05:45:05] >>> gemm/go baseline/seq
+== gemm/go baseline/seq (reps=5, iters=5)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/go/bench_test ./tests/gemm/go/
+   ok in 65s: mean 2487.47 ms ± 26.66 SD | median 2476.32 ms ± 17.07 IQR
+   | === RUN   TestRepeatCallsAccumulateWithBetaOne
+   | --- PASS: TestRepeatCallsAccumulateWithBetaOne (0.00s)
+   | === RUN   TestAlphaScalingLinear
+   | --- PASS: TestAlphaScalingLinear (0.00s)
+   | === RUN   TestGemmPerformanceSpeed
+   |     gemm_test.go:528: GEMM 1024x1024x1024 (0.863 GFLOPs) [iters=5, repeats=5] | mean 2487.47 ms/run ± 26.66 SD | median 2476.32 ms/run ± 17.07 IQR (n=5)
+   | --- PASS: TestGemmPerformanceSpeed (64.82s)
+   | PASS
+    OK  mean=2487.471 ms  sd=26.656  median=2476.316  reps=5x5
+[05:46:11] >>> gemm/cpp baseline/seq
+== gemm/cpp baseline/seq (reps=5, iters=5)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/test_gemm.cpp /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging/gemm_seq.cpp -I /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp
+   ok in 37s: mean 1400.78 ms ± 10.33 SD | median 1397.36 ms ± 7.95 IQR
+   | [PASS] ragged_B_rejected
+   | [PASS] nan_propagation
+   | [PASS] infinity_propagation
+   | 
+   | === SUMMARY ===
+   | Passed: 26
+   | Failed: 0
+   | GEMM 1024x1024x1024 (1.533 GFLOPs) [iters=5, repeats=5] | mean 1400.78 ms/run ± 10.33 SD | median 1397.36 ms/run ± 7.95 IQR (n=5)
+    OK  mean=1400.785 ms  sd=10.335  median=1397.356  reps=5x5
+[05:46:52] >>> gemm/csharp baseline/seq
+== gemm/csharp baseline/seq (reps=5, iters=5)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/gemm/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/csharp --nologo -v q
+   ok in 47s: mean 1798.41 ms ± 5.86 SD | median 1800.00 ms ± 2.44 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (1.194 GFLOPs) [iters=5, repeats=5] | mean 1798.41 ms/run ± 5.86 SD | median 1800.00 ms/run ± 2.44 IQR (n=5)
+    OK  mean=1798.408 ms  sd=5.857  median=1800.000  reps=5x5
+[05:47:58] >>> gemm/java baseline/seq
+== gemm/java baseline/seq (reps=5, iters=5)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/gemm/java/classes /home/malik/projects/llm-parallel-bench/tests/gemm/java/GemmTestRunner.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/Gemm.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 32s: mean 1225.70 ms ± 19.97 SD | median 1217.94 ms ± 10.58 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (1.752 GFLOPs) [iters=5, repeats=5] | mean 1225.70 ms/run ± 19.97 SD | median 1217.94 ms/run ± 10.58 IQR (n=5)
+    OK  mean=1225.704 ms  sd=19.973  median=1217.937  reps=5x5
+[05:48:33] >>> gemm/rust baseline/seq
+== gemm/rust baseline/seq (reps=5, iters=5)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin gemm
+   ok in 6s: mean 232.18 ms ± 7.97 SD | median 228.01 ms ± 10.73 IQR
+   | test_identity_left passed
+   | test_zero passed
+   | test_general_random passed
+   | test_block_larger passed
+   | GEMM 1024x1024x1024 (9.249 GFLOPs) | mean 232.18 ms/run ± 7.97 SD | median 228.01 ms/run ± 10.73 IQR (n=5)
+    OK  mean=232.183 ms  sd=7.969  median=228.007  reps=5x5
+----- group gpt-5/par -----
+[05:48:40] >>> gemm/python gpt-5/par
+FAILED [run] benchmark failed (rc=1)
+ C=None, beta=0, **TILES),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+A = [[0.142805189379827, -0.14222189064977075, 0.15618260226894076, -0.5878035357209965, 0.6266425027146401, 0.64717774506...5, -0.7123489583459477, -0.18822834772847696, -0.5842038594445511, 0.2832120954258517, -0.02657903960261887, ...], ...]
+B = [[-0.05085864262290385, 0.31494500531451064, 0.3328209422496762, -0.7147992941492645, -0.9782791138198641, -0.25049101...467, 0.7840113206099615, -0.2727162413542765, 0.4145247337323239, -0.5247978471927663, 0.050848129906723605, ...], ...]
+alpha = 1.0, C = None, beta = 0, MB = 32, NB = 32, KB = 128
+
+    def gemm(
+        A: List[List[float]],
+        B: List[List[float]],
+        alpha: float = 1.0,
+        C: Optional[List[List[float]]] = None,
+        beta: float = 0,
+        MB: int = 64,
+        NB: int = 64,
+        KB: int = 64,
+    ):
+        """
+        Compute C := alpha * A * B + beta * C.
+    
+        A is (m x k), B is (k x n), C is (m x n). If C is None, a zero matrix is used.
+        """
+>       from llm_written.python_openai.gemm.gemm_seq import gemm as seq_gemm  # for small-input fast path
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'llm_written.python_openai'
+
+tests/gemm/python/staging/gemm_parallel.py:90: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/gemm/python/test_gemm.py::test_identity_left - ModuleNotFoundErr...
+FAILED tests/gemm/python/test_gemm.py::test_identity_right - ModuleNotFoundEr...
+FAILED tests/gemm/python/test_gemm.py::test_zero_matrices_yield_zero - Module...
+FAILED tests/gemm/python/test_gemm.py::test_alpha_zero_with_C_none - ModuleNo...
+FAILED tests/gemm/python/test_gemm.py::test_alpha_zero_with_C_beta_one_preserves_C
+FAILED tests/gemm/python/test_gemm.py::test_alpha_zero_with_C_beta_scales_once_even_with_small_KB
+FAILED tests/gemm/python/test_gemm.py::test_beta_zero_ignores_input_C - Modul...
+FAILED tests/gemm/python/test_gemm.py::test_beta_one_accumulates_into_C - Mod...
+FAILED tests/gemm/python/test_gemm.py::test_negative_alpha_and_beta - ModuleN...
+FAILED tests/gemm/python/test_gemm.py::test_rectangular_tall_skinny - ModuleN...
+FAILED tests/gemm/python/test_gemm.py::test_rectangular_short_fat - ModuleNot...
+FAILED tests/gemm/python/test_gemm.py::test_single_row_times_single_column_scalar
+FAILED tests/gemm/python/test_gemm.py::test_row_vector_times_matrix - ModuleN...
+FAILED tests/gemm/python/test_gemm.py::test_matrix_times_column_vector - Modu...
+FAILED tests/gemm/python/test_gemm.py::test_general_random_compare_reference
+FAILED tests/gemm/python/test_gemm.py::test_not_multiple_of_block_sizes - Mod...
+FAILED tests/gemm/python/test_gemm.py::test_block_sizes_one_matches_naive - M...
+FAILED tests/gemm/python/test_gemm.py::test_block_sizes_larger_than_dims - Mo...
+FAILED tests/gemm/python/test_gemm.py::test_in_place_C_object_identity - Modu...
+FAILED tests/gemm/python/test_gemm.py::test_C_created_when_none - ModuleNotFo...
+FAILED tests/gemm/python/test_gemm.py::test_dimension_mismatch_raises - Modul...
+FAILED tests/gemm/python/test_gemm.py::test_invalid_C_shape_raises - ModuleNo...
+FAILED tests/gemm/python/test_gemm.py::test_ragged_A_rejected - ModuleNotFoun...
+FAILED tests/gemm/python/test_gemm.py::test_ragged_B_rejected - ModuleNotFoun...
+FAILED tests/gemm/python/test_gemm.py::test_non_numeric_entry_rejected - Modu...
+FAILED tests/gemm/python/test_gemm.py::test_nan_propagation - ModuleNotFoundE...
+FAILED tests/gemm/python/test_gemm.py::test_infinity_propagation - ModuleNotF...
+FAILED tests/gemm/python/test_gemm.py::test_repeat_calls_accumulate_with_beta_one
+FAILED tests/gemm/python/test_gemm.py::test_alpha_scaling_linear - ModuleNotF...
+FAILED tests/gemm/python/test_gemm.py::test_gemm_performance_speed - ModuleNo...
+30 failed in 1.76s
+
+== gemm/python gpt-5/par (reps=5, iters=5)
+    FAIL (see failures.json / log above)
+[05:48:44] >>> gemm/go gpt-5/par
+== gemm/go gpt-5/par (reps=5, iters=5)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/go/bench_test ./tests/gemm/go/
+   ok in 10s: mean 373.37 ms ± 7.38 SD | median 370.48 ms ± 1.17 IQR
+   | === RUN   TestRepeatCallsAccumulateWithBetaOne
+   | --- PASS: TestRepeatCallsAccumulateWithBetaOne (0.00s)
+   | === RUN   TestAlphaScalingLinear
+   | --- PASS: TestAlphaScalingLinear (0.00s)
+   | === RUN   TestGemmPerformanceSpeed
+   |     gemm_test.go:528: GEMM 1024x1024x1024 (5.752 GFLOPs) [iters=5, repeats=5] | mean 373.37 ms/run ± 7.38 SD | median 370.48 ms/run ± 1.17 IQR (n=5)
+   | --- PASS: TestGemmPerformanceSpeed (9.77s)
+   | PASS
+    OK  mean=373.369 ms  sd=7.379  median=370.475  reps=5x5
+[05:48:55] >>> gemm/cpp gpt-5/par
+FAILED [run] benchmark failed (rc=1)
+[PASS] identity_left
+[PASS] identity_right
+[PASS] zero_matrices_yield_zero
+[PASS] alpha_zero_with_C_none
+[PASS] alpha_zero_with_C_beta_one_preserves_C
+[PASS] alpha_zero_with_C_beta_scales_once_even_with_small_KB
+[PASS] beta_zero_ignores_input_C
+[PASS] beta_one_accumulates_into_C
+[PASS] negative_alpha_and_beta
+[PASS] rectangular_tall_skinny
+[PASS] rectangular_short_fat
+[PASS] single_row_times_single_column_scalar
+[PASS] row_vector_times_matrix
+[PASS] matrix_times_column_vector
+[PASS] general_random_compare_reference
+[PASS] not_multiple_of_block_sizes
+[PASS] block_sizes_one_matches_naive
+[PASS] block_sizes_larger_than_dims
+[PASS] in_place_C_mutation
+[PASS] C_created_when_null
+[PASS] dimension_mismatch_raises
+[PASS] invalid_C_shape_raises
+[FAIL] ragged_A_rejected -> expected exception for ragged A
+[FAIL] ragged_B_rejected -> expected exception for ragged B
+[PASS] nan_propagation
+[PASS] infinity_propagation
+
+=== SUMMARY ===
+Passed: 24
+Failed: 2
+2 test(s) failed — skipping benchmark
+
+== gemm/cpp gpt-5/par (reps=5, iters=5)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/test_gemm.cpp /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging/gemm_parallel_impl.cpp -I /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+    FAIL (see failures.json / log above)
+[05:49:00] >>> gemm/csharp gpt-5/par
+== gemm/csharp gpt-5/par (reps=5, iters=5)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/gemm/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/csharp --nologo -v q
+   ok in 14s: mean 529.41 ms ± 6.10 SD | median 527.06 ms ± 7.98 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (4.056 GFLOPs) [iters=5, repeats=5] | mean 529.41 ms/run ± 6.10 SD | median 527.06 ms/run ± 7.98 IQR (n=5)
+    OK  mean=529.411 ms  sd=6.097  median=527.059  reps=5x5
+[05:49:18] >>> gemm/java gpt-5/par
+== gemm/java gpt-5/par (reps=5, iters=5)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/gemm/java/classes /home/malik/projects/llm-parallel-bench/tests/gemm/java/GemmTestRunner.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/GemmBaseline.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/algo_parallel.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 5s: mean 150.45 ms ± 14.60 SD | median 143.65 ms ± 7.50 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (14.273 GFLOPs) [iters=5, repeats=5] | mean 150.45 ms/run ± 14.60 SD | median 143.65 ms/run ± 7.50 IQR (n=5)
+    OK  mean=150.454 ms  sd=14.603  median=143.650  reps=5x5
+[05:49:25] >>> gemm/rust gpt-5/par
+== gemm/rust gpt-5/par (reps=5, iters=5)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin gemm
+   ok in 5s: mean 203.33 ms ± 9.61 SD | median 200.75 ms ± 12.36 IQR
+   | test_identity_left passed
+   | test_zero passed
+   | test_general_random passed
+   | test_block_larger passed
+   | GEMM 1024x1024x1024 (10.562 GFLOPs) | mean 203.33 ms/run ± 9.61 SD | median 200.75 ms/run ± 12.36 IQR (n=5)
+    OK  mean=203.331 ms  sd=9.607  median=200.747  reps=5x5
+----- group claude-sonnet-4-5/par -----
+[05:49:33] >>> gemm/python claude-sonnet-4-5/par
+FAILED [run] benchmark failed (rc=-15)
+.............................
+== gemm/python claude-sonnet-4-5/par (reps=5, iters=5)
+    FAIL (see failures.json / log above)
+[12:33:03] >>> gemm/go claude-sonnet-4-5/par
+== gemm/go claude-sonnet-4-5/par (reps=5, iters=5)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/go/bench_test ./tests/gemm/go/
+   ok in 11s: mean 437.04 ms ± 6.78 SD | median 437.77 ms ± 7.68 IQR
+   | === RUN   TestRepeatCallsAccumulateWithBetaOne
+   | --- PASS: TestRepeatCallsAccumulateWithBetaOne (0.00s)
+   | === RUN   TestAlphaScalingLinear
+   | --- PASS: TestAlphaScalingLinear (0.00s)
+   | === RUN   TestGemmPerformanceSpeed
+   |     gemm_test.go:528: GEMM 1024x1024x1024 (4.914 GFLOPs) [iters=5, repeats=5] | mean 437.04 ms/run ± 6.78 SD | median 437.77 ms/run ± 7.68 IQR (n=5)
+   | --- PASS: TestGemmPerformanceSpeed (11.46s)
+   | PASS
+    OK  mean=437.040 ms  sd=6.779  median=437.773  reps=5x5
+[12:33:17] >>> gemm/cpp claude-sonnet-4-5/par
+== gemm/cpp claude-sonnet-4-5/par (reps=5, iters=5)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/test_gemm.cpp /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging/gemm_common.cpp /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging/gemm_parallel.cpp -I /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 8s: mean 297.33 ms ± 19.03 SD | median 285.87 ms ± 32.86 IQR
+   | [PASS] ragged_B_rejected
+   | [PASS] nan_propagation
+   | [PASS] infinity_propagation
+   | 
+   | === SUMMARY ===
+   | Passed: 26
+   | Failed: 0
+   | GEMM 1024x1024x1024 (7.223 GFLOPs) [iters=5, repeats=5] | mean 297.33 ms/run ± 19.03 SD | median 285.87 ms/run ± 32.86 IQR (n=5)
+    OK  mean=297.331 ms  sd=19.029  median=285.868  reps=5x5
+[12:33:30] >>> gemm/csharp claude-sonnet-4-5/par
+== gemm/csharp claude-sonnet-4-5/par (reps=5, iters=5)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/gemm/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/csharp --nologo -v q
+   ok in 14s: mean 534.11 ms ± 7.05 SD | median 534.20 ms ± 5.00 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (4.021 GFLOPs) [iters=5, repeats=5] | mean 534.11 ms/run ± 7.05 SD | median 534.20 ms/run ± 5.00 IQR (n=5)
+    OK  mean=534.112 ms  sd=7.049  median=534.197  reps=5x5
+[12:33:53] >>> gemm/java claude-sonnet-4-5/par
+== gemm/java claude-sonnet-4-5/par (reps=5, iters=5)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/gemm/java/classes /home/malik/projects/llm-parallel-bench/tests/gemm/java/GemmTestRunner.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/GemmParallel.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 4s: mean 137.01 ms ± 5.44 SD | median 134.83 ms ± 8.26 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (15.674 GFLOPs) [iters=5, repeats=5] | mean 137.01 ms/run ± 5.44 SD | median 134.83 ms/run ± 8.26 IQR (n=5)
+    OK  mean=137.007 ms  sd=5.439  median=134.830  reps=5x5
+[12:34:00] >>> gemm/rust claude-sonnet-4-5/par
+== gemm/rust claude-sonnet-4-5/par (reps=5, iters=5)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin gemm
+   ok in 6s: mean 239.68 ms ± 10.24 SD | median 235.40 ms ± 15.08 IQR
+   | test_identity_left passed
+   | test_zero passed
+   | test_general_random passed
+   | test_block_larger passed
+   | GEMM 1024x1024x1024 (8.960 GFLOPs) | mean 239.68 ms/run ± 10.24 SD | median 235.40 ms/run ± 15.08 IQR (n=5)
+    OK  mean=239.684 ms  sd=10.244  median=235.403  reps=5x5
+----- group gemini-2-5-pro/par -----
+[12:34:08] >>> gemm/python gemini-2-5-pro/par
+== gemm/python gemini-2-5-pro/par (reps=5, iters=5)
+   ok in 373s: mean 14511.14 ms ± 103.83 SD | median 14539.21 ms ± 175.65 IQR
+   | .............................GEMM 1024x1024x1024 (0.148 GFLOPs)  [iters=5, repeats=5] | mean 14511.14 ms/run ± 103.83 SD | median 14539.21 ms/run ± 175.65 IQR (n=5)
+   | .
+   | 30 passed in 378.25s (0:06:18)
+    OK  mean=14511.142 ms  sd=103.830  median=14539.215  reps=5x5
+[12:40:22] >>> gemm/go gemini-2-5-pro/par
+== gemm/go gemini-2-5-pro/par (reps=5, iters=5)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/go/bench_test ./tests/gemm/go/
+   ok in 6s: mean 273.41 ms ± 4.09 SD | median 273.96 ms ± 6.79 IQR
+   | === RUN   TestRepeatCallsAccumulateWithBetaOne
+   | --- PASS: TestRepeatCallsAccumulateWithBetaOne (0.00s)
+   | === RUN   TestAlphaScalingLinear
+   | --- PASS: TestAlphaScalingLinear (0.00s)
+   | === RUN   TestGemmPerformanceSpeed
+   |     gemm_test.go:528: GEMM 1024x1024x1024 (7.855 GFLOPs) [iters=5, repeats=5] | mean 273.41 ms/run ± 4.09 SD | median 273.96 ms/run ± 6.79 IQR (n=5)
+   | --- PASS: TestGemmPerformanceSpeed (7.16s)
+   | PASS
+    OK  mean=273.407 ms  sd=4.089  median=273.962  reps=5x5
+[12:40:30] >>> gemm/cpp gemini-2-5-pro/par
+== gemm/cpp gemini-2-5-pro/par (reps=5, iters=5)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/test_gemm.cpp /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging/gemm_parallel.cpp -I /home/malik/projects/llm-parallel-bench/tests/gemm/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 5s: mean 190.78 ms ± 9.21 SD | median 187.48 ms ± 8.61 IQR
+   | [PASS] ragged_B_rejected
+   | [PASS] nan_propagation
+   | [PASS] infinity_propagation
+   | 
+   | === SUMMARY ===
+   | Passed: 26
+   | Failed: 0
+   | GEMM 1024x1024x1024 (11.257 GFLOPs) [iters=5, repeats=5] | mean 190.78 ms/run ± 9.21 SD | median 187.48 ms/run ± 8.61 IQR (n=5)
+    OK  mean=190.777 ms  sd=9.207  median=187.480  reps=5x5
+[12:40:40] >>> gemm/csharp gemini-2-5-pro/par
+== gemm/csharp gemini-2-5-pro/par (reps=5, iters=5)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/gemm/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/gemm/csharp --nologo -v q
+   ok in 14s: mean 560.56 ms ± 8.04 SD | median 562.78 ms ± 12.90 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (3.831 GFLOPs) [iters=5, repeats=5] | mean 560.56 ms/run ± 8.04 SD | median 562.78 ms/run ± 12.90 IQR (n=5)
+    OK  mean=560.563 ms  sd=8.036  median=562.783  reps=5x5
+[12:40:58] >>> gemm/java gemini-2-5-pro/par
+== gemm/java gemini-2-5-pro/par (reps=5, iters=5)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/gemm/java/classes /home/malik/projects/llm-parallel-bench/tests/gemm/java/GemmTestRunner.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/GemmParallel.java /home/malik/projects/llm-parallel-bench/tests/gemm/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 10s: mean 362.16 ms ± 6.92 SD | median 361.27 ms ± 1.26 IQR
+   | [PASS] Infinity propagation
+   | [PASS] Repeat calls accumulate with beta=1
+   | [PASS] Alpha scaling is linear
+   | 
+   | ========================================
+   | Results: 28 passed, 0 failed, 28 total
+   | ========================================
+   | GEMM 1024x1024x1024 (5.930 GFLOPs) [iters=5, repeats=5] | mean 362.16 ms/run ± 6.92 SD | median 361.27 ms/run ± 1.26 IQR (n=5)
+    OK  mean=362.157 ms  sd=6.923  median=361.266  reps=5x5
+[12:41:10] >>> gemm/rust gemini-2-5-pro/par
+FAILED [build] build failed (rc=101)
+   Compiling bench_rust v0.1.0 (/home/malik/projects/llm-parallel-bench/bench/rust)
+error[E0425]: cannot find value `n1` in this scope
+   --> src/staged/gemm_parallel.rs:161:54
+    |
+157 |         let _n1 = (n0 + nb).min(n);
+    |             --- `_n1` defined here
+...
+161 |             let bpack = pack_matrix(&bt, k0, k1, n0, n1);
+    |                                                      ^^
+    |
+help: the leading underscore in `_n1` marks it as unused, consider renaming it to `n1`
+    |
+157 -         let _n1 = (n0 + nb).min(n);
+157 +         let n1 = (n0 + nb).min(n);
+    |
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `bench_rust` (lib) due to 1 previous error
+
+== gemm/rust gemini-2-5-pro/par (reps=5, iters=5)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin gemm
+    FAIL (see failures.json / log above)
+=================== ALGO: smith-waterman ===================
+----- group baseline/seq -----
+[12:41:11] >>> smith-waterman/python baseline/seq
+== smith-waterman/python baseline/seq (reps=5, iters=1)
+   ok in 861s: mean 122507.65 ms ± 1291.81 SD | median 122326.46 ms ± 2262.58 IQR
+   | ........SW large sequences | mean 122507.65 ms/run ± 1291.81 SD | median 122326.46 ms/run ± 2262.58 IQR (n=5)
+   | .
+   | 9 passed in 881.16s (0:14:41)
+    OK  mean=122507.647 ms  sd=1291.807  median=122326.459  reps=5x1
+[12:55:33] >>> smith-waterman/go baseline/seq
+== smith-waterman/go baseline/seq (reps=5, iters=1)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/go/bench_test ./tests/smith-waterman/go/
+   ok in 3s: mean 544.21 ms ± 75.27 SD | median 514.09 ms ± 120.22 IQR
+   | === RUN   TestSingleCharMatch
+   | --- PASS: TestSingleCharMatch (0.00s)
+   | === RUN   TestLargeSequencesFromFile
+   | --- PASS: TestLargeSequencesFromFile (0.66s)
+   | === RUN   TestSWSpeed
+   |     smith_waterman_test.go:112: SW large sequences | mean 544.21 ms/run ± 75.27 SD | median 514.09 ms/run ± 120.22 IQR (n=5)
+   | --- PASS: TestSWSpeed (3.26s)
+   | PASS
+    OK  mean=544.215 ms  sd=75.267  median=514.086  reps=5x1
+[12:55:37] >>> smith-waterman/cpp baseline/seq
+== smith-waterman/cpp baseline/seq (reps=5, iters=1)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/test_smith_waterman.cpp /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging/smith_waterman.cpp -I /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp
+   ok in 9s: mean 1229.04 ms ± 8.39 SD | median 1227.56 ms ± 2.06 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 1229.04 ms/run ± 8.39 SD | median 1227.56 ms/run ± 2.06 IQR (n=5)
+    OK  mean=1229.045 ms  sd=8.394  median=1227.564  reps=5x1
+[12:55:49] >>> smith-waterman/csharp baseline/seq
+== smith-waterman/csharp baseline/seq (reps=5, iters=1)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/smith-waterman/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/csharp --nologo -v q
+   ok in 13s: mean 1843.56 ms ± 56.93 SD | median 1810.89 ms ± 101.34 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 1843.56 ms/run ± 56.93 SD | median 1810.89 ms/run ± 101.34 IQR (n=5)
+    OK  mean=1843.558 ms  sd=56.933  median=1810.894  reps=5x1
+[12:56:12] >>> smith-waterman/java baseline/seq
+== smith-waterman/java baseline/seq (reps=5, iters=1)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/java/classes /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/TestSmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/SmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 13s: mean 1585.27 ms ± 141.85 SD | median 1615.34 ms ± 54.61 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 1585.27 ms/run ± 141.85 SD | median 1615.34 ms/run ± 54.61 IQR (n=5)
+    OK  mean=1585.268 ms  sd=141.846  median=1615.340  reps=5x1
+[12:56:27] >>> smith-waterman/rust baseline/seq
+== smith-waterman/rust baseline/seq (reps=5, iters=1)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin smith_waterman
+   ok in 7s: mean 891.70 ms ± 1.96 SD | median 891.48 ms ± 2.10 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 891.70 ms/run ± 1.96 SD | median 891.48 ms/run ± 2.10 IQR (n=5)
+    OK  mean=891.700 ms  sd=1.961  median=891.482  reps=5x1
+----- group gpt-5/par -----
+[12:56:36] >>> smith-waterman/python gpt-5/par
+== smith-waterman/python gpt-5/par (reps=5, iters=1)
+   ok in 282s: mean 39564.29 ms ± 1096.10 SD | median 39863.19 ms ± 1746.01 IQR
+   | ........SW large sequences | mean 39564.29 ms/run ± 1096.10 SD | median 39863.19 ms/run ± 1746.01 IQR (n=5)
+   | .
+   | 9 passed in 287.34s (0:04:47)
+    OK  mean=39564.293 ms  sd=1096.102  median=39863.194  reps=5x1
+[13:01:18] >>> smith-waterman/go gpt-5/par
+== smith-waterman/go gpt-5/par (reps=5, iters=1)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/go/bench_test ./tests/smith-waterman/go/
+   ok in 7s: mean 1027.54 ms ± 76.70 SD | median 1003.13 ms ± 78.71 IQR
+   | === RUN   TestSingleCharMatch
+   | --- PASS: TestSingleCharMatch (0.00s)
+   | === RUN   TestLargeSequencesFromFile
+   | --- PASS: TestLargeSequencesFromFile (1.21s)
+   | === RUN   TestSWSpeed
+   |     smith_waterman_test.go:112: SW large sequences | mean 1027.54 ms/run ± 76.70 SD | median 1003.13 ms/run ± 78.71 IQR (n=5)
+   | --- PASS: TestSWSpeed (6.15s)
+   | PASS
+    OK  mean=1027.541 ms  sd=76.702  median=1003.127  reps=5x1
+[13:01:26] >>> smith-waterman/cpp gpt-5/par
+== smith-waterman/cpp gpt-5/par (reps=5, iters=1)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/test_smith_waterman.cpp /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging/algo_parallel.cpp -I /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 7s: mean 1127.45 ms ± 435.36 SD | median 1010.51 ms ± 447.02 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 1127.45 ms/run ± 435.36 SD | median 1010.51 ms/run ± 447.02 IQR (n=5)
+    OK  mean=1127.447 ms  sd=435.362  median=1010.510  reps=5x1
+[13:01:37] >>> smith-waterman/csharp gpt-5/par
+== smith-waterman/csharp gpt-5/par (reps=5, iters=1)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/smith-waterman/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/csharp --nologo -v q
+   ok in 8s: mean 1016.65 ms ± 47.70 SD | median 1008.40 ms ± 32.24 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 1016.65 ms/run ± 47.70 SD | median 1008.40 ms/run ± 32.24 IQR (n=5)
+    OK  mean=1016.650 ms  sd=47.698  median=1008.397  reps=5x1
+[13:01:49] >>> smith-waterman/java gpt-5/par
+== smith-waterman/java gpt-5/par (reps=5, iters=1)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/java/classes /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/TestSmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/AlgoParallel.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 213s: mean 31193.81 ms ± 341.73 SD | median 31345.98 ms ± 640.99 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 31193.81 ms/run ± 341.73 SD | median 31345.98 ms/run ± 640.99 IQR (n=5)
+    OK  mean=31193.810 ms  sd=341.733  median=31345.981  reps=5x1
+[13:05:23] >>> smith-waterman/rust gpt-5/par
+== smith-waterman/rust gpt-5/par (reps=5, iters=1)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin smith_waterman
+   ok in 404s: mean 59743.22 ms ± 3264.39 SD | median 58252.76 ms ± 265.07 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 59743.22 ms/run ± 3264.39 SD | median 58252.76 ms/run ± 265.07 IQR (n=5)
+    OK  mean=59743.221 ms  sd=3264.386  median=58252.760  reps=5x1
+----- group claude-sonnet-4-5/par -----
+[13:12:09] >>> smith-waterman/python claude-sonnet-4-5/par
+== smith-waterman/python claude-sonnet-4-5/par (reps=5, iters=1)
+   ok in 2755s: mean 385937.85 ms ± 22810.22 SD | median 394817.54 ms ± 33438.28 IQR
+   | ........SW large sequences | mean 385937.85 ms/run ± 22810.22 SD | median 394817.54 ms/run ± 33438.28 IQR (n=5)
+   | .
+   | 9 passed in 2830.76s (0:47:10)
+    OK  mean=385937.848 ms  sd=22810.219  median=394817.536  reps=5x1
+[13:58:05] >>> smith-waterman/go claude-sonnet-4-5/par
+== smith-waterman/go claude-sonnet-4-5/par (reps=5, iters=1)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/go/bench_test ./tests/smith-waterman/go/
+   ok in 5s: mean 659.83 ms ± 207.69 SD | median 597.67 ms ± 46.66 IQR
+   | === RUN   TestSingleCharMatch
+   | --- PASS: TestSingleCharMatch (0.00s)
+   | === RUN   TestLargeSequencesFromFile
+   | --- PASS: TestLargeSequencesFromFile (0.71s)
+   | === RUN   TestSWSpeed
+   |     smith_waterman_test.go:112: SW large sequences | mean 659.83 ms/run ± 207.69 SD | median 597.67 ms/run ± 46.66 IQR (n=5)
+   | --- PASS: TestSWSpeed (3.77s)
+   | PASS
+    OK  mean=659.825 ms  sd=207.693  median=597.673  reps=5x1
+[13:58:11] >>> smith-waterman/cpp claude-sonnet-4-5/par
+== smith-waterman/cpp claude-sonnet-4-5/par (reps=5, iters=1)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/test_smith_waterman.cpp /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging/algo_parallel.cpp -I /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 7s: mean 954.71 ms ± 39.38 SD | median 938.58 ms ± 4.83 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 954.71 ms/run ± 39.38 SD | median 938.58 ms/run ± 4.83 IQR (n=5)
+    OK  mean=954.709 ms  sd=39.380  median=938.582  reps=5x1
+[13:58:22] >>> smith-waterman/csharp claude-sonnet-4-5/par
+== smith-waterman/csharp claude-sonnet-4-5/par (reps=5, iters=1)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/smith-waterman/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/csharp --nologo -v q
+   ok in 29s: mean 4177.79 ms ± 202.31 SD | median 4257.89 ms ± 307.02 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 4177.79 ms/run ± 202.31 SD | median 4257.89 ms/run ± 307.02 IQR (n=5)
+    OK  mean=4177.793 ms  sd=202.309  median=4257.893  reps=5x1
+[13:58:58] >>> smith-waterman/java claude-sonnet-4-5/par
+== smith-waterman/java claude-sonnet-4-5/par (reps=5, iters=1)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/java/classes /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/TestSmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/SmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 65s: mean 9478.76 ms ± 428.93 SD | median 9284.80 ms ± 399.89 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 9478.76 ms/run ± 428.93 SD | median 9284.80 ms/run ± 399.89 IQR (n=5)
+    OK  mean=9478.756 ms  sd=428.933  median=9284.800  reps=5x1
+[14:00:06] >>> smith-waterman/rust claude-sonnet-4-5/par
+== smith-waterman/rust claude-sonnet-4-5/par (reps=5, iters=1)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin smith_waterman
+   ok in 6s: mean 869.60 ms ± 2.18 SD | median 868.36 ms ± 3.34 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 869.60 ms/run ± 2.18 SD | median 868.36 ms/run ± 3.34 IQR (n=5)
+    OK  mean=869.601 ms  sd=2.183  median=868.361  reps=5x1
+----- group gemini-2-5-pro/par -----
+[14:00:14] >>> smith-waterman/python gemini-2-5-pro/par
+== smith-waterman/python gemini-2-5-pro/par (reps=5, iters=1)
+   ok in 955s: mean 139015.23 ms ± 708.81 SD | median 138783.43 ms ± 1042.28 IQR
+   | ........SW large sequences | mean 139015.23 ms/run ± 708.81 SD | median 138783.43 ms/run ± 1042.28 IQR (n=5)
+   | .
+   | 9 passed in 975.58s (0:16:15)
+    OK  mean=139015.230 ms  sd=708.812  median=138783.425  reps=5x1
+[14:16:10] >>> smith-waterman/go gemini-2-5-pro/par
+== smith-waterman/go gemini-2-5-pro/par (reps=5, iters=1)
+  [build] go test -c -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/go/bench_test ./tests/smith-waterman/go/
+   ok in 15s: mean 1792.84 ms ± 154.77 SD | median 1756.84 ms ± 290.48 IQR
+   | === RUN   TestSingleCharMatch
+   | --- PASS: TestSingleCharMatch (0.00s)
+   | === RUN   TestLargeSequencesFromFile
+   | --- PASS: TestLargeSequencesFromFile (5.09s)
+   | === RUN   TestSWSpeed
+   |     smith_waterman_test.go:112: SW large sequences | mean 1792.84 ms/run ± 154.77 SD | median 1756.84 ms/run ± 290.48 IQR (n=5)
+   | --- PASS: TestSWSpeed (11.02s)
+   | PASS
+    OK  mean=1792.840 ms  sd=154.767  median=1756.842  reps=5x1
+[14:16:27] >>> smith-waterman/cpp gemini-2-5-pro/par
+== smith-waterman/cpp gemini-2-5-pro/par (reps=5, iters=1)
+  [build] g++ -std=c++17 -O2 -pthread -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/cpp/bench_bin /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/test_smith_waterman.cpp /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging/smith_waterman_parallel.cpp /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging/smith_waterman_sequential.cpp -I /home/malik/projects/llm-parallel-bench/tests/smith-waterman/cpp/staging -I /home/malik/projects/llm-parallel-bench/tests/bench_utils/cpp -fopenmp
+   ok in 12s: mean 883.02 ms ± 189.28 SD | median 867.95 ms ± 211.27 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 883.02 ms/run ± 189.28 SD | median 867.95 ms/run ± 211.27 IQR (n=5)
+    OK  mean=883.018 ms  sd=189.279  median=867.950  reps=5x1
+[14:16:44] >>> smith-waterman/csharp gemini-2-5-pro/par
+== smith-waterman/csharp gemini-2-5-pro/par (reps=5, iters=1)
+  [build] dotnet build /home/malik/projects/llm-parallel-bench/tests/smith-waterman/csharp/bench.csproj -c Release -o /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/csharp --nologo -v q
+   ok in 30s: mean 4283.71 ms ± 101.03 SD | median 4232.39 ms ± 64.53 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 4283.71 ms/run ± 101.03 SD | median 4232.39 ms/run ± 64.53 IQR (n=5)
+    OK  mean=4283.714 ms  sd=101.033  median=4232.386  reps=5x1
+[14:17:23] >>> smith-waterman/java gemini-2-5-pro/par
+== smith-waterman/java gemini-2-5-pro/par (reps=5, iters=1)
+  [build] javac -d /home/malik/projects/llm-parallel-bench/bench/build/smith-waterman/java/classes /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/TestSmithWaterman.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/Impl.java /home/malik/projects/llm-parallel-bench/tests/smith-waterman/java/staging/SmithWatermanParallel.java /home/malik/projects/llm-parallel-bench/tests/bench_utils/java/Bench.java
+   ok in 84s: mean 12283.62 ms ± 105.56 SD | median 12327.06 ms ± 145.05 IQR
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | 7 passed, 0 failed
+   | SW large sequences | mean 12283.62 ms/run ± 105.56 SD | median 12327.06 ms/run ± 145.05 IQR (n=5)
+    OK  mean=12283.617 ms  sd=105.563  median=12327.057  reps=5x1
+[14:18:49] >>> smith-waterman/rust gemini-2-5-pro/par
+== smith-waterman/rust gemini-2-5-pro/par (reps=5, iters=1)
+  [build] cargo build --release --manifest-path /home/malik/projects/llm-parallel-bench/bench/rust/Cargo.toml --bin smith_waterman
+   ok in 149s: mean 21618.45 ms ± 321.60 SD | median 21698.43 ms ± 359.38 IQR
+   | test_perfect_match passed
+   | test_no_match passed
+   | test_partial_match passed
+   | test_gap_in_query passed
+   | test_gap_in_reference passed
+   | test_single_char_match passed
+   | test_large_sequences_from_file passed
+   | SW large sequences | mean 21618.45 ms/run ± 321.60 SD | median 21698.43 ms/run ± 359.38 IQR (n=5)
+    OK  mean=21618.446 ms  sd=321.604  median=21698.430  reps=5x1
+SWEEP DONE

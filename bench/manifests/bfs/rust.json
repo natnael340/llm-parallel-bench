@@ -1,0 +1,44 @@
+{
+  "algo": "bfs",
+  "lang": "rust",
+  "harness": "tests/bfs/rust",
+  "bin": "bfs",
+  "default_reps": 5,
+  "default_iters": 20,
+  "params": { "graph_size": 2000, "graph_kind": "complete" },
+  "canonical_entry": "Graph::new/add_edge; bench_bfs(&Graph, i32) -> Vec<i32>",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/bfs/rust/src",
+      "files": ["lib.rs"],
+      "adapter": [
+        "pub use super::lib::Graph;",
+        "pub fn bench_bfs(g: &Graph, start: i32) -> Vec<i32> { super::lib::BfsSequential::run(g, start) }"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/bfs/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::Graph;",
+        "pub fn bench_bfs(g: &Graph, start: i32) -> Vec<i32> { super::algo_parallel::Bfs::run(g, start) }"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/bfs/rust",
+      "files": ["bfs_parallel.rs"],
+      "adapter": [
+        "pub use super::bfs_parallel::Graph;",
+        "pub fn bench_bfs(g: &Graph, start: i32) -> Vec<i32> { super::bfs_parallel::BfsParallel::run(g, start) }"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/bfs/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::Graph;",
+        "pub fn bench_bfs(g: &Graph, start: i32) -> Vec<i32> { super::algo_parallel::Bfs::run(g, start) }"
+      ]
+    }
+  }
+}

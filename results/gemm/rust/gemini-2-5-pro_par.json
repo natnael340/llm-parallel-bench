@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "status": "build_failed",
+  "detail": "does not compile: `n1` not in scope",
+  "note": "llm_written/gemini-2-5-pro/gemm/rust/gemm_parallel.rs:157 declares `let _n1 = (n0 + nb).min(n);` while line 161 uses `n1` -> rustc E0425. The source is unmodified since commit 8062402 and this cell has never had a result file. Left unfixed: llm_written/ is a research artifact.",
+  "elapsed_ms": [],
+  "mean": null,
+  "sd": null,
+  "median": null,
+  "iqr": null,
+  "reps": 0,
+  "iters_per_rep": 0,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 64
+  }
+}

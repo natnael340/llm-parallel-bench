@@ -1,0 +1,75 @@
+{
+  "algo": "gemm",
+  "lang": "java",
+  "harness": "tests/gemm/java",
+  "harness_sources": [
+    "GemmTestRunner.java"
+  ],
+  "main_class": "GemmTestRunner",
+  "default_reps": 5,
+  "default_iters": 5,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 56,
+    "NB": 72,
+    "KB": 64
+  },
+  "canonical_entry": "Impl.run(A, B, alpha, C, beta[, MB, NB, KB]) -> double[][]",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/gemm/java",
+      "files": [
+        "Gemm.java"
+      ],
+      "adapter": [
+        "public class Impl {",
+        "    public static double[][] run(double[][] A, double[][] B) { return Gemm.run(A, B); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta) { return Gemm.run(A, B, alpha, C, beta); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta, int MB, int NB, int KB) { return Gemm.run(A, B, alpha, C, beta, MB, NB, KB); }",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/gemm/java",
+      "files": [
+        "algo_parallel.java",
+        "GemmBaseline.java"
+      ],
+      "adapter": [
+        "public class Impl {",
+        "    public static double[][] run(double[][] A, double[][] B) { return algo_parallel.run(A, B); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta) { return algo_parallel.run(A, B, alpha, C, beta); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta, int MB, int NB, int KB) { return algo_parallel.run(A, B, alpha, C, beta, MB, NB, KB); }",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/gemm/java",
+      "files": [
+        "GemmParallel.java"
+      ],
+      "adapter": [
+        "public class Impl {",
+        "    public static double[][] run(double[][] A, double[][] B) { return GemmParallel.run(A, B); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta) { return GemmParallel.run(A, B, alpha, C, beta); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta, int MB, int NB, int KB) { return GemmParallel.run(A, B, alpha, C, beta, MB, NB, KB); }",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/gemm/java",
+      "files": [
+        "GemmParallel.java"
+      ],
+      "adapter": [
+        "public class Impl {",
+        "    public static double[][] run(double[][] A, double[][] B) { return GemmParallel.run(A, B); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta) { return GemmParallel.run(A, B, alpha, C, beta); }",
+        "    public static double[][] run(double[][] A, double[][] B, double alpha, double[][] C, double beta, int MB, int NB, int KB) { return GemmParallel.run(A, B, alpha, C, beta, MB, NB, KB); }",
+        "}"
+      ]
+    }
+  }
+}

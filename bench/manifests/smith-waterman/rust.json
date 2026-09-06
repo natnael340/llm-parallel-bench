@@ -1,0 +1,57 @@
+{
+  "algo": "smith-waterman",
+  "lang": "rust",
+  "harness": "tests/smith-waterman/rust",
+  "bin": "smith_waterman",
+  "default_reps": 5,
+  "default_iters": 1,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "params": {},
+  "canonical_entry": "SmithWaterman::new(m, mm, g); bench_find_alignment(&sw, query, reference) -> (String, String, i32, f64)",
+  "variants": {
+    "baseline/seq": {
+      "root": "baselines/smith-waterman/rust",
+      "files": ["smith_waterman.rs"],
+      "adapter": [
+        "pub use super::smith_waterman::SmithWaterman;",
+        "pub fn bench_find_alignment(sw: &SmithWaterman, query: &str, reference: &str) -> (String, String, i32, f64) {",
+        "    let r = sw.find_alignment(query, reference);",
+        "    (r.aligned_a, r.aligned_b, r.score, r.identity)",
+        "}"
+      ]
+    },
+    "gpt-5/par": {
+      "root": "llm_written/gpt-5/smith-waterman/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::SmithWaterman;",
+        "pub fn bench_find_alignment(sw: &SmithWaterman, query: &str, reference: &str) -> (String, String, i32, f64) {",
+        "    let r = sw.find_alignment(query, reference);",
+        "    (r.aligned_a, r.aligned_b, r.score, r.identity)",
+        "}"
+      ]
+    },
+    "claude-sonnet-4-5/par": {
+      "root": "llm_written/claude-sonnet-4-5/smith-waterman/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::SmithWaterman;",
+        "pub fn bench_find_alignment(sw: &SmithWaterman, query: &str, reference: &str) -> (String, String, i32, f64) {",
+        "    let r = sw.find_alignment(query, reference);",
+        "    (r.aligned_a, r.aligned_b, r.score, r.identity)",
+        "}"
+      ]
+    },
+    "gemini-2-5-pro/par": {
+      "root": "llm_written/gemini-2-5-pro/smith-waterman/rust",
+      "files": ["algo_parallel.rs"],
+      "adapter": [
+        "pub use super::algo_parallel::SmithWaterman;",
+        "pub fn bench_find_alignment(sw: &SmithWaterman, query: &str, reference: &str) -> (String, String, i32, f64) {",
+        "    let r = sw.find_alignment_parallel(query, reference);",
+        "    (r.aligned_a, r.aligned_b, r.score, r.identity)",
+        "}"
+      ]
+    }
+  }
+}
