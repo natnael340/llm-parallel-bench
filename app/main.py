@@ -20,8 +20,8 @@ def app() -> None:
 
     with st.sidebar:
         st.subheader("Model")
-        model = st.selectbox("Choose model:", ["GPT-5", "Claude 4.5 Sonnet", "Gemini 2.5 Pro"])
-        model_map = {"GPT-5": "openai:gpt-5", "Claude 4.5 Sonnet": "anthropic:claude-sonnet-4-5-20250929", "Gemini 2.5 Pro": "google_genai:gemini-2.5-pro"}
+        model = st.selectbox("Choose model:", ["GPT-5", "Claude 4.5 Sonnet", "Gemini 2.5 Pro", "Qwen3 Coder 480B A35B"])
+        model_map = {"GPT-5": "openai:gpt-5", "Claude 4.5 Sonnet": "anthropic:claude-sonnet-4-5-20250929", "Gemini 2.5 Pro": "google_genai:gemini-2.5-pro", "Qwen3 Coder 480B A35B": "openrouter:qwen/qwen3-coder"}
         
         st.subheader("TODOS")
         for item in st.session_state.session.todos:
