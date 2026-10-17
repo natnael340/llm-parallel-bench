@@ -65,6 +65,12 @@ fn main() {
     };
 
     let sw = SmithWaterman::new(2, -1, -1);
+    if bench_utils::digest_out().is_some() {
+        let (a, b, score, identity) = bench_find_alignment(&sw, &query, &reference);
+        bench_utils::write_digest(&format!("{}\n{}\n{}\n{:016x}\n", a, b, score, identity.to_bits()));
+        return;
+    }
+
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(1);
     let r = bench_utils::run_benchmark(|| { bench_find_alignment(&sw, &query, &reference); }, reps, iters, 1);

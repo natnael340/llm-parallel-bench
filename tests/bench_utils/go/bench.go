@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"runtime"
 	"sort"
 	"strconv"
 	"time"
@@ -52,6 +53,8 @@ func Model() string {
 }
 
 func Out() string { return os.Getenv("BENCH_OUT") }
+
+func DigestOut() string { return os.Getenv("BENCH_DIGEST_OUT") }
 
 // --- statistics ---
 
@@ -190,4 +193,18 @@ func WriteResult(path string, r Result, algo, impl string, params map[string]int
 		return err
 	}
 	return os.WriteFile(path, data, 0644)
+}
+
+// WriteDigest writes raw output lines to BENCH_DIGEST_OUT for the determinism sweep.
+func WriteDigest(lines []string) error {
+	f, err := os.Create(DigestOut())
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	fmt.Fprintf(f, "# cores %d\n# gomaxprocs %d\n", runtime.NumCPU(), runtime.GOMAXPROCS(0))
+	for _, l := range lines {
+		fmt.Fprintln(f, l)
+	}
+	return nil
 }

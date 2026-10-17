@@ -520,6 +520,16 @@ public static class GemmTestRunner
         var A = MakeRandomMatrix(m, k, seed: 10);
         var B = MakeRandomMatrix(k, n, seed: 12);
 
+        if (Bench.DigestOut() != null)
+        {
+            var C = BenchImpl.Run(A, B, alpha: 1.0, C: null, beta: 0.0, MB: MB, NB: NB, KB: KB);
+            var out_ = new System.Text.StringBuilder();
+            foreach (var row in C)
+                out_.AppendJoin(' ', row.Select(x => BitConverter.DoubleToInt64Bits(x).ToString("x16"))).Append('\n');
+            Bench.WriteDigest(out_.ToString());
+            return;
+        }
+
         int reps = Bench.Reps(5);
         int iters = Bench.Iters(5);
 

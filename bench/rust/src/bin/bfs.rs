@@ -68,6 +68,12 @@ fn main() {
         }
     }
 
+    if bench_utils::digest_out().is_some() {
+        let out: String = bench_bfs(&g, 1).iter().map(|v| format!("{}\n", v)).collect();
+        bench_utils::write_digest(&out);
+        return;
+    }
+
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(20);
     let r = bench_utils::run_benchmark(|| { bench_bfs(&g, 1); }, reps, iters, 1);

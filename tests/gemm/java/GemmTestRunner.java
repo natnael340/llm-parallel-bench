@@ -485,6 +485,19 @@ public class GemmTestRunner {
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 10);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 12);
 
+        if (Bench.digestOut() != null) {
+            StringBuilder out = new StringBuilder();
+            for (double[] row : Impl.run(A, B, 1.0, null, 0.0, MB, NB, KB)) {
+                for (int j = 0; j < row.length; j++) {
+                    if (j > 0) out.append(' ');
+                    out.append(String.format("%016x", Double.doubleToRawLongBits(row[j])));
+                }
+                out.append('\n');
+            }
+            Bench.writeDigest(out);
+            return;
+        }
+
         int reps = Bench.reps(5);
         int iters = Bench.iters(5);
 

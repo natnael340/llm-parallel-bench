@@ -80,6 +80,12 @@ public static class TestSmithWaterman
     private static void PerformanceSpeed(string query, string reference)
     {
         var impl = new BenchImpl(2, -1, -1);
+        if (Bench.DigestOut() != null)
+        {
+            var (a, b, score, identity) = impl.FindAlignment(query, reference);
+            Bench.WriteDigest($"{a}\n{b}\n{score}\n{BitConverter.DoubleToInt64Bits(identity):x16}\n");
+            return;
+        }
         int reps = Bench.Reps(5);
         int iters = Bench.Iters(1);
 

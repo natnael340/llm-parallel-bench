@@ -156,6 +156,10 @@ class TestBFS(unittest.TestCase):
                 self.graph.add_edge(i, j)
                 self.graph.add_edge(j, i)
 
+        if bench_utils.digest_mode():
+            bench_utils.write_digest(map(str, bfs(self.graph, 1)))
+            return
+
         reps, iters = CONFIG["reps"], CONFIG["iters"]
         result = bench_utils.run_benchmark(
             lambda: bfs(self.graph, 1), reps=reps, iters=iters, warmup=1

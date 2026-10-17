@@ -74,6 +74,11 @@ public class TestSmithWaterman {
 
     private static void performanceSpeed(String query, String reference) {
         Impl impl = new Impl(2, -1, -1);
+        if (Bench.digestOut() != null) {
+            Impl.Result res = impl.findAlignment(query, reference);
+            Bench.writeDigest(res.a + "\n" + res.b + "\n" + res.score + "\n" + Double.toHexString(res.identity) + "\n");
+            return;
+        }
         int reps = Bench.reps(5);
         int iters = Bench.iters(1);
 

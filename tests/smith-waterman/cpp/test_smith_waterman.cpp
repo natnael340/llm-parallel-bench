@@ -79,6 +79,13 @@ int main() {
     }
 
     SmithWaterman sw(2, -1, -1);
+    if (!bench_digest_out().empty()) {
+        auto [a, b, score, identity] = sw.findAlignment(query, reference);
+        ostringstream out;
+        out << a << "\n" << b << "\n" << score << "\n" << hexfloat << identity << "\n";
+        write_digest(out.str());
+        return 0;
+    }
     int reps = bench_reps(5), iters = bench_iters(1);
     auto bm = run_benchmark([&]() { sw.findAlignment(query, reference); }, reps, iters, 1);
     cout << format_result("SW large sequences", bm) << endl;

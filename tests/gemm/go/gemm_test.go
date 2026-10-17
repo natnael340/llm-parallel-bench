@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strings"
 	"testing"
 
 	benchutil "github.com/natnael340/llm-parallel-bench/tests/bench_utils/go"
@@ -509,6 +510,28 @@ func TestGemmPerformanceSpeed(t *testing.T) {
 	MB, NB, KB := 32, 56, 128
 	A := makeRandomMatrix(m, k, -1, 1, 10)
 	B := makeRandomMatrix(k, n, -1, 1, 12)
+
+	if benchutil.DigestOut() != "" {
+		C, err := gemm.Gemm(A, B, 1.0, nil, 0.0, MB, NB, KB)
+		if err != nil {
+			t.Fatal(err)
+		}
+		lines := make([]string, len(C))
+		for i, row := range C {
+			var sb strings.Builder
+			for j, x := range row {
+				if j > 0 {
+					sb.WriteByte(' ')
+				}
+				fmt.Fprintf(&sb, "%016x", math.Float64bits(x))
+			}
+			lines[i] = sb.String()
+		}
+		if err := benchutil.WriteDigest(lines); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
 
 	reps := benchutil.Reps(5)
 	iters := benchutil.Iters(5)

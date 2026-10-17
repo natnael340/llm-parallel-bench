@@ -121,6 +121,19 @@ static void benchmarkReduceEdges(const string& filename) {
     int noClusterInGroup = 3;
     BenchGraph g = buildGraph(graphSize, clusterSize, noClusterInGroup);
 
+    if (!bench_digest_out().empty()) {
+        auto edges = bench_reduce_edges(g);
+        ostringstream out;
+        for (const auto& scc : g.FindSCCs()) {
+            out << "S";
+            for (int v : scc) out << " " << v;
+            out << "\n";
+        }
+        for (const auto& e : edges) out << "E " << e.first << " " << e.second << "\n";
+        write_digest(out.str());
+        return;
+    }
+
     int reps = bench_reps(5), iters = bench_iters(20);
     auto bm = run_benchmark([&]() { bench_reduce_edges(g); }, reps, iters, 1);
 

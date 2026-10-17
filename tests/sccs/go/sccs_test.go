@@ -290,6 +290,21 @@ func TestSCCSpeed(t *testing.T) {
 
 	g := buildBenchGraph(graphSize, clusterSize, noClusterInGroup)
 
+	if benchutil.DigestOut() != "" {
+		edges := staging.BenchReduceEdges(g)
+		var lines []string
+		for _, scc := range g.FindSCCs() {
+			lines = append(lines, "S "+strings.Trim(fmt.Sprint(scc), "[]"))
+		}
+		for _, e := range edges {
+			lines = append(lines, fmt.Sprintf("E %d %d", e.U, e.V))
+		}
+		if err := benchutil.WriteDigest(lines); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
 	reps := benchutil.Reps(5)
 	iters := benchutil.Iters(20)
 

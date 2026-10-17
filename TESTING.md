@@ -119,3 +119,54 @@ uses the same reps/iters for a combo's seq and par legs.
   Failures are recorded in `results/failures.json` and the matrix continues.
 - GEMM tile sizes (`MB/NB/KB`) are sweep-tuned per language and recorded in each
   result's `params`, so cross-language GFLOPs comparisons stay honest.
+
+## Determinism sweep
+
+`bench/determinism.py` reruns every LLM `par` variant under different
+scheduling conditions and checks that its output stays the same across runs and
+matches the baseline sequential output.
+
+```bash
+python bench/determinism.py sweep                          # everything, 3 runs per condition
+python bench/determinism.py sweep --algo sccs --lang go --sweep cores,race
+python bench/determinism.py report                         # rebuild summary only
+```
+
+Conditions are varied one factor at a time (default: all cores, threads = cores):
+
+| Sweep | Levels | Held fixed |
+|-------|--------|------------|
+| `cores` | 1, 2, 4, 8, all (`taskset -c 0-(k-1)`) | threads = cores |
+| `threads` | 1, 2, 4, 8, 16, 32 | 4 cores |
+| `load` | 4 / 8 CPU spinners, 8 memory-copy spinners, pinned to the same cores | 4 cores |
+| `priority` | `nice -n 19`, `chrt --batch`, `chrt --idle`, with 2 CPU spinners | 4 cores |
+| `race` | Go `-race`, C++ `-fsanitize=thread`, at all cores and at 2 | Go/C++ only |
+
+Thread count is set through `GOMAXPROCS`, `OMP_NUM_THREADS`, `RAYON_NUM_THREADS`,
+`DOTNET_PROCESSOR_COUNT`, Java `-XX:ActiveProcessorCount`, and `BENCH_CPU_COUNT`
+(the Python harness patches `os.cpu_count`). Go `runtime.NumCPU()`, C++
+`hardware_concurrency()` and Rust `available_parallelism()` can't be overridden;
+they follow the affinity mask. Each dump records the core count the runtime saw,
+and `threads_override_effective` in the summary shows whether the override took.
+
+Each harness has a digest mode (`BENCH_DIGEST_OUT`): it runs its correctness
+tests, calls the entry once on the benchmark input, writes the raw output, and
+skips timing. Equality rules:
+
+- **bfs, smith-waterman**: exact output.
+- **sccs**: SCC partition must equal the baseline's; the reduced edge set must
+  be identical across runs (a valid reduction need not equal the baseline's).
+  `raw_order_stable` says whether the returned edge order was stable too.
+- **gemm**: bitwise across runs; against the baseline, `max_abs_diff` and
+  `max_rel_diff` are reported when bits differ.
+
+Results go to `results/determinism/<algo>/<lang>/<model>_par.json` (every run
+plus the verdict) and `results/determinism/summary.{csv,md}`. Dumps are kept
+under `bench/build/determinism/` (the first run and the first divergent one).
+A run whose unit tests fail still counts if it produced output
+(`runs_tests_failed`), so determinism is reported for incorrect variants too.
+
+Caveats: no real-time priorities (needs root); on SMT CPUs `0-(k-1)` may pick
+sibling hyperthreads; TSan reports under OpenMP may be false positives
+(`openmp_tsan_false_positives_possible`); variants that time out on their first
+run are recorded as DNF and skipped.

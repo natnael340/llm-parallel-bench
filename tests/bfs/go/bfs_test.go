@@ -3,6 +3,7 @@ package bfs_test
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"testing"
 
 	benchutil "github.com/natnael340/llm-parallel-bench/tests/bench_utils/go"
@@ -204,6 +205,17 @@ func TestBFSSpeed(t *testing.T) {
 			g.AddEdge(i, j)
 			g.AddEdge(j, i)
 		}
+	}
+
+	if benchutil.DigestOut() != "" {
+		var lines []string
+		for _, v := range staging.BenchBfs(g, 1) {
+			lines = append(lines, strconv.Itoa(v))
+		}
+		if err := benchutil.WriteDigest(lines); err != nil {
+			t.Fatal(err)
+		}
+		return
 	}
 
 	reps := benchutil.Reps(5)

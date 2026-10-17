@@ -48,6 +48,18 @@ public class Bench {
 
     // --- statistics ---
 
+    public static String digestOut() { return System.getenv("BENCH_DIGEST_OUT"); }
+
+    /** Writes raw output to BENCH_DIGEST_OUT for the determinism sweep. */
+    public static void writeDigest(CharSequence body) {
+        try (FileWriter fw = new FileWriter(digestOut())) {
+            fw.write("# cores " + Runtime.getRuntime().availableProcessors() + "\n");
+            fw.append(body);
+        } catch (IOException ex) {
+            throw new java.io.UncheckedIOException(ex);
+        }
+    }
+
     public static double median(double[] values) {
         double[] s = values.clone();
         Arrays.sort(s);

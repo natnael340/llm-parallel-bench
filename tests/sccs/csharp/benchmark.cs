@@ -121,6 +121,16 @@ class Program
 
         BenchImpl g = BuildGraph(graphSize, clusterSize, noClusterInGroup);
 
+        if (Bench.DigestOut() != null)
+        {
+            var edges = g.ReduceEdges();
+            var out_ = new System.Text.StringBuilder();
+            foreach (var scc in g.FindSCCs()) out_.Append("S ").AppendJoin(' ', scc).Append('\n');
+            foreach (var (u, v) in edges) out_.Append($"E {u} {v}\n");
+            Bench.WriteDigest(out_.ToString());
+            return;
+        }
+
         int reps = Bench.Reps(5);
         int iters = Bench.Iters(20);
 

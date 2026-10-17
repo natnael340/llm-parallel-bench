@@ -108,6 +108,19 @@ public class Benchmark {
 
         Impl g = buildGraph(graphSize, clusterSize, noClusterInGroup);
 
+        if (Bench.digestOut() != null) {
+            List<int[]> edges = g.reduceEdges();
+            StringBuilder out = new StringBuilder();
+            for (List<Integer> scc : g.findSCCs()) {
+                out.append('S');
+                for (int v : scc) out.append(' ').append(v);
+                out.append('\n');
+            }
+            for (int[] e : edges) out.append("E ").append(e[0]).append(' ').append(e[1]).append('\n');
+            Bench.writeDigest(out);
+            return;
+        }
+
         int reps = Bench.reps(5);
         int iters = Bench.iters(20);
 

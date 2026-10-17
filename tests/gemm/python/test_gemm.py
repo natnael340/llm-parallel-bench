@@ -2,6 +2,7 @@
 import math
 import copy
 import random
+import struct
 import pytest
 from tests import bench_utils
 # The implementation under test is staged by bench/run.py (see
@@ -303,6 +304,13 @@ def test_gemm_performance_speed():
     m = k = n = 1024
     A = make_random_matrix(m, k, seed=10)
     B = make_random_matrix(k, n, seed=12)
+
+    if bench_utils.digest_mode():
+        C = gemm(A, B, alpha=1.0, C=None, beta=0, **TILES)
+        bench_utils.write_digest(
+            " ".join(struct.pack(">d", x).hex() for x in row) for row in C
+        )
+        return
 
     reps, iters = CONFIG["reps"], CONFIG["iters"]
     result = bench_utils.run_benchmark(

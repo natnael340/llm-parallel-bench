@@ -117,6 +117,20 @@ fn main() {
         i += cluster_size;
     }
 
+    if bench_utils::digest_out().is_some() {
+        let edges = bench_reduce_edges(&g);
+        let mut out = String::new();
+        for scc in g.find_sccs() {
+            let nodes: Vec<String> = scc.iter().map(|v| v.to_string()).collect();
+            out.push_str(&format!("S {}\n", nodes.join(" ")));
+        }
+        for (u, v) in &edges {
+            out.push_str(&format!("E {} {}\n", u, v));
+        }
+        bench_utils::write_digest(&out);
+        return;
+    }
+
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(20);
     let r = bench_utils::run_benchmark(|| { bench_reduce_edges(&g); }, reps, iters, 1);

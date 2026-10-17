@@ -7,9 +7,10 @@ def stage(ctx):
     staging.write_adapter(ctx.staging_dir / "impl.hpp", "#pragma once\n", ctx.variant)
 
 
-def build_cmds(ctx):
+def build_cmds(ctx, race=False):
     bin_path = ctx.bin_dir / "bench_bin"
-    argv = ["g++", "-std=c++17", "-O2", "-pthread", "-o", str(bin_path)]
+    opt = ["-O1", "-g", "-fsanitize=thread"] if race else ["-O2"]
+    argv = ["g++", "-std=c++17", *opt, "-pthread", "-o", str(bin_path)]
     for s in ctx.manifest["harness_sources"]:
         argv.append(str(ctx.harness_dir / s))
     # Staged .cpp files are compiled unless the harness style is include-the-cpp.

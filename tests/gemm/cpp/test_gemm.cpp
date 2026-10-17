@@ -1,6 +1,8 @@
 // gemm_tests.cpp
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -347,6 +349,23 @@ static void test_gemm_performance_speed() {
     const int MB = 32, NB = 32, KB = 16;
     Matrix A = makeRandomMatrix(m, k, -1, 1, 10);
     Matrix B = makeRandomMatrix(k, n, -1, 1, 12);
+
+    if (!bench_digest_out().empty()) {
+        Matrix C = bench_gemm(A, B, 1.0, nullptr, 0.0, MB, NB, KB);
+        std::string out;
+        char buf[20];
+        for (const auto& row : C) {
+            for (size_t j = 0; j < row.size(); ++j) {
+                uint64_t bits;
+                std::memcpy(&bits, &row[j], sizeof bits);
+                std::snprintf(buf, sizeof buf, j ? " %016llx" : "%016llx", (unsigned long long)bits);
+                out += buf;
+            }
+            out += "\n";
+        }
+        write_digest(out);
+        return;
+    }
 
     int reps = bench_reps(5), iters = bench_iters(5);
     auto bm = run_benchmark(

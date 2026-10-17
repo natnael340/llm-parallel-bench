@@ -9,10 +9,11 @@ def stage(ctx):
     staging.write_adapter(ctx.staging_dir / "adapter.go", "package staging\n\n", ctx.variant)
 
 
-def build_cmds(ctx):
+def build_cmds(ctx, race=False):
     bin_path = ctx.bin_dir / "bench_test"
     rel = ctx.harness_dir.relative_to(ctx.root)
-    return [(["go", "test", "-c", "-o", str(bin_path), f"./{rel}/"], ctx.root)]
+    flags = ["-race"] if race else []
+    return [(["go", "test", "-c", *flags, "-o", str(bin_path), f"./{rel}/"], ctx.root)]
 
 
 def run_cmd(ctx):

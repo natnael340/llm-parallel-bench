@@ -207,6 +207,12 @@ public class BfsBench
             }
         }
 
+        if (Bench.DigestOut() != null)
+        {
+            Bench.WriteDigest(string.Join("\n", BenchImpl.Run(graph, 1)) + "\n");
+            return;
+        }
+
         int reps = Bench.Reps(5);
         int iters = Bench.Iters(20);
 

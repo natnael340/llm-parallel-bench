@@ -13,6 +13,7 @@
 #include <numeric>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 struct BenchResult {
@@ -55,6 +56,10 @@ inline std::string bench_model() {
 inline std::string bench_out() {
     const char* v = std::getenv("BENCH_OUT");
     return v ? std::string(v) : std::string("");
+}
+inline std::string bench_digest_out() {
+    const char* v = std::getenv("BENCH_DIGEST_OUT");
+    return v ? v : "";
 }
 
 // Interquartile range using the same definition as Python's
@@ -157,4 +162,10 @@ inline void write_result(const BenchResult& r, const std::string& out_path,
       << "  \"params\": " << (params_json.empty() ? "{}" : params_json) << ",\n"
       << "  \"timestamp\": \"" << bench_timestamp_utc() << "\"\n"
       << "}\n";
+}
+
+// Writes raw output to BENCH_DIGEST_OUT for the determinism sweep.
+inline void write_digest(const std::string& body) {
+    std::ofstream f(bench_digest_out());
+    f << "# cores " << std::thread::hardware_concurrency() << "\n" << body;
 }

@@ -401,6 +401,13 @@ public class BfsTests {
             }
         }
 
+        if (Bench.digestOut() != null) {
+            StringBuilder out = new StringBuilder();
+            for (int v : Bfs.run(graph, 1)) out.append(v).append('\n');
+            Bench.writeDigest(out);
+            return;
+        }
+
         int reps = Bench.reps(5);
         int iters = Bench.iters(20);
 

@@ -128,6 +128,14 @@ def main():
 
     graph = build_graph(graph_size, cluster_size, no_cluster_in_group, BenchGraph)
 
+    if bench_utils.digest_mode():
+        edges = graph.reduce_edges()
+        sccs = graph.find_sccs()
+        bench_utils.write_digest(
+            [f"S {' '.join(map(str, scc))}" for scc in sccs] + [f"E {u} {v}" for u, v in edges]
+        )
+        return
+
     config = bench_utils.get_bench_config(default_reps=5, default_iters=20)
     reps, iters = config["reps"], config["iters"]
     bm = bench_utils.run_benchmark(

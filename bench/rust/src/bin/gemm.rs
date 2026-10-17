@@ -104,6 +104,18 @@ fn main() {
     let a = make_random_matrix(m, k, 10);
     let b = make_random_matrix(k, n, 12);
 
+    if bench_utils::digest_out().is_some() {
+        let c = bench_gemm(&a, &b, 1.0, None, 0.0, mb, nb, kb).expect("gemm failed");
+        let mut out = String::new();
+        for row in &c {
+            let cells: Vec<String> = row.iter().map(|x| format!("{:016x}", x.to_bits())).collect();
+            out.push_str(&cells.join(" "));
+            out.push('\n');
+        }
+        bench_utils::write_digest(&out);
+        return;
+    }
+
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(5);
     let r = bench_utils::run_benchmark(
