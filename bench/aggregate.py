@@ -44,7 +44,9 @@ def load_results(verify=False):
         # quarantine_result); kept for diagnosis, never a measurement.
         if path.name.endswith(".failed.json"):
             continue
-        if "archive" in path.relative_to(RESULTS_DIR).parts:
+        # runs/ holds per-run copies of results already counted here.
+        parts = path.relative_to(RESULTS_DIR).parts
+        if "archive" in parts or "runs" in parts:
             continue
         try:
             data = json.loads(path.read_text())

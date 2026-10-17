@@ -41,7 +41,12 @@ exposes. The runner:
 2. builds the harness against the staging dir;
 3. runs the benchmark with the env contract below;
 4. validates the emitted JSON against schema v2 and writes it to
-   `results/<algo>/<lang>/<model>_<impl>.json`.
+   `results/<algo>/<lang>/<model>_<impl>.json` (latest result only — a re-run
+   replaces it);
+5. also copies it into `results/runs/<unix epoch>/<algo>/<lang>/`, the history
+   folder for this invocation, with a `run_meta.json` and that run's
+   `failures.json`. `--smoke` and `--print-cmd` create no run folder.
+   `aggregate.py` ignores `results/runs/`.
 
 Only one variant is staged per run, so the sequential and parallel legs of a
 combo go through the identical harness and timing loop.
