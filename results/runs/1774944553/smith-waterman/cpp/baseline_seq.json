@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "cpp",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 1416.93,
+  "sd": 24.2363
+}

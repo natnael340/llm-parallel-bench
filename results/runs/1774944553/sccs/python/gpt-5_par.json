@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "python",
+  "impl": "par",
+  "model": "gpt-5",
+  "mean": 1850.58,
+  "timestamp": "2026-02-22T17:09:37Z"
+}

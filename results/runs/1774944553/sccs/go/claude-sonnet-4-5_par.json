@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "go",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 43.22,
+  "sd": 0.81,
+  "timestamp": "2026-02-23T00:40:33Z"
+}

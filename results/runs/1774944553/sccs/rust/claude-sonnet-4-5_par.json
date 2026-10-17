@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 519.0455,
+  "sd": 2.3909,
+  "timestamp": "2026-02-22T17:10:27Z"
+}

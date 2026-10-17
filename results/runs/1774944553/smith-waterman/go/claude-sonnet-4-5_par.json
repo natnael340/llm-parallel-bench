@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "go",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 641.68,
+  "sd": 16.31,
+  "timestamp": "2026-02-14T10:55:43Z"
+}

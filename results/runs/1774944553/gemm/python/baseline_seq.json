@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "python",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 130023.14,
+  "sd": 31319.41,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "k": 1024,
+    "m": 1024,
+    "n": 1024
+  }
+}

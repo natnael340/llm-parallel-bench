@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gpt-5",
+  "mean": 10.9525,
+  "sd": 0.1954,
+  "timestamp": "2026-02-22T17:09:38Z"
+}

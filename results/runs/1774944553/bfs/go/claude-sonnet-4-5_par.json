@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "go",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 599.98,
+  "sd": 7.31,
+  "reps": 5,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-02-18T10:08:43Z"
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gpt-5",
+  "mean": 89.360245,
+  "sd": 0.367072,
+  "reps": 5,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-02-17T11:30:23Z"
+}

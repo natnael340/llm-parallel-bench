@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 31.1684,
+  "sd": 0.951709,
+  "timestamp": "2026-02-22T17:10:28Z"
+}

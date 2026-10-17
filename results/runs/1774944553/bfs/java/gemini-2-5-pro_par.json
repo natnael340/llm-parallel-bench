@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 40.48,
+  "sd": 1.19,
+  "reps": 5,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-03-29T16:36:50Z"
+}

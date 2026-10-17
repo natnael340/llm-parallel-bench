@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 2267.986858,
+  "sd": 3.092396,
+  "reps": 5,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-02-04T13:19:04Z"
+}

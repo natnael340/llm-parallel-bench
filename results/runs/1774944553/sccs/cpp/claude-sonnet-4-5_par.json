@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 20.6065,
+  "sd": 0.452401,
+  "timestamp": "2026-02-23T13:31:52Z"
+}

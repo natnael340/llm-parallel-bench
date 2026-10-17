@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 40.08,
+  "sd": 1.93
+}

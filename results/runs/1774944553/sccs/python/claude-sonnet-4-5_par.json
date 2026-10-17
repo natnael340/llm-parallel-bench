@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "python",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 23326.513,
+  "timestamp": "2026-02-23T13:31:02Z"
+}

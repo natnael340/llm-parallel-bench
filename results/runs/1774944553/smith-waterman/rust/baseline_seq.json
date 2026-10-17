@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "rust",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 1079.18,
+  "sd": 39.2214
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 943.46,
+  "sd": 172.17,
+  "reps": 5,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-02-17T12:34:20Z"
+}
