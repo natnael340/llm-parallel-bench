@@ -1,0 +1,214 @@
+{
+  "algo": "bfs",
+  "lang": "rust",
+  "model": "claude-sonnet-4-5",
+  "verdict": {
+    "build_failed": "build failed (rc=101)",
+    "output_tail": [
+      "    = note: expected struct `Vec<i32>`",
+      "               found struct `BfsParallel`",
+      "",
+      "warning: unused import: `rayon::prelude`",
+      " --> src/staged/bfs_parallel.rs:2:5",
+      "  |",
+      "2 | use rayon::prelude::*;",
+      "  |     ^^^^^^^^^^^^^^",
+      "  |",
+      "  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default",
+      "",
+      "Some errors have detailed explanations: E0109, E0214, E0308, E0573.",
+      "For more information about an error, try `rustc --explain E0109`.",
+      "warning: `bench_rust` (lib) generated 1 warning",
+      "error: could not compile `bench_rust` (lib) due to 7 previous errors; 1 warning emitted"
+    ]
+  },
+  "runs": [],
+  "meta": {
+    "timestamp": "2026-10-17T22:25:24.469496+00:00",
+    "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+    "cpu_count": 16,
+    "runs_per_condition": 3,
+    "conditions": [
+      {
+        "name": "c1-t1",
+        "sweep": "cores",
+        "cores": 1,
+        "threads": 1,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c2-t2",
+        "sweep": "cores",
+        "cores": 2,
+        "threads": 2,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t4",
+        "sweep": "cores",
+        "cores": 4,
+        "threads": 4,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c8-t8",
+        "sweep": "cores",
+        "cores": 8,
+        "threads": 8,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c16-t16",
+        "sweep": "cores",
+        "cores": 16,
+        "threads": 16,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t1",
+        "sweep": "threads",
+        "cores": 4,
+        "threads": 1,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t2",
+        "sweep": "threads",
+        "cores": 4,
+        "threads": 2,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t8",
+        "sweep": "threads",
+        "cores": 4,
+        "threads": 8,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t16",
+        "sweep": "threads",
+        "cores": 4,
+        "threads": 16,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t32",
+        "sweep": "threads",
+        "cores": 4,
+        "threads": 32,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t4-cpux4",
+        "sweep": "load",
+        "cores": 4,
+        "threads": 4,
+        "load": "cpu",
+        "load_procs": 4,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t4-cpux8",
+        "sweep": "load",
+        "cores": 4,
+        "threads": 4,
+        "load": "cpu",
+        "load_procs": 8,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t4-memx8",
+        "sweep": "load",
+        "cores": 4,
+        "threads": 4,
+        "load": "mem",
+        "load_procs": 8,
+        "sched": "normal",
+        "race": false
+      },
+      {
+        "name": "c4-t4-cpux2-nice19",
+        "sweep": "priority",
+        "cores": 4,
+        "threads": 4,
+        "load": "cpu",
+        "load_procs": 2,
+        "sched": "nice19",
+        "race": false
+      },
+      {
+        "name": "c4-t4-cpux2-batch",
+        "sweep": "priority",
+        "cores": 4,
+        "threads": 4,
+        "load": "cpu",
+        "load_procs": 2,
+        "sched": "batch",
+        "race": false
+      },
+      {
+        "name": "c4-t4-cpux2-idle",
+        "sweep": "priority",
+        "cores": 4,
+        "threads": 4,
+        "load": "cpu",
+        "load_procs": 2,
+        "sched": "idle",
+        "race": false
+      },
+      {
+        "name": "c16-t16-race",
+        "sweep": "race",
+        "cores": 16,
+        "threads": 16,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": true
+      },
+      {
+        "name": "c2-t2-race",
+        "sweep": "race",
+        "cores": 2,
+        "threads": 2,
+        "load": "none",
+        "load_procs": 0,
+        "sched": "normal",
+        "race": true
+      }
+    ]
+  }
+}
