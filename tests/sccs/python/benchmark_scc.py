@@ -49,6 +49,40 @@ def check_all_sccs(graph: Any) -> bool:
     return all(is_scc_strong(scc, edges) for scc in graph.find_sccs())
 
 
+def check_determinism() -> bool:
+    """Random multi-SCC graph; reduce_edges must return byte-identical output across runs."""
+    num_scc, scc_size, runs = 24, 40, 5
+    seed = random.SystemRandom().randrange(2**63)
+    rng = random.Random(seed)
+
+    g = BenchGraph(num_scc * scc_size)
+    for s in range(num_scc):
+        start = s * scc_size
+        for u in range(start, start + scc_size):
+            g.add_edge(u, start + (u - start + 1) % scc_size)
+        for _ in range(scc_size * 3):
+            u, v = start + rng.randrange(scc_size), start + rng.randrange(scc_size)
+            if u != v:
+                g.add_edge(u, v)
+    for s in range(num_scc - 1):
+        for _ in range(6):
+            g.add_edge(s * scc_size + rng.randrange(scc_size), (s + 1) * scc_size + rng.randrange(scc_size))
+
+    sccs = g.find_sccs()
+    first = None
+    for r in range(runs):
+        edges = [tuple(e) for e in g.reduce_edges()]
+        if not all(is_scc_strong(scc, edges) for scc in sccs):
+            print(f"determinism run {r}: reduced edges broke SCC (seed={seed})")
+            return False
+        if first is None:
+            first = edges
+        elif edges != first:
+            print(f"determinism run {r}: output differs from run 0 (seed={seed})")
+            return False
+    return True
+
+
 def run_correctness_checks() -> int:
     failures = 0
 
@@ -75,6 +109,7 @@ def run_correctness_checks() -> int:
                  (3, 5), (5, 3), (5, 4), (5, 6), (6, 4), (4, 6)]:
         g4.add_edge(u, v)
     failures += report("test_scc_7node", check_all_sccs(g4))
+    failures += report("test_scc_determinism", check_determinism())
 
     return failures
 

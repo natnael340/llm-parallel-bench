@@ -33,6 +33,53 @@ public class Benchmark {
         return true;
     }
 
+    // Random multi-SCC graph; reduceEdges must return byte-identical output across runs.
+    static boolean checkDeterminism() {
+        final int numScc = 24, sccSize = 40, runs = 5;
+        long seed = new Random().nextLong();
+        Random rng = new Random(seed);
+
+        Impl g = new Impl(numScc * sccSize);
+        for (int s = 0; s < numScc; s++) {
+            int start = s * sccSize;
+            for (int u = start; u < start + sccSize; u++) g.addEdge(u, start + (u - start + 1) % sccSize);
+            for (int i = 0; i < sccSize * 3; i++) {
+                int u = start + rng.nextInt(sccSize), v = start + rng.nextInt(sccSize);
+                if (u != v) g.addEdge(u, v);
+            }
+        }
+        for (int s = 0; s < numScc - 1; s++) {
+            for (int i = 0; i < 6; i++) g.addEdge(s * sccSize + rng.nextInt(sccSize), (s + 1) * sccSize + rng.nextInt(sccSize));
+        }
+
+        List<List<Integer>> sccs = g.findSCCs();
+        List<int[]> first = null;
+        for (int r = 0; r < runs; r++) {
+            List<int[]> edges = g.reduceEdges();
+            for (List<Integer> scc : sccs) {
+                if (!isSccStrong(scc, edges)) {
+                    System.out.println("determinism run " + r + ": reduced edges broke SCC (seed=" + seed + ")");
+                    return false;
+                }
+            }
+            if (first == null) {
+                first = edges;
+            } else if (!sameEdges(edges, first)) {
+                System.out.println("determinism run " + r + ": output differs from run 0 (seed=" + seed + ")");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean sameEdges(List<int[]> a, List<int[]> b) {
+        if (a.size() != b.size()) return false;
+        for (int i = 0; i < a.size(); i++) {
+            if (!Arrays.equals(a.get(i), b.get(i))) return false;
+        }
+        return true;
+    }
+
     static int runCorrectnessChecks() {
         int failures = 0;
 
@@ -55,6 +102,7 @@ public class Benchmark {
         g4.addEdge(2, 0); g4.addEdge(2, 3); g4.addEdge(3, 5); g4.addEdge(5, 3);
         g4.addEdge(5, 4); g4.addEdge(5, 6); g4.addEdge(6, 4); g4.addEdge(4, 6);
         failures += report("test_scc_7node", checkAllSCCs(g4));
+        failures += report("test_scc_determinism", checkDeterminism());
 
         return failures;
     }

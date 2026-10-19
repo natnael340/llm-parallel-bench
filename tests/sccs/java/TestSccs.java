@@ -267,13 +267,6 @@ public class TestGraph {
         return true;
     }
 
-    // Sort edge list for stable comparison across runs (used in testDeterminism)
-    private static List<int[]> sortedEdges(List<int[]> edges) {
-        List<int[]> sorted = new ArrayList<>(edges);
-        sortEdges(sorted);
-        return sorted;
-    }
-
     private static void testDeterminism() {
         int numScc = 24;
         int sccSize = 40;
@@ -306,9 +299,9 @@ public class TestGraph {
             }
         }
 
-        List<int[]> baseline = sortedEdges(g.reduceEdges());
+        List<int[]> baseline = g.reduceEdges();
         for (int r = 1; r < runs; r++) {
-            List<int[]> edges = sortedEdges(g.reduceEdges());
+            List<int[]> edges = g.reduceEdges();
             assert edgeListsEqual(edges, baseline) :
                 "testDeterminism run " + r + ": output differs from run 0" +
                 " (seed=" + seed + ", baseline_len=" + baseline.size() + ", this_len=" + edges.size() + ")";

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <random>
 #include <set>
 #include <string>
 #include <utility>
@@ -41,6 +42,46 @@ static bool checkAllSCCs(BenchGraph& g) {
     return true;
 }
 
+// Random multi-SCC graph; ReduceEdges must return byte-identical output across runs.
+static bool checkDeterminism() {
+    const int numScc = 24, sccSize = 40, runs = 5;
+    unsigned seed = random_device{}();
+    mt19937 rng(seed);
+    uniform_int_distribution<int> pick(0, sccSize - 1);
+
+    BenchGraph g(numScc * sccSize);
+    for (int s = 0; s < numScc; s++) {
+        int start = s * sccSize;
+        for (int u = start; u < start + sccSize; u++) g.AddEdge(u, start + (u - start + 1) % sccSize);
+        for (int i = 0; i < sccSize * 3; i++) {
+            int u = start + pick(rng), v = start + pick(rng);
+            if (u != v) g.AddEdge(u, v);
+        }
+    }
+    for (int s = 0; s < numScc - 1; s++) {
+        for (int i = 0; i < 6; i++) g.AddEdge(s * sccSize + pick(rng), (s + 1) * sccSize + pick(rng));
+    }
+
+    auto sccs = g.FindSCCs();
+    vector<pair<int,int>> first;
+    for (int r = 0; r < runs; r++) {
+        auto edges = bench_reduce_edges(g);
+        for (auto& scc : sccs) {
+            if (!isSccStrong(scc, edges)) {
+                cout << "determinism run " << r << ": reduced edges broke SCC (seed=" << seed << ")" << endl;
+                return false;
+            }
+        }
+        if (r == 0) {
+            first = edges;
+        } else if (edges != first) {
+            cout << "determinism run " << r << ": output differs from run 0 (seed=" << seed << ")" << endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 static int runCorrectnessChecks() {
     int failures = 0;
     auto expect = [&](bool ok, const string& name) {
@@ -72,6 +113,7 @@ static int runCorrectnessChecks() {
         g.AddEdge(5, 4); g.AddEdge(5, 6); g.AddEdge(6, 4); g.AddEdge(4, 6);
         expect(checkAllSCCs(g), "test_scc_7node");
     }
+    expect(checkDeterminism(), "test_scc_determinism");
     return failures;
 }
 

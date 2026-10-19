@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SCC
 {
@@ -42,6 +43,50 @@ class Program
         return true;
     }
 
+    // Random multi-SCC graph; ReduceEdges must return byte-identical output across runs.
+    static bool CheckDeterminism()
+    {
+        const int numScc = 24, sccSize = 40, runs = 5;
+        int seed = Random.Shared.Next();
+        var rng = new Random(seed);
+
+        var g = new BenchImpl(numScc * sccSize);
+        for (int s = 0; s < numScc; s++)
+        {
+            int start = s * sccSize;
+            for (int u = start; u < start + sccSize; u++) g.AddEdge(u, start + (u - start + 1) % sccSize);
+            for (int i = 0; i < sccSize * 3; i++)
+            {
+                int u = start + rng.Next(sccSize), v = start + rng.Next(sccSize);
+                if (u != v) g.AddEdge(u, v);
+            }
+        }
+        for (int s = 0; s < numScc - 1; s++)
+            for (int i = 0; i < 6; i++) g.AddEdge(s * sccSize + rng.Next(sccSize), (s + 1) * sccSize + rng.Next(sccSize));
+
+        var sccs = g.FindSCCs();
+        List<(int, int)>? first = null;
+        for (int r = 0; r < runs; r++)
+        {
+            var edges = g.ReduceEdges();
+            foreach (var scc in sccs)
+            {
+                if (!IsSccStrong(scc, edges))
+                {
+                    Console.WriteLine($"determinism run {r}: reduced edges broke SCC (seed={seed})");
+                    return false;
+                }
+            }
+            if (first == null) first = edges;
+            else if (!edges.SequenceEqual(first))
+            {
+                Console.WriteLine($"determinism run {r}: output differs from run 0 (seed={seed})");
+                return false;
+            }
+        }
+        return true;
+    }
+
     static int Report(string name, bool ok)
     {
         Console.WriteLine(name + (ok ? " passed" : " failed"));
@@ -71,6 +116,7 @@ class Program
         g4.AddEdge(2, 0); g4.AddEdge(2, 3); g4.AddEdge(3, 5); g4.AddEdge(5, 3);
         g4.AddEdge(5, 4); g4.AddEdge(5, 6); g4.AddEdge(6, 4); g4.AddEdge(4, 6);
         failures += Report("test_scc_7node", CheckAllSCCs(g4));
+        failures += Report("test_scc_determinism", CheckDeterminism());
 
         return failures;
     }
