@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [492.62334849999996, 506.0671023, 505.4832517000001, 496.5102757000001, 499.9578828],
+  "mean": 500.1283722,
+  "sd": 5.774693050642463,
+  "median": 499.9578828,
+  "iqr": 11.20836490000005,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-10-24T03:12:04+00:00"
+}

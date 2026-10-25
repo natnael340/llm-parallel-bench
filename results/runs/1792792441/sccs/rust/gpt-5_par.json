@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [9.37104785, 8.67706945, 8.805042949999999, 8.56991955, 8.7704365],
+  "mean": 8.83870326,
+  "sd": 0.3112692969074136,
+  "median": 8.7704365,
+  "iqr": 0.464550899999999,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-10-24T03:11:10+00:00"
+}

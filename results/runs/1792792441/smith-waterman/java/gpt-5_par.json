@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "java",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [29880.424007, 29541.461533, 30217.025051, 29434.275309, 29746.426076],
+  "mean": 29763.922395200003,
+  "sd": 307.13873090245266,
+  "median": 29746.426076,
+  "iqr": 560.856108,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": "2026-10-24T03:18:59.244661804Z"
+}

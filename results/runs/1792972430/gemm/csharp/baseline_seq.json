@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "csharp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    1435.93806,
+    1433.04316,
+    1396.96288,
+    1372.09974,
+    1410.67018
+  ],
+  "mean": 1409.742804,
+  "sd": 26.50605957904487,
+  "median": 1410.67018,
+  "iqr": 49.95929999999976,
+  "reps": 5,
+  "iters_per_rep": 5,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 16,
+    "NB": 64,
+    "KB": 16
+  },
+  "timestamp": "2026-10-25T23:54:35.6850915Z",
+  "tests_passed": true
+}

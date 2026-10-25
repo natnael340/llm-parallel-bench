@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [29.034347, 29.828437, 29.552055, 29.598950, 29.320718],
+  "mean": 29.466901,
+  "sd": 0.301608,
+  "median": 29.552055,
+  "iqr": 0.536161,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-10-24T01:49:18+00:00"
+}

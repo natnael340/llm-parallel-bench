@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [1215.118207, 1487.732392, 1990.293569, 1411.707244, 1439.372706],
+  "mean": 1508.8448236,
+  "sd": 288.4337181264339,
+  "median": 1439.372706,
+  "iqr": 425.60025500000006,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": "2026-10-24T03:15:16.072946182Z"
+}

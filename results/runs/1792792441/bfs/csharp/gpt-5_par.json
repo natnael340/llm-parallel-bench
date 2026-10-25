@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    16.02711,
+    14.863435,
+    14.55275,
+    14.056805,
+    14.345279999999999
+  ],
+  "mean": 14.769076000000002,
+  "sd": 0.762443953902515,
+  "median": 14.55275,
+  "iqr": 1.2442300000000017,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-10-23T21:59:23.5270513Z"
+}

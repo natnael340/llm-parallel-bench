@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [39.337839, 34.3537975, 43.8315953, 50.71071185, 38.0891429],
+  "mean": 41.26461730999999,
+  "sd": 6.272432161659903,
+  "median": 39.337839,
+  "iqr": 11.049683375,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-10-24T01:50:25.796490514Z"
+}

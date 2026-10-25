@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "go",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    71.2337311,
+    70.75534545,
+    70.53419414999999,
+    73.04354035,
+    72.1400263
+  ],
+  "mean": 71.54136746999998,
+  "sd": 1.0418474702104883,
+  "median": 71.2337311,
+  "iqr": 1.9470135250000027,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-10-23T22:01:37Z"
+}
