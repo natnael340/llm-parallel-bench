@@ -32,17 +32,18 @@ public class TestSmithWaterman {
         }
 
         System.out.printf("%d passed, %d failed%n", passed, failed);
-        if (failed > 0) {
-            System.out.println(failed + " test(s) failed — skipping benchmark");
-            System.exit(1);
+        int rc = failed > 0 ? 1 : 0;
+        if (rc != 0) {
+            System.out.println(failed + " test(s) failed — benchmarking anyway");
         }
 
         if (input == null) {
             System.out.println("SW_INPUT not set — skipping benchmark");
-            return;
+            System.exit(rc);
         }
 
         performanceSpeed(input[0], input[1]);
+        System.exit(rc);
     }
 
     private static void testCase(String name, String query, String reference,

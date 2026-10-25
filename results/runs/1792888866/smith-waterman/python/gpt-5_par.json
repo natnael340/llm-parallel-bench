@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "python",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    46678.23452299854,
+    41013.421804000245,
+    41654.50667100231,
+    44860.79726399839,
+    45775.02273299979
+  ],
+  "mean": 43996.396598999854,
+  "sd": 2524.1603132157798,
+  "median": 44860.79726399839,
+  "iqr": 4892.664390497885,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {
+    "query_len": 10000,
+    "reference_len": 10003
+  },
+  "timestamp": "2026-10-25T06:30:13.085197+00:00",
+  "tests_passed": true
+}

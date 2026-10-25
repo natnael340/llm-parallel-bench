@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    187.216378,
+    186.640475,
+    185.615878,
+    182.528373,
+    185.720184
+  ],
+  "mean": 185.544257,
+  "sd": 1.81172,
+  "median": 185.720184,
+  "iqr": 2.856301,
+  "reps": 5,
+  "iters_per_rep": 5,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 16
+  },
+  "timestamp": "2026-10-25T02:33:52+00:00",
+  "tests_passed": true
+}

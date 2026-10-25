@@ -92,10 +92,12 @@ fn main() {
         check(mat_almost_equal(&out, &naive_gemm(&a, &b), 1e-9), "test_block_larger", &mut failures);
     }
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     // Perf: 1024x1024x1024.
     let (m, k, n) = (1024usize, 1024usize, 1024usize);
@@ -113,7 +115,7 @@ fn main() {
             out.push('\n');
         }
         bench_utils::write_digest(&out);
-        return;
+        std::process::exit(rc);
     }
 
     let reps = bench_utils::reps(5);
@@ -137,4 +139,5 @@ fn main() {
         m, n, k, mb, nb, kb
     );
     bench_utils::write_result(&r, "gemm", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

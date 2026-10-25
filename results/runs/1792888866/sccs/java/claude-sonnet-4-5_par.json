@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [
+    31.7746642,
+    25.5267168,
+    28.5975373,
+    24.34952625,
+    28.54031495
+  ],
+  "mean": 27.7577519,
+  "sd": 2.9174795873287485,
+  "median": 28.54031495,
+  "iqr": 5.247979225000002,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-25T04:39:34.097080113Z",
+  "tests_passed": true
+}

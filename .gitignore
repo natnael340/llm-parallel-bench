@@ -30,3 +30,12 @@ tests/**/staging/
 bench/build/
 bench/rust/target/
 bench/rust/src/staged/
+
+# Live benchmark results: overwritten by every run. Each run's copy is kept in
+# results/runs/<unix epoch>/, which is what gets committed.
+results/bfs/
+results/gemm/
+results/sccs/
+results/smith-waterman/
+results/failures.json
+results/run_meta.json

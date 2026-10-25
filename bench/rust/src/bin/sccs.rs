@@ -145,10 +145,12 @@ fn main() {
     }
     check(check_determinism(), "test_scc_determinism", &mut failures);
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     // Perf: clustered graph (shared with all languages).
     let graph_size = 100_000usize;
@@ -184,7 +186,7 @@ fn main() {
             out.push_str(&format!("E {} {}\n", u, v));
         }
         bench_utils::write_digest(&out);
-        return;
+        std::process::exit(rc);
     }
 
     let reps = bench_utils::reps(5);
@@ -197,4 +199,5 @@ fn main() {
         graph_size, cluster_size, no_cluster_in_group
     );
     bench_utils::write_result(&r, "sccs", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

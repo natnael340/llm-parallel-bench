@@ -154,7 +154,7 @@ pub fn gemm_sequential(
 
     let mut n0 = 0;
     while n0 < n {
-        let _n1 = (n0 + nb).min(n);
+        let n1 = (n0 + nb).min(n);
         let mut k0 = 0;
         while k0 < k {
             let k1 = (k0 + kb).min(k);

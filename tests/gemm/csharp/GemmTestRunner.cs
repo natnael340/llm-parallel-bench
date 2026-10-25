@@ -62,11 +62,11 @@ public static class GemmTestRunner
 
         if (_failed > 0)
         {
-            Console.WriteLine($"{_failed} test(s) failed — skipping benchmark");
-            Environment.Exit(1);
+            Console.WriteLine($"{_failed} test(s) failed — benchmarking anyway");
         }
 
         TestPerformanceSpeed();
+        if (_failed > 0) Environment.Exit(1);
     }
 
     private static void Test(string name, Action testFn)

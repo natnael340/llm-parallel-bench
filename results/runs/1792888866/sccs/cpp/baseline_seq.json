@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "cpp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    67.543127,
+    68.282541,
+    68.201696,
+    67.785733,
+    66.405933
+  ],
+  "mean": 67.643806,
+  "sd": 0.755287,
+  "median": 67.785733,
+  "iqr": 1.267588,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-25T04:38:03+00:00",
+  "tests_passed": true
+}

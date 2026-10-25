@@ -417,10 +417,9 @@ int main() {
               << "Passed: " << passed << "\n"
               << "Failed: " << failed << "\n";
     if (failed > 0) {
-        std::cout << failed << " test(s) failed — skipping benchmark\n";
-        return 1;
+        std::cout << failed << " test(s) failed — benchmarking anyway\n";
     }
 
     test_gemm_performance_speed();
-    return 0;
+    return failed > 0 ? 1 : 0;
 }

@@ -35,12 +35,11 @@ public class BfsBench
 
         if (failed > 0)
         {
-            Console.WriteLine($"{failed} test(s) failed — skipping benchmark");
-            return 1;
+            Console.WriteLine($"{failed} test(s) failed — benchmarking anyway");
         }
 
         PerformanceSpeedTest();
-        return 0;
+        return failed > 0 ? 1 : 0;
     }
 
     private static void Test(string name, Action testFn)

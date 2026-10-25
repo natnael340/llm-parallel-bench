@@ -268,10 +268,9 @@ int main() {
     test_bfs_performance_stress_test();
 
     if (g_failures > 0) {
-        cout << g_failures << " test(s) failed — skipping benchmark" << endl;
-        return 1;
+        cout << g_failures << " test(s) failed — benchmarking anyway" << endl;
     }
 
     test_bfs_performance_speed_test();
-    return 0;
+    return g_failures > 0 ? 1 : 0;
 }

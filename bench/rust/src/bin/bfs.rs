@@ -53,10 +53,12 @@ fn main() {
         check(bench_bfs(&g, 999).is_empty(), "test_bfs_nonexistent_start", &mut failures);
     }
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     // Perf: complete graph, size 2000.
     let size: i32 = 2000;
@@ -71,7 +73,7 @@ fn main() {
     if bench_utils::digest_out().is_some() {
         let out: String = bench_bfs(&g, 1).iter().map(|v| format!("{}\n", v)).collect();
         bench_utils::write_digest(&out);
-        return;
+        std::process::exit(rc);
     }
 
     let reps = bench_utils::reps(5);
@@ -81,4 +83,5 @@ fn main() {
     println!("{}", bench_utils::format_result("BFS complete graph", &r));
     let params = format!("{{\"graph_size\": {}, \"graph_kind\": \"complete\"}}", size);
     bench_utils::write_result(&r, "bfs", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

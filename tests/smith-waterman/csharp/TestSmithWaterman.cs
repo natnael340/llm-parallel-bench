@@ -33,20 +33,20 @@ public static class TestSmithWaterman
         }
 
         Console.WriteLine($"{passed} passed, {failed} failed");
-        if (failed > 0)
+        int rc = failed > 0 ? 1 : 0;
+        if (rc != 0)
         {
-            Console.WriteLine($"{failed} test(s) failed — skipping benchmark");
-            return 1;
+            Console.WriteLine($"{failed} test(s) failed — benchmarking anyway");
         }
 
         if (input == null)
         {
             Console.WriteLine("SW_INPUT not set — skipping benchmark");
-            return 0;
+            return rc;
         }
 
         PerformanceSpeed(input[0], input[1]);
-        return 0;
+        return rc;
     }
 
     private static void TestCase(string name, string query, string reference,

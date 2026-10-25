@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [
+    38.865395,
+    25.864245,
+    27.198304999999998,
+    26.754865000000002,
+    25.893205000000002
+  ],
+  "mean": 28.915202999999998,
+  "sd": 5.591554714104118,
+  "median": 26.754865000000002,
+  "iqr": 7.153124999999996,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-25T04:38:47.6796858Z",
+  "tests_passed": true
+}

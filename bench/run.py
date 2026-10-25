@@ -128,20 +128,26 @@ class CombRunError(Exception):
         self.output = output
 
 
+class TestsFailed(CombRunError):
+    """Correctness tests failed but the timing completed and was kept.
+
+    The result JSON stays at out_path flagged tests_passed=false, so the
+    speedup is still reported; the failure is logged like any other.
+    """
+
+
 def _report_quarantine(dest) -> None:
     if dest is not None:
         print(f"   kept the failing run's output at {dest.relative_to(ROOT)}")
 
 
 def quarantine_result(out_path: Path) -> "Path | None":
-    """Move aside a result JSON written by a run that then failed.
+    """Move aside a result JSON that fails validation or was left by a crash.
 
-    Several harnesses run their timed section even after a correctness failure
-    and write BENCH_OUT before exiting non-zero. Such a file must not stay at
-    out_path -- cmd_matrix treats anything there as a completed run and skips
-    it -- but it is still the best evidence of what the failing run did, so it
-    is kept alongside as <name>.failed.json rather than deleted. aggregate.py
-    ignores that suffix.
+    Such a file must not stay at out_path -- cmd_matrix treats anything there
+    as a completed run and skips it -- but it is still the best evidence of
+    what the failing run did, so it is kept alongside as <name>.failed.json
+    rather than deleted. aggregate.py ignores that suffix.
     """
     if not out_path.exists():
         return None
@@ -215,9 +221,6 @@ def run_combo(ctx: Ctx, reps=None, iters=None, timeout=None, smoke=False,
         _report_quarantine(quarantine_result(out_path))
         raise
     elapsed = time.time() - start
-    if proc.returncode != 0:
-        _report_quarantine(quarantine_result(out_path))
-        raise CombRunError("run", f"benchmark failed (rc={proc.returncode})", proc.stdout)
 
     expect = {
         "algo": ctx.algo, "lang": ctx.lang, "impl": ctx.impl,
@@ -227,15 +230,27 @@ def run_combo(ctx: Ctx, reps=None, iters=None, timeout=None, smoke=False,
         data = schema.load_and_validate(out_path, expect)
     except schema.SchemaError as e:
         _report_quarantine(quarantine_result(out_path))
+        if proc.returncode != 0:
+            raise CombRunError("run", f"benchmark failed (rc={proc.returncode})", proc.stdout)
         raise CombRunError("validate", str(e), proc.stdout)
+
+    # Harnesses time the implementation even when its correctness tests fail
+    # and then exit non-zero, so a valid result with rc != 0 is a measurement
+    # of an incorrect implementation, not a crash.
+    data["tests_passed"] = proc.returncode == 0
+    out_path.write_text(json.dumps(data, indent=2) + "\n")
 
     stat = (f"mean {data['mean']:.2f} ms ± {data['sd']:.2f} SD | "
             f"median {data['median']:.2f} ms ± {data['iqr']:.2f} IQR")
-    print(f"   ok in {elapsed:.0f}s: {stat}")
+    status = "ok" if data["tests_passed"] else "TESTS FAILED, timing kept"
+    print(f"   {status} in {elapsed:.0f}s: {stat}")
     if verbose and proc.stdout.strip():
         tail = proc.stdout.strip().splitlines()[-8:]
         for line in tail:
             print(f"   | {line}")
+    if not data["tests_passed"]:
+        raise TestsFailed("tests", f"correctness tests failed (rc={proc.returncode}), timing kept",
+                          proc.stdout)
     return data
 
 
@@ -315,6 +330,12 @@ def cmd_run(args):
                   smoke=args.smoke, print_cmd=args.print_cmd, exec_mode=getattr(args, "exec"))
         if run is not None:
             print(f"   recorded in {run.save_result(ctx)}")
+    except TestsFailed as e:
+        if run is not None:
+            print(f"   recorded in {run.save_result(ctx)}")
+        record_failure(ctx, e, run)
+        print(f"test failures recorded in {(RESULTS_DIR / 'failures.json')}", file=sys.stderr)
+        sys.exit(1)
     except CombRunError as e:
         print(f"FAILED [{e.stage}] {e}", file=sys.stderr)
         if e.output:
@@ -338,7 +359,7 @@ def cmd_matrix(args):
 
     write_run_meta()
     run = None if args.smoke else RunRecord()
-    ran = skipped = failed = 0
+    ran = skipped = failed = tests_failed = 0
     for algo, lang, manifest in iter_manifests():
         if only_algo and algo not in only_algo:
             continue
@@ -361,6 +382,12 @@ def cmd_matrix(args):
                 if run is not None:
                     run.save_result(ctx)
                 ran += 1
+            except TestsFailed as e:
+                if run is not None:
+                    run.save_result(ctx)
+                record_failure(ctx, e, run)
+                ran += 1
+                tests_failed += 1
             except CombRunError as e:
                 print(f"   FAILED [{e.stage}] {e}")
                 if e.output:
@@ -372,11 +399,13 @@ def cmd_matrix(args):
                 print("   FAILED [timeout]")
                 record_failure(ctx, CombRunError("timeout", "timed out"), run)
                 failed += 1
-    print(f"\nmatrix done: {ran} ran, {skipped} skipped, {failed} failed")
+    print(f"\nmatrix done: {ran} ran ({tests_failed} with failing tests, timing kept), "
+          f"{skipped} skipped, {failed} failed")
     if run is not None and run.dir is not None:
         print(f"run recorded in {run.dir}")
-    if failed:
+    if failed or tests_failed:
         print(f"failure details: {RESULTS_DIR / 'failures.json'}")
+    if failed:
         sys.exit(1)
 
 

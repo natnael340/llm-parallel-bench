@@ -57,11 +57,11 @@ public class GemmTestRunner {
         System.out.println("========================================");
 
         if (failed > 0) {
-            System.out.println(failed + " test(s) failed — skipping benchmark");
-            System.exit(1);
+            System.out.println(failed + " test(s) failed — benchmarking anyway");
         }
 
         testPerformanceSpeed();
+        if (failed > 0) System.exit(1);
     }
 
     private static void test(String name, Runnable testFn) {

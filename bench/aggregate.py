@@ -27,7 +27,7 @@ from bench.schema import iqr as _iqr  # noqa: E402  (canonical definition)
 RESULTS_DIR = ROOT / "results"
 
 CSV_FIELDS = [
-    "algo", "lang", "model", "impl", "status", "reps", "iters_per_rep",
+    "algo", "lang", "model", "impl", "status", "tests_passed", "reps", "iters_per_rep",
     "mean_ms", "sd_ms", "median_ms", "iqr_ms",
     "speedup_mean", "speedup_median", "detail", "params",
 ]
@@ -94,6 +94,9 @@ def load_results(verify=False):
         rows.append({
             **ident,
             "status": "ok",
+            # Results from before run.py recorded this field passed the old
+            # gate, which discarded any run with failing tests.
+            "tests_passed": data.get("tests_passed", True),
             "detail": "",
             "reps": data.get("reps", len(elapsed)),
             "iters_per_rep": data.get("iters_per_rep", ""),
@@ -176,16 +179,17 @@ def write_markdown(rows, path):
     for algo in algos:
         lines.append(f"## {algo}")
         lines.append("")
-        lines.append("| lang | model | impl | mean (ms) | SD | median (ms) | IQR | speedup (mean) |")
-        lines.append("|------|-------|------|-----------|----|-------------|-----|----------------|")
+        lines.append("| lang | model | impl | mean (ms) | SD | median (ms) | IQR | speedup (mean) | tests |")
+        lines.append("|------|-------|------|-----------|----|-------------|-----|----------------|-------|")
         for r in rows:
             if r["algo"] != algo:
                 continue
+            tests = {True: "pass", False: "FAIL"}.get(r.get("tests_passed"), "—")
             lines.append(
                 f"| {r['lang']} | {r['model']} | {r['impl']} | "
                 f"{_num(r['mean_ms'])} | {_num(r['sd_ms'])} | "
                 f"{_num(r['median_ms'])} | {_num(r['iqr_ms'])} | "
-                f"{_num(r['speedup_mean'], 'x')} |"
+                f"{_num(r['speedup_mean'], 'x')} | {tests} |"
             )
         lines.append("")
 

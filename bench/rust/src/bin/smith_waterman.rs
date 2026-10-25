@@ -51,16 +51,18 @@ fn main() {
         check(ok, "test_large_sequences_from_file", &mut failures);
     }
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     let (query, reference) = match input {
         Some((q, r, _, _)) => (q, r),
         None => {
             println!("SW_INPUT not set — skipping benchmark");
-            return;
+            std::process::exit(rc);
         }
     };
 
@@ -68,7 +70,7 @@ fn main() {
     if bench_utils::digest_out().is_some() {
         let (a, b, score, identity) = bench_find_alignment(&sw, &query, &reference);
         bench_utils::write_digest(&format!("{}\n{}\n{}\n{:016x}\n", a, b, score, identity.to_bits()));
-        return;
+        std::process::exit(rc);
     }
 
     let reps = bench_utils::reps(5);
@@ -78,4 +80,5 @@ fn main() {
     println!("{}", bench_utils::format_result("SW large sequences", &r));
     let params = format!("{{\"query_len\": {}, \"reference_len\": {}}}", query.len(), reference.len());
     bench_utils::write_result(&r, "smith-waterman", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

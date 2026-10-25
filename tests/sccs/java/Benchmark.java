@@ -204,10 +204,10 @@ public class Benchmark {
 
         int failures = runCorrectnessChecks();
         if (failures > 0) {
-            System.out.println(failures + " correctness check(s) failed — skipping benchmark");
-            System.exit(1);
+            System.out.println(failures + " correctness check(s) failed — benchmarking anyway");
         }
 
         benchmarkReduceEdges(filename);
+        if (failures > 0) System.exit(1);
     }
 }

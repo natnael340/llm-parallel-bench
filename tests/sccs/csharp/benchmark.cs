@@ -217,12 +217,11 @@ class Program
         int failures = RunCorrectnessChecks();
         if (failures > 0)
         {
-            Console.WriteLine($"{failures} correctness check(s) failed — skipping benchmark");
-            return 1;
+            Console.WriteLine($"{failures} correctness check(s) failed — benchmarking anyway");
         }
 
         BenchmarkReduceEdges(filename);
-        return 0;
+        return failures > 0 ? 1 : 0;
     }
 }
 }

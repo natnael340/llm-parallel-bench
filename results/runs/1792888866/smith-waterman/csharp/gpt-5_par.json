@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    1081.3049,
+    1028.1728,
+    1362.6863,
+    960.8463,
+    1338.3302
+  ],
+  "mean": 1154.2681000000002,
+  "sd": 184.3587865408237,
+  "median": 1081.3049,
+  "iqr": 355.9987000000001,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {
+    "query_len": 10000,
+    "reference_len": 10003
+  },
+  "timestamp": "2026-10-25T06:02:37.5521482Z",
+  "tests_passed": true
+}

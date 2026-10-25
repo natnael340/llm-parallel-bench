@@ -208,10 +208,9 @@ int main(int argc, char* argv[]) {
 
     int failures = runCorrectnessChecks();
     if (failures > 0) {
-        cout << failures << " correctness check(s) failed — skipping benchmark" << endl;
-        return 1;
+        cout << failures << " correctness check(s) failed — benchmarking anyway" << endl;
     }
 
     benchmarkReduceEdges(filename);
-    return 0;
+    return failures > 0 ? 1 : 0;
 }
