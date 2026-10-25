@@ -516,7 +516,7 @@ public static class GemmTestRunner
     {
         int m = 1024, k = 1024, n = 1024;
         // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
-        const int MB = 32, NB = 32, KB = 128;
+        const int MB = 16, NB = 64, KB = 16;
         var A = MakeRandomMatrix(m, k, seed: 10);
         var B = MakeRandomMatrix(k, n, seed: 12);
 

@@ -102,7 +102,7 @@ fn main() {
     // Perf: 1024x1024x1024.
     let (m, k, n) = (1024usize, 1024usize, 1024usize);
     // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
-    let (mb, nb, kb) = (32usize, 32usize, 64usize);
+    let (mb, nb, kb) = (32usize, 32usize, 32usize);
     let a = make_random_matrix(m, k, 10);
     let b = make_random_matrix(k, n, 12);
 

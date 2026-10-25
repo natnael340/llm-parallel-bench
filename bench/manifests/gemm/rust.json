@@ -5,7 +5,7 @@
   "bin": "gemm",
   "default_reps": 5,
   "default_iters": 5,
-  "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 64 },
+  "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 32 },
   "canonical_entry": "Matrix = Vec<Vec<f64>>; bench_gemm(a, b, alpha, Option<c>, beta, mb, nb, kb) -> Result<Matrix, String>",
   "variants": {
     "baseline/seq": {
