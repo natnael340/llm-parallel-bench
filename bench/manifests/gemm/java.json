@@ -7,7 +7,7 @@
   ],
   "main_class": "GemmTestRunner",
   "default_reps": 5,
-  "default_iters": 5,
+  "default_iters": 20,
   "params": {
     "m": 1024,
     "n": 1024,

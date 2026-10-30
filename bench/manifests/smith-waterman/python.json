@@ -5,9 +5,9 @@
   "harness_sources": ["test_smith_waterman.py"],
   "runner": "pytest",
   "default_reps": 5,
-  "default_iters": 1,
+  "default_iters": 20,
   "timeout_s": 43200,
-  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt", "GLIBC_TUNABLES": "glibc.malloc.trim_threshold=4294967295" },
   "params": {},
   "canonical_entry": "BenchSmithWaterman(matchScore, mismatchScore, gapScore).findAlignment(query, reference)",
   "variants": {
