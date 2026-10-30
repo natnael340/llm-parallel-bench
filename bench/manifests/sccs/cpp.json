@@ -9,6 +9,21 @@
   "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
   "canonical_entry": "BenchGraph(n): AddEdge, FindSCCs; bench_reduce_edges(BenchGraph&) -> vector<pair<int,int>>",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/cpp",
+      "files": [
+        "graph.cpp"
+      ],
+      "adapter": [
+        "#include <vector>",
+        "#include <utility>",
+        "#include \"graph.cpp\"",
+        "using BenchGraph = Graph;",
+        "static volatile size_t bench_findscc_sink = 0;",
+        "inline std::vector<std::pair<int,int>> bench_reduce_edges(BenchGraph& g) { bench_findscc_sink = g.FindSCCs().size(); return {}; }"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/cpp",
       "files": ["graph.cpp"],

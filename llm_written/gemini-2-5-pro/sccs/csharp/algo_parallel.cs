@@ -91,7 +91,7 @@ public class GraphParallel
         HashSet<(int, int)> reverseTree = BuildSpanningTree(scc[0], revAdj, nodes);
 
         essentialEdges.AddRange(forwardTree);
-        essentialEdges.AddRange(reverseTree);
+        foreach (var (u, v) in reverseTree) essentialEdges.Add((v, u));
 
         return essentialEdges;
     }

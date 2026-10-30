@@ -169,8 +169,8 @@ func Test7NodeGraph(t *testing.T) {
 
 // Test 9: determinism - randomized large multi-SCC graph, output must be identical across runs
 func TestDeterminism(t *testing.T) {
-	numScc := 24
-	sccSize := 40
+	numScc := 510
+	sccSize := 4
 	n := numScc * sccSize
 	runs := 5
 

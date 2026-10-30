@@ -117,7 +117,7 @@ namespace llm_written
             // Deterministic ordering: sort within each tree and then merge in fixed order
             var essentialEdges = new List<(int, int)>(forwardTree.Count + reverseTree.Count);
             foreach (var e in forwardTree.OrderBy(e => e.Item1).ThenBy(e => e.Item2)) essentialEdges.Add(e);
-            foreach (var e in reverseTree.OrderBy(e => e.Item1).ThenBy(e => e.Item2)) essentialEdges.Add(e);
+            foreach (var e in reverseTree.OrderBy(e => e.Item1).ThenBy(e => e.Item2)) essentialEdges.Add((e.Item2, e.Item1));
             return essentialEdges;
         }
 

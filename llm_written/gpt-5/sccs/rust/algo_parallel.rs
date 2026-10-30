@@ -106,7 +106,7 @@ pub mod par {
             let forward_tree = self.build_spanning_tree_edges(scc[0], &self.adj, &nodes);
             let reverse_tree = self.build_spanning_tree_edges(scc[0], &self.rev_adj, &nodes);
             essential_edges.extend(forward_tree);
-            essential_edges.extend(reverse_tree);
+            essential_edges.extend(reverse_tree.into_iter().map(|(u, v)| (v, u)));
             essential_edges
         }
 

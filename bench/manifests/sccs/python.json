@@ -15,6 +15,20 @@
   },
   "canonical_entry": "BenchGraph(n): add_edge, reduce_edges, find_sccs",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/python",
+      "files": [
+        "graph.py"
+      ],
+      "adapter": [
+        "from .graph import Graph as _Graph",
+        "class BenchGraph(_Graph):",
+        "    def reduce_edges(self):",
+        "        self.find_sccs()",
+        "        return []"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/python",
       "files": [

@@ -138,7 +138,7 @@ public class Graph {
 
         // Step 3: Merge both trees
         essentialEdges.addAll(forwardTree);
-        essentialEdges.addAll(reverseTree);
+        for (int[] e : reverseTree) essentialEdges.add(new int[]{e[1], e[0]});
 
         return essentialEdges;
     }

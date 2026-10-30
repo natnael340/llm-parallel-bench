@@ -70,7 +70,7 @@ class Graph:
 
         # Step 3: merge both trees (each edge appears at most twice)
         essential_edges.extend(forward_tree)
-        essential_edges.extend(reverse_tree)
+        essential_edges.extend((v, u) for u, v in reverse_tree)
 
         return essential_edges
 

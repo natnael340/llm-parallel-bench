@@ -9,6 +9,25 @@
   "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
   "canonical_entry": "Impl(n): addEdge, reduceEdges -> List<int[]>, findSCCs -> List<List<Integer>>",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/java",
+      "files": [
+        "Graph.java"
+      ],
+      "adapter": [
+        "import java.util.ArrayList;",
+        "import java.util.List;",
+        "public class Impl {",
+        "    public static volatile int sink;",
+        "    private final Graph g;",
+        "    public Impl(int n) { g = new Graph(n); }",
+        "    public void addEdge(int u, int v) { g.addEdge(u, v); }",
+        "    public List<int[]> reduceEdges() { sink = g.findSCCs().size(); return new ArrayList<>(); }",
+        "    public List<List<Integer>> findSCCs() { return g.findSCCs(); }",
+        "}"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/java",
       "files": ["Graph.java"],

@@ -105,7 +105,7 @@ public class AlgoParallel {
         List<int[]> reverseTree = buildSpanningTreeEdges(scc.get(0), revAdj, nodes);
 
         essentialEdges.addAll(forwardTree);
-        essentialEdges.addAll(reverseTree);
+        for (int[] e : reverseTree) essentialEdges.add(new int[]{e[1], e[0]});
 
         return essentialEdges;
     }
