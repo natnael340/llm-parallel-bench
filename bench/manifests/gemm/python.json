@@ -17,7 +17,7 @@
     },
     "gpt-5/par": {
       "root": "llm_written/gpt-5/gemm/python",
-      "files": ["gemm_parallel.py"],
+      "files": ["gemm_parallel.py", "gemm_seq.py"],
       "adapter": "from .gemm_parallel import gemm as bench_gemm"
     },
     "claude-sonnet-4-5/par": {

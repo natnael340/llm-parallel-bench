@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "elapsed_ms": [15.8363951, 16.2823283, 17.643581, 17.7205571, 16.460471],
+  "mean": 16.7886665,
+  "sd": 0.8470847612453053,
+  "median": 16.460471,
+  "iqr": 1.6227073500000024,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 2000, "graph_kind": "complete"},
+  "timestamp": "2026-10-23T23:45:46+00:00"
+}

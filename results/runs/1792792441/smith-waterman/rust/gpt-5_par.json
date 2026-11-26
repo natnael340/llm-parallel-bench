@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [52543.936146, 52655.620377, 52950.509027, 52913.323665, 52827.592722],
+  "mean": 52778.1963874,
+  "sd": 173.41695693889812,
+  "median": 52827.592722,
+  "iqr": 332.1380844999949,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {"query_len": 10000, "reference_len": 10003},
+  "timestamp": "2026-10-24T04:41:35+00:00"
+}

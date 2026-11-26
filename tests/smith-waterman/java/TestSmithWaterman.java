@@ -32,17 +32,18 @@ public class TestSmithWaterman {
         }
 
         System.out.printf("%d passed, %d failed%n", passed, failed);
-        if (failed > 0) {
-            System.out.println(failed + " test(s) failed — skipping benchmark");
-            System.exit(1);
+        int rc = failed > 0 ? 1 : 0;
+        if (rc != 0) {
+            System.out.println(failed + " test(s) failed — benchmarking anyway");
         }
 
         if (input == null) {
             System.out.println("SW_INPUT not set — skipping benchmark");
-            return;
+            System.exit(rc);
         }
 
         performanceSpeed(input[0], input[1]);
+        System.exit(rc);
     }
 
     private static void testCase(String name, String query, String reference,
@@ -74,6 +75,11 @@ public class TestSmithWaterman {
 
     private static void performanceSpeed(String query, String reference) {
         Impl impl = new Impl(2, -1, -1);
+        if (Bench.digestOut() != null) {
+            Impl.Result res = impl.findAlignment(query, reference);
+            Bench.writeDigest(res.a + "\n" + res.b + "\n" + res.score + "\n" + Double.toHexString(res.identity) + "\n");
+            return;
+        }
         int reps = Bench.reps(5);
         int iters = Bench.iters(1);
 

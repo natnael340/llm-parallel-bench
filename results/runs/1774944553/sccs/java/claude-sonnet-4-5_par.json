@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 34.64877536,
+  "sd": 8.675723353710392,
+  "timestamp": "2026-02-23T13:33:33Z"
+}

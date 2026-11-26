@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    3038.3537,
+    3360.5746,
+    3077.8465,
+    3054.8246,
+    3348.2431
+  ],
+  "mean": 3175.9685,
+  "sd": 163.55393187922752,
+  "median": 3077.8465,
+  "iqr": 307.8197,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {
+    "query_len": 10000,
+    "reference_len": 10003
+  },
+  "timestamp": "2026-10-24T03:14:15.6656767Z"
+}

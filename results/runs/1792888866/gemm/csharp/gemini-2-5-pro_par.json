@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    560.12868,
+    556.9733,
+    556.11496,
+    573.9518,
+    576.1511
+  ],
+  "mean": 564.6639680000001,
+  "sd": 9.630923815487298,
+  "median": 560.12868,
+  "iqr": 18.50732000000005,
+  "reps": 5,
+  "iters_per_rep": 5,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 128
+  },
+  "timestamp": "2026-10-25T02:35:39.3021570Z",
+  "tests_passed": true
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    31.1500957,
+    30.98185935,
+    30.811985650000004,
+    30.950130199999997,
+    30.974183149999998
+  ],
+  "mean": 30.97365081,
+  "sd": 0.12030098272096154,
+  "median": 30.974183149999998,
+  "iqr": 0.18491960000000063,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-25T06:00:29+00:00",
+  "tests_passed": true
+}

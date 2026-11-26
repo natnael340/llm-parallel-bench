@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "python",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    8547.452337599998,
+    8535.73448699999,
+    8519.550599400009,
+    8503.325707749991,
+    8480.634448349974
+  ],
+  "mean": 8517.339516019993,
+  "sd": 26.427706509771962,
+  "median": 8519.550599400009,
+  "iqr": 49.613334250010666,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-10-25T02:31:47.897055+00:00",
+  "tests_passed": true
+}

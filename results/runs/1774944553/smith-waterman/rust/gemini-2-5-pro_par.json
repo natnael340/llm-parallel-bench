@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 46074.6,
+  "sd": 998.8765,
+  "timestamp": "2026-02-14T01:02:09Z"
+}

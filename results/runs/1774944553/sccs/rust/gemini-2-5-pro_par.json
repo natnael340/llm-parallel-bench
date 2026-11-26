@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 15.1147,
+  "sd": 0.6353,
+  "timestamp": "2026-02-22T17:09:32Z"
+}

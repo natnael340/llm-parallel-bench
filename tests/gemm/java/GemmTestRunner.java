@@ -57,11 +57,11 @@ public class GemmTestRunner {
         System.out.println("========================================");
 
         if (failed > 0) {
-            System.out.println(failed + " test(s) failed — skipping benchmark");
-            System.exit(1);
+            System.out.println(failed + " test(s) failed — benchmarking anyway");
         }
 
         testPerformanceSpeed();
+        if (failed > 0) System.exit(1);
     }
 
     private static void test(String name, Runnable testFn) {
@@ -484,6 +484,19 @@ public class GemmTestRunner {
         final int MB = 56, NB = 72, KB = 64;
         double[][] A = makeRandomMatrix(m, k, -1.0, 1.0, 10);
         double[][] B = makeRandomMatrix(k, n, -1.0, 1.0, 12);
+
+        if (Bench.digestOut() != null) {
+            StringBuilder out = new StringBuilder();
+            for (double[] row : Impl.run(A, B, 1.0, null, 0.0, MB, NB, KB)) {
+                for (int j = 0; j < row.length; j++) {
+                    if (j > 0) out.append(' ');
+                    out.append(String.format("%016x", Double.doubleToRawLongBits(row[j])));
+                }
+                out.append('\n');
+            }
+            Bench.writeDigest(out);
+            return;
+        }
 
         int reps = Bench.reps(5);
         int iters = Bench.iters(5);

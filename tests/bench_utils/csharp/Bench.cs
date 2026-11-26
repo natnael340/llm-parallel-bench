@@ -46,6 +46,12 @@ public static class Bench
 
     // --- statistics ---
 
+    public static string? DigestOut() => Environment.GetEnvironmentVariable("BENCH_DIGEST_OUT");
+
+    /// <summary>Writes raw output to BENCH_DIGEST_OUT for the determinism sweep.</summary>
+    public static void WriteDigest(string body) =>
+        File.WriteAllText(DigestOut()!, $"# cores {Environment.ProcessorCount}\n{body}");
+
     public static double MedianOf(List<double> values)
     {
         var s = new List<double>(values);

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    35.278595,
+    26.31205,
+    25.419335,
+    25.684739999999998,
+    26.33787
+  ],
+  "mean": 27.806518,
+  "sd": 4.195917086931952,
+  "median": 26.31205,
+  "iqr": 5.256195000000005,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-24T01:49:41.3207150Z"
+}

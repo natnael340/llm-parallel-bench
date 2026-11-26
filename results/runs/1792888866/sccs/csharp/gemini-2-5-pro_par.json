@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    39.512785,
+    26.294535000000003,
+    26.368779999999997,
+    27.32328,
+    29.60564
+  ],
+  "mean": 29.821004,
+  "sd": 5.580534471239516,
+  "median": 27.32328,
+  "iqr": 8.227555000000002,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-25T04:38:52.8200588Z",
+  "tests_passed": false
+}

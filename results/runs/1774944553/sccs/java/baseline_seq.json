@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 59.43676025999999,
+  "sd": 21.32160214664992
+}

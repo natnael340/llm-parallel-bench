@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "seq",
+  "model": "baseline",
+  "mean": 38.592,
+  "sd": 0.1575
+}

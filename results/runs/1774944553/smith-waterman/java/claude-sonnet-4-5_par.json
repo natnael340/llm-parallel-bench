@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "java",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 11152.4,
+  "sd": 88.05,
+  "timestamp": "2026-02-14T10:52:03Z"
+}

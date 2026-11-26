@@ -122,7 +122,7 @@ impl BfsParallel {
             let next_level = if current_level.len() < Self::SMALL_LEVEL_THRESHOLD {
                 Self::process_level_sequential(graph, &current_level, &visited)
             } else {
-                Self::  (graph, &current_level, &visited)
+                Self::process_level_parallel(graph, &current_level, &visited)
             };
 
             // Update visited set with new vertices
@@ -167,7 +167,7 @@ impl BfsParallel {
     /// which collects its unvisited neighbors into a private buffer.
     /// After all workers complete, the buffers are merged and deduplicated
     /// in a deterministic order (sorted by vertex ID).
-    fn  (
+    fn process_level_parallel(
         graph: &Graph,
         current_level: &[i32],
         visited: &HashSet<i32>,

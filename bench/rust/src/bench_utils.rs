@@ -34,6 +34,20 @@ pub fn impl_name() -> String {
 pub fn model() -> String {
     env::var("MODEL").unwrap_or_else(|_| "baseline".to_string())
 }
+pub fn digest_out() -> Option<String> {
+    env::var("BENCH_DIGEST_OUT").ok().filter(|p| !p.is_empty())
+}
+
+/// Writes raw output to BENCH_DIGEST_OUT for the determinism sweep.
+pub fn write_digest(body: &str) {
+    let cores = std::thread::available_parallelism().map_or(0, |n| n.get());
+    let path = digest_out().expect("BENCH_DIGEST_OUT not set");
+    if let Err(e) = fs::write(&path, format!("# cores {}\n{}", cores, body)) {
+        eprintln!("bench: cannot write digest to {}: {}", path, e);
+        std::process::exit(2);
+    }
+}
+
 pub fn out_path() -> String {
     env::var("BENCH_OUT").unwrap_or_default()
 }

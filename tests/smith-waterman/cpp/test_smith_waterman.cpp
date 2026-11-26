@@ -68,17 +68,24 @@ int main() {
         check(ok, "test_large_sequences_from_file");
     }
 
-    if (g_failures > 0) {
-        cout << g_failures << " test(s) failed — skipping benchmark" << endl;
-        return 1;
+    const int rc = g_failures > 0 ? 1 : 0;
+    if (rc) {
+        cout << g_failures << " test(s) failed — benchmarking anyway" << endl;
     }
 
     if (!haveInput) {
         cout << "SW_INPUT not set — skipping benchmark" << endl;
-        return 0;
+        return rc;
     }
 
     SmithWaterman sw(2, -1, -1);
+    if (!bench_digest_out().empty()) {
+        auto [a, b, score, identity] = sw.findAlignment(query, reference);
+        ostringstream out;
+        out << a << "\n" << b << "\n" << score << "\n" << hexfloat << identity << "\n";
+        write_digest(out.str());
+        return rc;
+    }
     int reps = bench_reps(5), iters = bench_iters(1);
     auto bm = run_benchmark([&]() { sw.findAlignment(query, reference); }, reps, iters, 1);
     cout << format_result("SW large sequences", bm) << endl;
@@ -86,5 +93,5 @@ int main() {
     string params = "{\"query_len\": " + to_string(query.size())
         + ", \"reference_len\": " + to_string(reference.size()) + "}";
     write_result(bm, bench_out(), "smith-waterman", "cpp", bench_impl(), iters, params);
-    return 0;
+    return rc;
 }

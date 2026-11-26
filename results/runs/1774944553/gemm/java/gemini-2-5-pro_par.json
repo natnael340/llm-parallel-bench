@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 328.43,
+  "sd": 10.09,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "k": 1024,
+    "m": 1024,
+    "n": 1024
+  },
+  "timestamp": "2026-02-25T00:23:39Z"
+}

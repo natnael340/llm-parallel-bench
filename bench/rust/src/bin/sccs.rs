@@ -28,6 +28,61 @@ fn check_all(g: &Graph) -> bool {
     g.find_sccs().iter().all(|scc| is_scc_strong(scc, &edges))
 }
 
+// Random multi-SCC graph; reduce_edges must return byte-identical output across runs.
+fn check_determinism() -> bool {
+    let (num_scc, scc_size, runs) = (24usize, 40usize, 5);
+    let seed = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(1, |d| d.as_nanos() as u64)
+        | 1;
+    let mut state = seed;
+    let mut pick = || {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        (state % scc_size as u64) as usize
+    };
+
+    let mut g = Graph::new(num_scc * scc_size);
+    for s in 0..num_scc {
+        let start = s * scc_size;
+        for u in start..start + scc_size {
+            g.add_edge(u, start + (u - start + 1) % scc_size);
+        }
+        for _ in 0..scc_size * 3 {
+            let (u, v) = (start + pick(), start + pick());
+            if u != v {
+                g.add_edge(u, v);
+            }
+        }
+    }
+    for s in 0..num_scc - 1 {
+        for _ in 0..6 {
+            let (u, v) = (s * scc_size + pick(), (s + 1) * scc_size + pick());
+            g.add_edge(u, v);
+        }
+    }
+
+    let sccs = g.find_sccs();
+    let mut first: Option<Vec<(usize, usize)>> = None;
+    for r in 0..runs {
+        let edges = bench_reduce_edges(&g);
+        if !sccs.iter().all(|scc| is_scc_strong(scc, &edges)) {
+            println!("determinism run {}: reduced edges broke SCC (seed={})", r, seed);
+            return false;
+        }
+        match &first {
+            None => first = Some(edges),
+            Some(f) if *f != edges => {
+                println!("determinism run {}: output differs from run 0 (seed={})", r, seed);
+                return false;
+            }
+            _ => {}
+        }
+    }
+    true
+}
+
 fn check(ok: bool, name: &str, failures: &mut i32) {
     println!("{} {}", name, if ok { "passed" } else { "failed" });
     if !ok {
@@ -88,11 +143,14 @@ fn main() {
         }
         check(check_all(&g), "test_scc_7node", &mut failures);
     }
+    check(check_determinism(), "test_scc_determinism", &mut failures);
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     // Perf: clustered graph (shared with all languages).
     let graph_size = 100_000usize;
@@ -117,6 +175,20 @@ fn main() {
         i += cluster_size;
     }
 
+    if bench_utils::digest_out().is_some() {
+        let edges = bench_reduce_edges(&g);
+        let mut out = String::new();
+        for scc in g.find_sccs() {
+            let nodes: Vec<String> = scc.iter().map(|v| v.to_string()).collect();
+            out.push_str(&format!("S {}\n", nodes.join(" ")));
+        }
+        for (u, v) in &edges {
+            out.push_str(&format!("E {} {}\n", u, v));
+        }
+        bench_utils::write_digest(&out);
+        std::process::exit(rc);
+    }
+
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(20);
     let r = bench_utils::run_benchmark(|| { bench_reduce_edges(&g); }, reps, iters, 1);
@@ -127,4 +199,5 @@ fn main() {
         graph_size, cluster_size, no_cluster_in_group
     );
     bench_utils::write_result(&r, "sccs", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

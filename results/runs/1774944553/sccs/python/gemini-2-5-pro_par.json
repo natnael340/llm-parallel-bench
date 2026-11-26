@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "python",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 23456.232,
+  "timestamp": "2026-02-22T17:09:31Z"
+}

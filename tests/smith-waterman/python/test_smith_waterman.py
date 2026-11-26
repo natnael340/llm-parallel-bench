@@ -93,6 +93,11 @@ class TestSmithWatermanPerformance(unittest.TestCase):
         query, reference = lines[0].strip(), lines[1].strip()
 
         sw = SmithWaterman(matchScore=2, mismatchScore=-1, gapScore=-1)
+        if bench_utils.digest_mode():
+            a, b, score, identity = sw.findAlignment(query, reference)
+            bench_utils.write_digest([a, b, score, float(identity).hex()])
+            return
+
         reps, iters = CONFIG["reps"], CONFIG["iters"]
         result = bench_utils.run_benchmark(
             lambda: sw.findAlignment(query, reference), reps=reps, iters=iters, warmup=1

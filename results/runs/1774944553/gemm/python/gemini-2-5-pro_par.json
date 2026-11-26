@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "python",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "mean": 15244.67,
+  "sd": 361.12,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "k": 1024,
+    "m": 1024,
+    "n": 1024
+  },
+  "timestamp": "2026-02-06T00:28:58Z"
+}

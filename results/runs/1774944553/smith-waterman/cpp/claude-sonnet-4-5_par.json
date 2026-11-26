@@ -1,0 +1,10 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "claude-sonnet-4-5",
+  "mean": 1436.43,
+  "sd": 13.5237,
+  "timestamp": "2026-02-14T11:01:44Z"
+}

@@ -4,7 +4,13 @@ import os
 import statistics
 import timeit
 from datetime import datetime, timezone
-from typing import Callable, Optional
+from typing import Callable, Iterable, Optional
+
+if os.environ.get("BENCH_CPU_COUNT"):
+    import multiprocessing
+
+    _forced_cpus = int(os.environ["BENCH_CPU_COUNT"])
+    os.cpu_count = multiprocessing.cpu_count = lambda: _forced_cpus
 
 
 def _iqr(data: list) -> float:
@@ -106,3 +112,15 @@ def write_result(
     }
     with open(out_path, "w") as f:
         json.dump(payload, f, indent=2)
+
+
+def digest_mode() -> bool:
+    return bool(os.environ.get("BENCH_DIGEST_OUT"))
+
+
+def write_digest(lines: Iterable[str]) -> None:
+    """Write raw output lines to BENCH_DIGEST_OUT for the determinism sweep."""
+    with open(os.environ["BENCH_DIGEST_OUT"], "w") as f:
+        f.write(f"# cores {os.cpu_count()}\n")
+        for line in lines:
+            f.write(f"{line}\n")

@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "java",
+  "impl": "par",
+  "model": "gpt-5",
+  "mean": 150.67,
+  "sd": 22.03,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "k": 1024,
+    "m": 1024,
+    "n": 1024
+  },
+  "timestamp": "2026-02-19T14:42:15Z"
+}

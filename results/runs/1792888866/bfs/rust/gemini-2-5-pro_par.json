@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    204.5314636,
+    203.98771615000004,
+    206.46482810000003,
+    210.07576019999996,
+    204.22644970000002
+  ],
+  "mean": 205.85724355000002,
+  "sd": 2.5532996038506743,
+  "median": 204.5314636,
+  "iqr": 4.163211224999941,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-10-25T02:32:40+00:00",
+  "tests_passed": true
+}

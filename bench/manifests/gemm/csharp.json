@@ -11,9 +11,9 @@
     "m": 1024,
     "n": 1024,
     "k": 1024,
-    "MB": 32,
-    "NB": 32,
-    "KB": 128
+    "MB": 16,
+    "NB": 64,
+    "KB": 16
   },
   "canonical_entry": "BenchImpl.Run(A, B, alpha=, C=, beta=, MB=, NB=, KB=) -> double[][]",
   "variants": {

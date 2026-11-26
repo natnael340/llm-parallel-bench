@@ -35,12 +35,11 @@ public class BfsBench
 
         if (failed > 0)
         {
-            Console.WriteLine($"{failed} test(s) failed — skipping benchmark");
-            return 1;
+            Console.WriteLine($"{failed} test(s) failed — benchmarking anyway");
         }
 
         PerformanceSpeedTest();
-        return 0;
+        return failed > 0 ? 1 : 0;
     }
 
     private static void Test(string name, Action testFn)
@@ -205,6 +204,12 @@ public class BfsBench
                 graph.AddEdge(i, j);
                 graph.AddEdge(j, i);
             }
+        }
+
+        if (Bench.DigestOut() != null)
+        {
+            Bench.WriteDigest(string.Join("\n", BenchImpl.Run(graph, 1)) + "\n");
+            return;
         }
 
         int reps = Bench.Reps(5);

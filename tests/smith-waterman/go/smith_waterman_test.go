@@ -102,6 +102,15 @@ func TestSWSpeed(t *testing.T) {
 	query, reference, _, _ := readSWInput(t)
 	sw := newSW()
 
+	if benchutil.DigestOut() != "" {
+		a, b, score, identity := staging.BenchFindAlignment(sw, query, reference)
+		lines := []string{a, b, strconv.Itoa(score), strconv.FormatFloat(identity, 'x', -1, 64)}
+		if err := benchutil.WriteDigest(lines); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
 	reps := benchutil.Reps(5)
 	iters := benchutil.Iters(1)
 

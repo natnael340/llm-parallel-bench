@@ -6,7 +6,8 @@ Schema (all languages, all algorithms):
   "algo": "bfs", "lang": "go", "impl": "par", "model": "gpt-5",
   "elapsed_ms": [...], "mean": 12.24, "sd": 0.11, "median": 12.2, "iqr": 0.15,
   "reps": 5, "iters_per_rep": 20,
-  "params": {...}, "timestamp": "2026-07-12T10:00:00Z"
+  "params": {...}, "timestamp": "2026-07-12T10:00:00Z",
+  "tests_passed": true          # added by run.py after the harness exits
 }
 """
 

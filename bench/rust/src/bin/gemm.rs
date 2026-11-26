@@ -92,17 +92,31 @@ fn main() {
         check(mat_almost_equal(&out, &naive_gemm(&a, &b), 1e-9), "test_block_larger", &mut failures);
     }
 
-    if failures > 0 {
-        println!("{} test(s) failed — skipping benchmark", failures);
-        std::process::exit(1);
-    }
+    let rc = if failures > 0 {
+        println!("{} test(s) failed — benchmarking anyway", failures);
+        1
+    } else {
+        0
+    };
 
     // Perf: 1024x1024x1024.
     let (m, k, n) = (1024usize, 1024usize, 1024usize);
     // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
-    let (mb, nb, kb) = (32usize, 32usize, 64usize);
+    let (mb, nb, kb) = (32usize, 32usize, 32usize);
     let a = make_random_matrix(m, k, 10);
     let b = make_random_matrix(k, n, 12);
+
+    if bench_utils::digest_out().is_some() {
+        let c = bench_gemm(&a, &b, 1.0, None, 0.0, mb, nb, kb).expect("gemm failed");
+        let mut out = String::new();
+        for row in &c {
+            let cells: Vec<String> = row.iter().map(|x| format!("{:016x}", x.to_bits())).collect();
+            out.push_str(&cells.join(" "));
+            out.push('\n');
+        }
+        bench_utils::write_digest(&out);
+        std::process::exit(rc);
+    }
 
     let reps = bench_utils::reps(5);
     let iters = bench_utils::iters(5);
@@ -125,4 +139,5 @@ fn main() {
         m, n, k, mb, nb, kb
     );
     bench_utils::write_result(&r, "gemm", &bench_utils::impl_name(), &params);
+    std::process::exit(rc);
 }

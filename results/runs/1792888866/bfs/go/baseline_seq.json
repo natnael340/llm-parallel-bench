@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "go",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    197.15977594999998,
+    190.20000090000002,
+    200.29348945,
+    186.16381165,
+    197.49570795
+  ],
+  "mean": 194.26255718000002,
+  "sd": 5.859038471370138,
+  "median": 197.15977594999998,
+  "iqr": 10.712692425,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_kind": "complete",
+    "graph_size": 2000
+  },
+  "timestamp": "2026-10-25T00:47:14Z",
+  "tests_passed": true
+}

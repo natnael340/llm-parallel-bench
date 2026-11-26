@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "rust",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [11.94059245, 11.5366799, 11.66761915, 12.21883065, 12.18888355],
+  "mean": 11.91052114,
+  "sd": 0.3050423406730867,
+  "median": 11.94059245,
+  "iqr": 0.6017075750000007,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {"graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3},
+  "timestamp": "2026-10-24T03:12:09+00:00"
+}

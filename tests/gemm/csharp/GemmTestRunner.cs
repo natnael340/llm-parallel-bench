@@ -62,11 +62,11 @@ public static class GemmTestRunner
 
         if (_failed > 0)
         {
-            Console.WriteLine($"{_failed} test(s) failed — skipping benchmark");
-            Environment.Exit(1);
+            Console.WriteLine($"{_failed} test(s) failed — benchmarking anyway");
         }
 
         TestPerformanceSpeed();
+        if (_failed > 0) Environment.Exit(1);
     }
 
     private static void Test(string name, Action testFn)
@@ -516,9 +516,19 @@ public static class GemmTestRunner
     {
         int m = 1024, k = 1024, n = 1024;
         // Per-language sweep-tuned tile sizes (see analysis/data/gemm sweep CSVs).
-        const int MB = 32, NB = 32, KB = 128;
+        const int MB = 16, NB = 64, KB = 16;
         var A = MakeRandomMatrix(m, k, seed: 10);
         var B = MakeRandomMatrix(k, n, seed: 12);
+
+        if (Bench.DigestOut() != null)
+        {
+            var C = BenchImpl.Run(A, B, alpha: 1.0, C: null, beta: 0.0, MB: MB, NB: NB, KB: KB);
+            var out_ = new System.Text.StringBuilder();
+            foreach (var row in C)
+                out_.AppendJoin(' ', row.Select(x => BitConverter.DoubleToInt64Bits(x).ToString("x16"))).Append('\n');
+            Bench.WriteDigest(out_.ToString());
+            return;
+        }
 
         int reps = Bench.Reps(5);
         int iters = Bench.Iters(5);

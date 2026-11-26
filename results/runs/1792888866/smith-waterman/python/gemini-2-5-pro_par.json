@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "python",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    151302.8082029996,
+    147358.08313799862,
+    147851.55249200034,
+    149405.41762499925,
+    149465.90783400097
+  ],
+  "mean": 149076.75385839975,
+  "sd": 1554.809157638369,
+  "median": 149405.41762499925,
+  "iqr": 2779.540203500772,
+  "reps": 5,
+  "iters_per_rep": 1,
+  "params": {
+    "query_len": 10000,
+    "reference_len": 10003
+  },
+  "timestamp": "2026-10-25T07:35:43.739365+00:00",
+  "tests_passed": true
+}
