@@ -4,7 +4,7 @@
   "harness": "tests/gemm/go",
   "test_pattern": ".",
   "default_reps": 5,
-  "default_iters": 5,
+  "default_iters": 20,
   "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 56, "KB": 128 },
   "canonical_entry": "Gemm(A, B Matrix, alpha float64, C Matrix, beta float64, MB, NB, KB int) (Matrix, error)",
   "variants": {

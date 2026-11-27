@@ -5,7 +5,7 @@
   "harness_sources": ["test_gemm.cpp"],
   "compile_staged_sources": true,
   "default_reps": 5,
-  "default_iters": 5,
+  "default_iters": 20,
   "params": { "m": 1024, "n": 1024, "k": 1024, "MB": 32, "NB": 32, "KB": 16 },
   "canonical_entry": "bench_gemm(A, B, alpha, Matrix* C, beta, MB, NB, KB) -> Matrix",
   "variants": {

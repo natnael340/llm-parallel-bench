@@ -5,8 +5,8 @@
   "harness_sources": ["TestSmithWaterman.java"],
   "main_class": "TestSmithWaterman",
   "default_reps": 5,
-  "default_iters": 1,
-  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "default_iters": 20,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt", "GLIBC_TUNABLES": "glibc.malloc.trim_threshold=4294967295" },
   "params": {},
   "canonical_entry": "Impl(match, mismatch, gap).findAlignment(query, reference) -> Impl.Result{a, b, score, identity}",
   "variants": {

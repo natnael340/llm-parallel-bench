@@ -4,8 +4,8 @@
   "harness": "tests/smith-waterman/rust",
   "bin": "smith_waterman",
   "default_reps": 5,
-  "default_iters": 1,
-  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt" },
+  "default_iters": 20,
+  "env": { "SW_INPUT": "./tests/smith-waterman/data/large_test_input.txt", "GLIBC_TUNABLES": "glibc.malloc.trim_threshold=4294967295" },
   "params": {},
   "canonical_entry": "SmithWaterman::new(m, mm, g); bench_find_alignment(&sw, query, reference) -> (String, String, i32, f64)",
   "variants": {
