@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "go",
+  "impl": "seq",
+  "model": "baseline-findscc",
+  "elapsed_ms": [
+    8.1083763,
+    7.409487050000001,
+    7.493128199999999,
+    7.2412446,
+    7.8414369
+  ],
+  "mean": 7.61873461,
+  "sd": 0.35050160977024825,
+  "median": 7.493128199999999,
+  "iqr": 0.6495407749999993,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "cluster_size": 300,
+    "graph_size": 100000,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:52:48Z",
+  "tests_passed": false
+}

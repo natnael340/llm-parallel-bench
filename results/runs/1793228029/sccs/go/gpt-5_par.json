@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "go",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    41.14505615,
+    42.67462465,
+    41.4513626,
+    42.050048600000004,
+    40.1332218
+  ],
+  "mean": 41.49086276,
+  "sd": 0.9589463575068097,
+  "median": 41.4513626,
+  "iqr": 1.723197649999996,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "cluster_size": 300,
+    "graph_size": 100000,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:55:15Z",
+  "tests_passed": true
+}
