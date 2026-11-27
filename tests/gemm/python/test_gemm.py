@@ -1,5 +1,6 @@
 # test_gemm.py
 import math
+import os
 import copy
 import random
 import struct
@@ -301,7 +302,8 @@ def test_alpha_scaling_linear():
 
 @pytest.mark.perf
 def test_gemm_performance_speed():
-    m = k = n = 1024
+    # Determinism digests may use a smaller size (BENCH_DIGEST_SIZE); timed runs always use 1024.
+    m = k = n = int(os.environ.get("BENCH_DIGEST_SIZE", "1024")) if bench_utils.digest_mode() else 1024
     A = make_random_matrix(m, k, seed=10)
     B = make_random_matrix(k, n, seed=12)
 
