@@ -1,5 +1,6 @@
 import io
 import json
+import threading
 import zipfile
 from pathlib import Path
 from uuid import uuid4
@@ -20,6 +21,7 @@ MODELS = {
 TODO_ICONS = {"completed": "✅", "in_progress": "⚒️", "pending": "⬜"}
 LANGUAGES = {".py": "python", ".go": "go", ".cpp": "cpp", ".hpp": "cpp", ".h": "cpp",
              ".cs": "csharp", ".java": "java", ".rs": "rust", ".md": "markdown", ".json": "json"}
+POLL_SECONDS = 1.5
 
 
 @st.cache_resource
@@ -33,13 +35,38 @@ def agent_for(model_key):
     return get_agent(model_key, checkpointer())
 
 
+@st.cache_resource
+def runs():
+    """Agent runs by session id. Each runs in a thread, so the page stays usable while the agent works."""
+    return {}
+
+
+def start_run(session_id, agent, prompt, config):
+    run = {"error": None}
+
+    def work():
+        try:
+            agent.invoke({"messages": [("user", prompt)]}, config)
+        except Exception as e:
+            run["error"] = str(e)
+
+    run["thread"] = threading.Thread(target=work, daemon=True)
+    runs()[session_id] = run
+    run["thread"].start()
+
+
+def is_running(session_id):
+    run = runs().get(session_id)
+    return run is not None and run["thread"].is_alive()
+
+
 def saved_state(config):
     saved = checkpointer().get_tuple(config)
     return saved.checkpoint["channel_values"] if saved else {}
 
 
 def language_of(filename):
-    return LANGUAGES.get("." + filename.rsplit(".", 1)[-1].lower()) if "." in filename else None
+    return LANGUAGES.get(Path(filename).suffix.lower())
 
 
 def session_files(messages):
@@ -70,6 +97,17 @@ def zip_of(paths):
     return buffer.getvalue()
 
 
+@st.dialog("File", width="large")
+def show_file(name):
+    path = BASE_DIR / name
+    if not path.is_file():
+        st.warning(f"{name} no longer exists.")
+        return
+    st.markdown(f"**{name}**")
+    st.code(path.read_text(errors="replace"), language=language_of(name), line_numbers=True)
+    st.download_button("Download", path.read_bytes(), file_name=name, on_click="ignore")
+
+
 def render_message(msg):
     if isinstance(msg, AIMessage):
         if msg.text:
@@ -88,9 +126,10 @@ def render_message(msg):
             st.code(msg.text)
 
 
-def render_history(messages):
+@st.fragment(run_every=POLL_SECONDS)
+def chat_live(session_id, config):
     turn = None
-    for msg in messages:
+    for msg in saved_state(config).get("messages", []):
         if isinstance(msg, HumanMessage):
             st.chat_message("user").code(msg.text, language=None)
             turn = None
@@ -99,27 +138,44 @@ def render_history(messages):
             with turn:
                 render_message(msg)
 
+    running = is_running(session_id)
+    run = runs().get(session_id)
+    if running:
+        st.caption("⏳ The agent is working...")
+    elif run and run["error"]:
+        st.error(f"The run stopped: {run['error']}")
+    if st.session_state.get("was_running") and not running:
+        st.session_state.was_running = False
+        st.rerun()  # re-enable the chat input
 
-def show_progress(boxes, state):
+
+@st.fragment(run_every=POLL_SECONDS)
+def sidebar_live(session_id, config):
+    state = saved_state(config)
     messages = state.get("messages", [])
+
+    st.subheader("TODOs")
     todos = state.get("todos", [])
-    boxes["todos"].markdown("  \n".join(f"{TODO_ICONS.get(t['status'], '⬜')} {t['content']}" for t in todos)
-                            or "_No TODOs yet_")
-    boxes["files"].markdown("  \n".join(f"📄 {n}" for n in session_files(messages)) or "_No files yet_")
+    st.markdown("  \n".join(f"{TODO_ICONS.get(t['status'], '⬜')} {t['content']}" for t in todos)
+                or "_No TODOs yet_")
+
+    st.subheader("Files")
+    names = [n for n in session_files(messages) if (BASE_DIR / n).is_file()]
+    for name in names:
+        if st.button(f"📄 {name}", key=f"open-{name}"):
+            st.session_state.viewing = name
+            st.rerun()  # the dialog opens from a full run, so the polling does not close it
+    if names:
+        st.download_button("⬇ All files (.zip)", zip_of([BASE_DIR / n for n in names]),
+                           file_name=f"session-{session_id[:8]}.zip", mime="application/zip",
+                           type="primary", on_click="ignore")
+    else:
+        st.markdown("_No files yet_")
+
+    st.subheader("Usage")
     u = token_totals(messages)
-    boxes["usage"].markdown(f"**Input:** {u['input_tokens']:,}  \n**Output:** {u['output_tokens']:,}  \n"
-                            f"**Total:** {u['total_tokens']:,}")
-
-
-def show_downloads(box, names, session_id):
-    paths = [BASE_DIR / n for n in names if (BASE_DIR / n).is_file()]
-    if not paths:
-        return
-    with box.container():
-        for p in paths:
-            st.download_button(f"📄 {p.name}", p.read_bytes(), file_name=p.name, key=f"file-{p.name}")
-        st.download_button("⬇ All files (.zip)", zip_of(paths), file_name=f"session-{session_id[:8]}.zip",
-                           mime="application/zip", type="primary")
+    st.markdown(f"**Input:** {u['input_tokens']:,}  \n**Output:** {u['output_tokens']:,}  \n"
+                f"**Total:** {u['total_tokens']:,}")
 
 
 def app():
@@ -127,7 +183,6 @@ def app():
     session_id = st.query_params.get("session") or uuid4().hex
     st.query_params["session"] = session_id
     config = {"configurable": {"thread_id": session_id}, "recursion_limit": 100}
-    state = saved_state(config)
 
     with st.sidebar:
         model = st.selectbox("Model", list(MODELS))
@@ -135,35 +190,23 @@ def app():
             st.query_params["session"] = uuid4().hex
             st.rerun()
         st.caption(f"Session {session_id[:8]}")
-        st.subheader("TODOs")
-        boxes = {"todos": st.empty()}
-        st.subheader("Files")
-        boxes["files"] = st.empty()
-        st.subheader("Usage")
-        boxes["usage"] = st.empty()
+        sidebar_live(session_id, config)
 
-    show_progress(boxes, state)
-    show_downloads(boxes["files"], session_files(state.get("messages", [])), session_id)
-    render_history(state.get("messages", []))
+    chat_live(session_id, config)
+    if name := st.session_state.pop("viewing", None):
+        show_file(name)
 
-    prompt = st.chat_input("Enter your sequential algorithm here and press enter...")
-    if not prompt:
-        return
-
-    st.chat_message("user").code(prompt, language=None)
-    seen = len(state.get("messages", [])) + 1  # the prompt is already drawn
-    try:
-        agent = agent_for(MODELS[model])
-        with st.chat_message("assistant"):
-            for state in agent.stream({"messages": [("user", prompt)]}, config, stream_mode="values"):
-                for msg in state["messages"][seen:]:
-                    render_message(msg)
-                seen = len(state["messages"])
-                show_progress(boxes, state)
-    except Exception as e:
-        st.error(f"The run stopped: {e}")
-        return
-    st.rerun()  # redraw from the saved state so the file downloads appear
+    prompt = st.chat_input("Enter your sequential algorithm here and press enter...",
+                           disabled=is_running(session_id))
+    if prompt:
+        try:
+            agent = agent_for(MODELS[model])
+        except Exception as e:
+            st.error(f"Could not start {model}: {e}")
+            return
+        start_run(session_id, agent, prompt, config)
+        st.session_state.was_running = True
+        st.rerun()
 
 
 if __name__ == "__main__":
