@@ -17,16 +17,15 @@ def bfs(graph: Graph, start_vertex: int) -> list[int]:
     if start_vertex not in graph.vertices:
         return []
     
-    visited = set()
+    visited = {start_vertex}
     result = []
     queue = deque([start_vertex])
     while queue:
         current = queue.popleft()
-        if current not in visited:
-            visited.add(current)
-            result.append(current)
-            for neighbor in graph.vertices.get(current, []):
-                if neighbor not in visited:
-                    queue.append(neighbor)
+        result.append(current)
+        for neighbor in graph.vertices.get(current, []):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
 
     return result

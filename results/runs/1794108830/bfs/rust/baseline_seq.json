@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "rust",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    212.898939,
+    212.11231540000003,
+    212.90390869999996,
+    213.05831240000003,
+    212.22934215
+  ],
+  "mean": 212.64056353,
+  "sd": 0.43553753875639273,
+  "median": 212.898939,
+  "iqr": 0.8102817749999645,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-11-08T03:34:14+00:00",
+  "tests_passed": true
+}

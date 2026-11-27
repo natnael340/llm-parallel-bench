@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    213.36276295,
+    174.6059169,
+    174.17376545,
+    172.06368709999998,
+    172.64748475
+  ],
+  "mean": 181.37072342999997,
+  "sd": 17.914834792146745,
+  "median": 174.17376545,
+  "iqr": 21.628754000000015,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-11-08T11:26:36.881987297Z",
+  "tests_passed": false
+}

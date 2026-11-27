@@ -42,18 +42,17 @@ impl BfsSequential {
         let mut result = Vec::new();
         let mut queue = VecDeque::new();
 
+        visited.insert(start_vertex);
         queue.push_back(start_vertex);
 
         while let Some(current) = queue.pop_front() {
-            if !visited.contains(&current) {
-                visited.insert(current);
-                result.push(current);
+            result.push(current);
 
-                if let Some(neighbors) = graph.vertices().get(&current) {
-                    for &neighbor in neighbors {
-                        if !visited.contains(&neighbor) {
-                            queue.push_back(neighbor);
-                        }
+            if let Some(neighbors) = graph.vertices().get(&current) {
+                for &neighbor in neighbors {
+                    if !visited.contains(&neighbor) {
+                        visited.insert(neighbor);
+                        queue.push_back(neighbor);
                     }
                 }
             }

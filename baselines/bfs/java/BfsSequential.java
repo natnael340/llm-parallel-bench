@@ -10,21 +10,19 @@ public class BfsSequential {
         List<Integer> result = new ArrayList<>();
         Queue<Integer> queue = new LinkedList<>();
 
+        visited.add(startVertex);
         queue.add(startVertex);
 
         while (!queue.isEmpty()) {
             int current = queue.poll();
+            result.add(current);
 
-            if (!visited.contains(current)) {
-                visited.add(current);
-                result.add(current);
-
-                List<Integer> neighbors = graph.getVertices().get(current);
-                if (neighbors != null) {
-                    for (int neighbor : neighbors) {
-                        if (!visited.contains(neighbor)) {
-                            queue.add(neighbor);
-                        }
+            List<Integer> neighbors = graph.getVertices().get(current);
+            if (neighbors != null) {
+                for (int neighbor : neighbors) {
+                    if (!visited.contains(neighbor)) {
+                        visited.add(neighbor);
+                        queue.add(neighbor);
                     }
                 }
             }
