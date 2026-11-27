@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "par",
+  "model": "variant-gpt-5-recursive-tarjan",
+  "elapsed_ms": [
+    34.41623855,
+    27.4067026,
+    31.829332049999998,
+    31.031926700000003,
+    33.13890735
+  ],
+  "mean": 31.564621449999997,
+  "sd": 2.6576409060276784,
+  "median": 31.829332049999998,
+  "iqr": 4.5582582999999985,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-11-15T23:25:14.122435986Z",
+  "tests_passed": true
+}
