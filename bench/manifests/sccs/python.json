@@ -56,6 +56,14 @@
         "algo_parallel.py"
       ],
       "adapter": "from .algo_parallel import Graph as BenchGraph"
+    },
+    "variant-gemini-recursive-tarjan/par": {
+      "note": "Variant: Gemini Python with the baseline's recursive Tarjan instead of its iterative Tarjan (see Readme, Variants).",
+      "root": "variants/sccs/gemini-python-recursive-tarjan",
+      "files": [
+        "algo_parallel.py"
+      ],
+      "adapter": "from .algo_parallel import Graph as BenchGraph"
     }
   },
   "timeout_s": 21600

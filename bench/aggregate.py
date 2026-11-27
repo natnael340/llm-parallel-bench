@@ -46,7 +46,7 @@ def load_results(verify=False):
             continue
         # runs/ holds per-run copies of results already counted here.
         parts = path.relative_to(RESULTS_DIR).parts
-        if "archive" in parts or "runs" in parts:
+        if "archive" in parts or "runs" in parts or "variants" in parts:
             continue
         try:
             data = json.loads(path.read_text())

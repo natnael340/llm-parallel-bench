@@ -27,6 +27,8 @@ LLM-PARALLEL-BENCH/
 │       ├── cpp/
 │       └── csharp/
 │
+├── variants/                # Hand-made one-change versions (not model output)
+│
 ├── reports/                 # Benchmark results
 │   ├── sequential/
 │   ├── gpt5/
@@ -66,6 +68,22 @@ llm_written/
 ```
 
 Organized by model → language.
+
+---
+
+## Variants
+
+`variants/` holds hand-made versions of existing code that change exactly one part,
+to measure how much that part contributes to the runtime. They are not model output
+and are not counted among the 72 implementations.
+
+| Folder | Based on | Change |
+|---|---|---|
+| `variants/sccs/baseline-java-iterative-tarjan/` | `baselines/sccs/java` | Recursive Tarjan DFS replaced by an iterative one with the same visiting and SCC order |
+| `variants/sccs/gpt-5-java-recursive-tarjan/` | `llm_written/gpt-5/sccs/java` | Iterative Kosaraju replaced by the baseline's recursive Tarjan |
+| `variants/sccs/gemini-python-recursive-tarjan/` | `llm_written/gemini-2-5-pro/sccs/python` | Iterative Tarjan replaced by the baseline's recursive Tarjan |
+
+Results are in `results/variants/` and are not included in `results/summary.csv`.
 
 ---
 
