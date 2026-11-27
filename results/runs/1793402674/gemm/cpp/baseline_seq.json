@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "cpp",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    1458.063894,
+    1489.325424,
+    1490.72764,
+    1483.167848,
+    1490.085502
+  ],
+  "mean": 1482.274061,
+  "sd": 13.866636,
+  "median": 1489.325424,
+  "iqr": 19.7907,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 16
+  },
+  "timestamp": "2026-10-30T23:26:57+00:00",
+  "tests_passed": true
+}

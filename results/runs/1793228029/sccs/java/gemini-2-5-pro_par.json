@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    42.015712,
+    31.185357,
+    31.5812455,
+    33.5861584,
+    34.66544065
+  ],
+  "mean": 34.606782710000004,
+  "sd": 4.3817056398864676,
+  "median": 33.5861584,
+  "iqr": 6.957275074999998,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:55:55.404370730Z",
+  "tests_passed": true
+}

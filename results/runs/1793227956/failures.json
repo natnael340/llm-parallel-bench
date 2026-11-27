@@ -1,0 +1,138 @@
+[
+  {
+    "algo": "sccs",
+    "lang": "cpp",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "test_scc_3cycle failed",
+      "test_scc_2node_mutual failed",
+      "test_scc_multiple failed",
+      "test_scc_7node failed",
+      "determinism run 0: reduced edges broke SCC (seed=3170091586)",
+      "test_scc_determinism failed",
+      "5 correctness check(s) failed \u2014 benchmarking anyway",
+      "SCC ReduceEdges | graph_size=100000 | mean 5.41 ms/run \u00b1 0.02 SD | median 5.42 ms/run \u00b1 0.04 IQR (n=5)"
+    ],
+    "timestamp": "2026-10-28T22:52:41.754601+00:00"
+  },
+  {
+    "algo": "sccs",
+    "lang": "csharp",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "test_scc_3cycle failed",
+      "test_scc_2node_mutual failed",
+      "test_scc_multiple failed",
+      "test_scc_7node failed",
+      "determinism run 0: reduced edges broke SCC (seed=116356115)",
+      "test_scc_determinism failed",
+      "5 correctness check(s) failed \u2014 benchmarking anyway",
+      "SCC ReduceEdges | graph_size=100000 | mean 6.61 ms/run \u00b1 3.29 SD | median 5.28 ms/run \u00b1 4.07 IQR (n=5)"
+    ],
+    "timestamp": "2026-10-28T22:52:46.804416+00:00"
+  },
+  {
+    "algo": "sccs",
+    "lang": "go",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "=== RUN   TestSimple3Cycle",
+      "    sccs_test.go:96: simple 3-cycle: SCC strong check failed",
+      "          reduced edges: []",
+      "--- FAIL: TestSimple3Cycle (0.00s)",
+      "=== RUN   Test2NodeMutualSCC",
+      "    sccs_test.go:108: 2-node mutual SCC: SCC strong check failed",
+      "--- FAIL: Test2NodeMutualSCC (0.00s)",
+      "=== RUN   TestDense3NodeSCC",
+      "    sccs_test.go:124: dense 3-node SCC: SCC strong check failed",
+      "          reduced edges: []",
+      "--- FAIL: TestDense3NodeSCC (0.00s)",
+      "=== RUN   TestMultipleSCCs",
+      "    sccs_test.go:144: multiple SCCs: SCC strong check failed",
+      "          reduced edges: []",
+      "--- FAIL: TestMultipleSCCs (0.00s)",
+      "=== RUN   Test7NodeGraph",
+      "    sccs_test.go:166: 7-node graph: SCC strong check failed",
+      "          reduced edges: []",
+      "--- FAIL: Test7NodeGraph (0.00s)",
+      "=== RUN   TestDeterminism",
+      "    sccs_test.go:230: determinism run 0: reduced edges broke SCC",
+      "    sccs_test.go:230: determinism run 1: reduced edges broke SCC",
+      "    sccs_test.go:230: determinism run 2: reduced edges broke SCC",
+      "    sccs_test.go:230: determinism run 3: reduced edges broke SCC",
+      "    sccs_test.go:230: determinism run 4: reduced edges broke SCC",
+      "--- FAIL: TestDeterminism (0.01s)",
+      "=== RUN   TestSCCSpeed",
+      "    sccs_test.go:314: SCC ReduceEdges | graph_size=100000 | mean 7.62 ms/run \u00b1 0.35 SD | median 7.49 ms/run \u00b1 0.65 IQR (n=5)",
+      "--- PASS: TestSCCSpeed (0.80s)",
+      "FAIL"
+    ],
+    "timestamp": "2026-10-28T22:52:48.612626+00:00"
+  },
+  {
+    "algo": "sccs",
+    "lang": "java",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "test_scc_3cycle failed",
+      "test_scc_2node_mutual failed",
+      "test_scc_multiple failed",
+      "test_scc_7node failed",
+      "determinism run 0: reduced edges broke SCC (seed=-7878628011777041143)",
+      "test_scc_determinism failed",
+      "5 correctness check(s) failed \u2014 benchmarking anyway",
+      "SCC ReduceEdges | graph_size=100000 | mean 10.81 ms/run \u00b1 3.40 SD | median 11.96 ms/run \u00b1 6.22 IQR (n=5)"
+    ],
+    "timestamp": "2026-10-28T22:52:52.369021+00:00"
+  },
+  {
+    "algo": "sccs",
+    "lang": "python",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "test_scc_3cycle failed",
+      "test_scc_2node_mutual failed",
+      "test_scc_multiple failed",
+      "test_scc_7node failed",
+      "determinism run 0: reduced edges broke SCC (seed=989459935299171210)",
+      "test_scc_determinism failed",
+      "5 correctness check(s) failed \u2014 benchmarking anyway",
+      "SCC reduce_edges | graph_size=100000 | mean 153.33 ms/run \u00b1 1.59 SD | median 152.96 ms/run \u00b1 3.14 IQR (n=5)"
+    ],
+    "timestamp": "2026-10-28T22:53:05.681014+00:00"
+  },
+  {
+    "algo": "sccs",
+    "lang": "rust",
+    "model": "baseline-findscc",
+    "impl": "seq",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "test_scc_3cycle failed",
+      "test_scc_2node_mutual failed",
+      "test_scc_multiple failed",
+      "test_scc_7node failed",
+      "determinism run 0: reduced edges broke SCC (seed=1793227988185633009)",
+      "test_scc_determinism failed",
+      "5 test(s) failed \u2014 benchmarking anyway",
+      "SCC ReduceEdges | graph_size=100000 | mean 4.29 ms/run \u00b1 0.02 SD | median 4.29 ms/run \u00b1 0.04 IQR (n=5)"
+    ],
+    "timestamp": "2026-10-28T22:53:08.653821+00:00"
+  }
+]

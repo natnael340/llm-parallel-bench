@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline-findscc",
+  "elapsed_ms": [
+    12.084132499999999,
+    8.12092155,
+    15.17217105,
+    11.958118899999999,
+    6.69190645
+  ],
+  "mean": 10.80545009,
+  "sd": 3.397052427986375,
+  "median": 11.958118899999999,
+  "iqr": 6.221737774999999,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:52:52.289615787Z",
+  "tests_passed": false
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "smith-waterman",
+  "lang": "go",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    2353.3927925,
+    2261.65756845,
+    2233.42531585,
+    2260.9333070000002,
+    2288.3325049
+  ],
+  "mean": 2279.5482977399997,
+  "sd": 45.61824534929266,
+  "median": 2261.65756845,
+  "iqr": 73.68333727499976,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "query_len": 10000,
+    "reference_len": 10003
+  },
+  "timestamp": "2026-10-31T00:16:01Z",
+  "tests_passed": true
+}

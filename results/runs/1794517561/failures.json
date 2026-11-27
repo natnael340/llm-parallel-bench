@@ -1,0 +1,12 @@
+[
+  {
+    "algo": "gemm",
+    "lang": "python",
+    "model": "claude-sonnet-4-5",
+    "impl": "par",
+    "stage": "timeout",
+    "error": "timed out",
+    "output_tail": [],
+    "timestamp": "2026-11-13T08:52:41.486417+00:00"
+  }
+]

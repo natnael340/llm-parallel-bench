@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    84.70678765,
+    48.66574575,
+    77.53956654999999,
+    47.164919049999995,
+    45.55257935
+  ],
+  "mean": 60.72591967000001,
+  "sd": 18.823917895475084,
+  "median": 48.66574575,
+  "iqr": 34.764427899999994,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:55:33.935603936Z",
+  "tests_passed": true
+}

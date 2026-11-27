@@ -1,0 +1,30 @@
+{
+  "schema_version": 2,
+  "algo": "gemm",
+  "lang": "cpp",
+  "impl": "par",
+  "model": "gpt-5",
+  "elapsed_ms": [
+    277.90309,
+    263.211737,
+    259.020244,
+    260.369312,
+    256.038744
+  ],
+  "mean": 263.308625,
+  "sd": 8.556997,
+  "median": 260.369312,
+  "iqr": 13.02792,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "m": 1024,
+    "n": 1024,
+    "k": 1024,
+    "MB": 32,
+    "NB": 32,
+    "KB": 16
+  },
+  "timestamp": "2026-10-30T23:27:26+00:00",
+  "tests_passed": true
+}

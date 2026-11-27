@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "algo": "sccs",
+  "lang": "csharp",
+  "impl": "seq",
+  "model": "baseline-findscc",
+  "elapsed_ms": [
+    11.98535,
+    5.2958799999999995,
+    5.82607,
+    5.732705,
+    5.06352
+  ],
+  "mean": 6.780705,
+  "sd": 2.926234404661561,
+  "median": 5.732705,
+  "iqr": 3.7260099999999996,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 100000,
+    "cluster_size": 300,
+    "no_cluster_in_group": 3
+  },
+  "timestamp": "2026-10-28T22:54:28.5526155Z",
+  "tests_passed": false
+}
