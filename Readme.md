@@ -104,3 +104,15 @@ Results are in `results/variants/` and are not included in `results/summary.csv`
 - Linux/WSL2 recommended
 
 ---
+
+## Running the app
+
+From the repository root, with the API keys in `.env`:
+
+```bash
+python -m streamlit run app/main.py
+```
+
+`python -m` puts the repository root on the import path. A plain `streamlit run app/main.py` fails with `No module named 'app'`. The agent writes its files to `~/projects/llm-parallel-bench/llm_written` (`BASE_DIR` in `app/tools.py`).
+
+---
