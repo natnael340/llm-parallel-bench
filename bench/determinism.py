@@ -272,11 +272,37 @@ def sweep_variant(ctx, conds, runs, ref, timeout):
     return verdict, records
 
 
+def merge_runs(old, new_records, conds):
+    """Replace the old runs of the re-run conditions with the new ones and recount the verdict."""
+    redo = {c.name for c in conds}
+    kept = [r for r in old["runs"] if r["condition"] not in redo]
+    records = kept + new_records
+    ok = [r for r in records if r["outcome"] == "ok"]
+    verdict = dict(old["verdict"])
+    verdict.update(
+        runs_ok=len(ok),
+        runs_failed=sum(r["outcome"] == "fail" for r in records),
+        runs_timeout=sum(r["outcome"] == "timeout" for r in records),
+        runs_tests_failed=sum(r["outcome"] == "ok" and r["rc"] != 0 and not r.get("race_reports")
+                              for r in records),
+        deterministic=len({r["canon_sha"] for r in ok}) == 1 if ok else None,
+        raw_order_stable=len({r["raw_sha"] for r in ok}) == 1 if ok else None,
+        races_unique=max((r.get("races_unique", 0) for r in records), default=0),
+    )
+    first = next((r for r in kept if r["outcome"] == "ok"), None)
+    if verdict["first_divergence"] is None and first:
+        verdict["first_divergence"] = next((r["condition"] for r in new_records if r["outcome"] == "ok"
+                                            and r["canon_sha"] != first["canon_sha"]), None)
+    return verdict, records
+
+
 def cmd_sweep(args):
     sweeps = parse_filter(args.sweep) or {"cores", "threads", "load", "priority", "race"}
     only_algo, only_lang, only_model = map(parse_filter, (args.algo, args.lang, args.model))
     conds = conditions(sweeps)
-    meta = {"timestamp": datetime.now(timezone.utc).isoformat(), "platform": platform.platform(),
+    if args.condition:
+        conds = [c for c in conds if c.name in parse_filter(args.condition)]
+    meta ={"timestamp": datetime.now(timezone.utc).isoformat(), "platform": platform.platform(),
             "cpu_count": NCPU, "runs_per_condition": args.runs,
             "conditions": [{"name": c.name, **asdict(c)} for c in conds]}
     failed = 0
@@ -303,9 +329,14 @@ def cmd_sweep(args):
                 verdict, records = {"build_failed": str(e), "output_tail": e.output.splitlines()[-15:]}, []
                 failed += 1
             out = OUT_DIR / algo / lang / f"{model}_par.json"
+            out_meta = meta
+            if args.merge and out.exists() and records:
+                old = json.loads(out.read_text())
+                verdict, records = merge_runs(old, records, conds)
+                out_meta = {**old["meta"], "merged": meta}
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(json.dumps({"algo": algo, "lang": lang, "model": model, "verdict": verdict,
-                                       "runs": records, "meta": meta}, indent=2) + "\n")
+                                       "runs": records, "meta": out_meta}, indent=2) + "\n")
             print(f"   verdict: {json.dumps(verdict)}")
     cmd_report(args)
     sys.exit(1 if failed else 0)
@@ -351,6 +382,9 @@ def main():
     ps.add_argument("--runs", type=int, default=3)
     ps.add_argument("--timeout", type=int, default=1800, help="per-run seconds")
     ps.add_argument("--force", action="store_true", help="redo variants with existing results")
+    ps.add_argument("--merge", action="store_true",
+                    help="with --force: replace only the runs of the selected sweeps in an existing result")
+    ps.add_argument("--condition", help="comma-separated condition names, e.g. c4-t1,c16-t16-race")
     ps.set_defaults(func=cmd_sweep)
     sub.add_parser("report", help="rebuild summary from result JSONs").set_defaults(func=cmd_report)
     args = p.parse_args()
