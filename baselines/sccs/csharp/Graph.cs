@@ -188,7 +188,7 @@ class Graph
 
         essentialEdges.AddRange(forwardTree);
 
-        essentialEdges.AddRange(reverseTree);
+        foreach (var (u, v) in reverseTree) essentialEdges.Add((v, u));
  
         return essentialEdges;
 

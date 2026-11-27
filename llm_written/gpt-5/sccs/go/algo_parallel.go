@@ -130,7 +130,7 @@ func (g *Graph) MinimizeEdgesInSCC(scc []int) []Edge {
 		set[e] = struct{}{}
 	}
 	for e := range reverseTree {
-		set[e] = struct{}{}
+		set[Edge{U: e.V, V: e.U}] = struct{}{}
 	}
 	out := make([]Edge, 0, len(set))
 	for e := range set {

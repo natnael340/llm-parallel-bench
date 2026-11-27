@@ -125,7 +125,7 @@ impl Graph {
 
         // Step 3: Merge both trees
         essential_edges.extend(forward_tree);
-        essential_edges.extend(reverse_tree);
+        essential_edges.extend(reverse_tree.into_iter().map(|(u, v)| (v, u)));
 
         essential_edges
     }

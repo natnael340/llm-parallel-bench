@@ -72,7 +72,7 @@ class Graph:
 
         # Step 3: merge both trees (each edge appears at most twice)
         essential_edges.extend(forward_tree)
-        essential_edges.extend(reverse_tree)
+        essential_edges.extend((v, u) for u, v in reverse_tree)
 
         return essential_edges
 
@@ -137,7 +137,7 @@ def _minimize_edges_worker(args: Tuple[List[int], List[List[int]], List[List[int
     reverse_tree = _build_spanning_tree(scc[0], rev_adj, nodes)
     
     essential_edges.extend(forward_tree)
-    essential_edges.extend(reverse_tree)
+    essential_edges.extend((v, u) for u, v in reverse_tree)
     
     return essential_edges
 

@@ -44,7 +44,7 @@ static bool checkAllSCCs(BenchGraph& g) {
 
 // Random multi-SCC graph; ReduceEdges must return byte-identical output across runs.
 static bool checkDeterminism() {
-    const int numScc = 24, sccSize = 40, runs = 5;
+    const int numScc = 510, sccSize = 4, runs = 5;
     unsigned seed = random_device{}();
     mt19937 rng(seed);
     uniform_int_distribution<int> pick(0, sccSize - 1);

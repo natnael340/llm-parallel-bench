@@ -118,7 +118,9 @@ func (g *Graph) MinimizeEdgesInSCC(scc []int) []Edge {
 	// Step 3: merge both trees (each edge appears at most twice)
 	out := make([]Edge, 0, len(forwardTree)+len(reverseTree))
 	out = append(out, forwardTree...)
-	out = append(out, reverseTree...)
+	for _, e := range reverseTree {
+		out = append(out, Edge{U: e.V, V: e.U})
+	}
 	
 	return out
 }

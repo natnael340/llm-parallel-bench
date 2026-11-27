@@ -142,7 +142,7 @@ func (g *Graph) MinimizeEdgesInSCC(scc []int) []Edge {
 		out = append(out, e)
 	}
 	for e := range reverseTree {
-		out = append(out, e)
+		out = append(out, Edge{U: e.V, V: e.U})
 	}
 	
 	// Sort the slice to ensure deterministic order

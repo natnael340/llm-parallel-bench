@@ -8,6 +8,17 @@
   "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
   "canonical_entry": "Graph::new(usize)/add_edge/find_sccs; bench_reduce_edges(&Graph) -> Vec<(usize,usize)>",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/rust/src",
+      "files": [
+        "seq.rs"
+      ],
+      "adapter": [
+        "pub use super::seq::Graph;",
+        "pub fn bench_reduce_edges(g: &Graph) -> Vec<(usize, usize)> { std::hint::black_box(g.find_sccs()); Vec::new() }"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/rust/src",
       "files": ["seq.rs"],

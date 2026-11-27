@@ -8,6 +8,24 @@
   "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
   "canonical_entry": "BenchImpl(n): AddEdge, ReduceEdges -> List<(int,int)>, FindSCCs -> List<List<int>>",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/csharp",
+      "files": [
+        "Graph.cs"
+      ],
+      "adapter": [
+        "using System;",
+        "using System.Collections.Generic;",
+        "public class BenchImpl {",
+        "    private readonly SCC.Seq.Graph g;",
+        "    public BenchImpl(int n) { g = new SCC.Seq.Graph(n); }",
+        "    public void AddEdge(int u, int v) => g.AddEdge(u, v);",
+        "    public List<(int, int)> ReduceEdges() { GC.KeepAlive(g.FindSCCs()); return new List<(int, int)>(); }",
+        "    public List<List<int>> FindSCCs() => g.FindSCCs();",
+        "}"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/csharp",
       "files": ["Graph.cs"],

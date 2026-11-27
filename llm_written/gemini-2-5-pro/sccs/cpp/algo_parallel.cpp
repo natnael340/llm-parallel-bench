@@ -110,7 +110,7 @@ public:
 
         essentialEdges.reserve(forwardTree.size() + reverseTree.size());
         for (const auto& e : forwardTree) essentialEdges.push_back(e);
-        for (const auto& e : reverseTree) essentialEdges.push_back(e);
+        for (const auto& e : reverseTree) essentialEdges.push_back({e.second, e.first});
 
         return essentialEdges;
     }

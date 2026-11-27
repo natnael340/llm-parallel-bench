@@ -35,7 +35,7 @@ public class Benchmark {
 
     // Random multi-SCC graph; reduceEdges must return byte-identical output across runs.
     static boolean checkDeterminism() {
-        final int numScc = 24, sccSize = 40, runs = 5;
+        final int numScc = 510, sccSize = 4, runs = 5;
         long seed = new Random().nextLong();
         Random rng = new Random(seed);
 

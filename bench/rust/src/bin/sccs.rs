@@ -30,7 +30,7 @@ fn check_all(g: &Graph) -> bool {
 
 // Random multi-SCC graph; reduce_edges must return byte-identical output across runs.
 fn check_determinism() -> bool {
-    let (num_scc, scc_size, runs) = (24usize, 40usize, 5);
+    let (num_scc, scc_size, runs) = (510usize, 4usize, 5);
     let seed = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map_or(1, |d| d.as_nanos() as u64)

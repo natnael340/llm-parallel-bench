@@ -94,7 +94,7 @@ public class GraphParallel
 
         // Step 3: Merge both trees (each edge appears at most twice)
         essentialEdges.AddRange(forwardTree);
-        essentialEdges.AddRange(reverseTree);
+        foreach (var (u, v) in reverseTree) essentialEdges.Add((v, u));
 
         return essentialEdges;
     }

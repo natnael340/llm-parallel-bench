@@ -42,7 +42,7 @@ def _minimize_scc_worker(args: Tuple[List[List[int]], List[List[int]], List[int]
     reverse_tree = build_spanning_tree(start_node, rev_adj, nodes)
 
     # Step 3: merge both trees
-    essential_edges = list(forward_tree.union(reverse_tree))
+    essential_edges = list(forward_tree.union((v, u) for u, v in reverse_tree))
     return essential_edges
 
 

@@ -8,6 +8,17 @@
   "params": { "graph_size": 100000, "cluster_size": 300, "no_cluster_in_group": 3 },
   "canonical_entry": "BenchNewGraph(n int) *Graph; g.AddEdge; BenchReduceEdges(g) []Edge; g.FindSCCs()",
   "variants": {
+    "baseline-findscc/seq": {
+      "note": "Times FindSCCs only (T_disc for Amdahl); returns no edges, so correctness tests are expected to fail.",
+      "root": "baselines/sccs/go",
+      "files": [
+        "graph.go"
+      ],
+      "adapter": [
+        "func BenchNewGraph(n int) *Graph { return NewGraph(n) }",
+        "func BenchReduceEdges(g *Graph) []Edge { _ = g.FindSCCs(); return nil }"
+      ]
+    },
     "baseline/seq": {
       "root": "baselines/sccs/go",
       "files": ["graph.go"],

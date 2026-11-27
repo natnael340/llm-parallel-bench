@@ -46,7 +46,7 @@ class Program
     // Random multi-SCC graph; ReduceEdges must return byte-identical output across runs.
     static bool CheckDeterminism()
     {
-        const int numScc = 24, sccSize = 40, runs = 5;
+        const int numScc = 510, sccSize = 4, runs = 5;
         int seed = Random.Shared.Next();
         var rng = new Random(seed);
 
