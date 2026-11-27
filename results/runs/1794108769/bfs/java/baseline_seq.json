@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "seq",
+  "model": "baseline",
+  "elapsed_ms": [
+    892.9772785499999,
+    607.63557325,
+    554.6368532,
+    484.55650295,
+    531.5368562
+  ],
+  "mean": 614.2686128299999,
+  "sd": 161.97857830795817,
+  "median": 554.6368532,
+  "iqr": 242.25974632500004,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-11-08T03:33:50.090856321Z",
+  "tests_passed": true
+}

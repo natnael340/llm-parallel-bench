@@ -11,23 +11,22 @@ public static class BfsSequential
         var result = new List<int>();
         var queue = new Queue<int>();
         
+        visited.Add(startVertex);
         queue.Enqueue(startVertex);
 
         while (queue.Count > 0)
         {
             int current = queue.Dequeue();
-            
-            if (!visited.Contains(current))
-            {
-                visited.Add(current);
-                result.Add(current);
+            result.Add(current);
 
-                if (graph.Vertices.TryGetValue(current, out var neighbors))
+            if (graph.Vertices.TryGetValue(current, out var neighbors))
+            {
+                foreach (int neighbor in neighbors)
                 {
-                    foreach (int neighbor in neighbors)
+                    if (!visited.Contains(neighbor))
                     {
-                        if (!visited.Contains(neighbor))
-                            queue.Enqueue(neighbor);
+                        visited.Add(neighbor);
+                        queue.Enqueue(neighbor);
                     }
                 }
             }

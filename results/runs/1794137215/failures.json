@@ -1,0 +1,43 @@
+[
+  {
+    "algo": "bfs",
+    "lang": "java",
+    "model": "gemini-2-5-pro",
+    "impl": "par",
+    "stage": "tests",
+    "error": "correctness tests failed (rc=1), timing kept",
+    "output_tail": [
+      "[PASS] Star graph returns center then leaves",
+      "[PASS] Cycle is handled correctly",
+      "[PASS] Tree structure returns level order",
+      "[PASS] Complex graph returns correct order",
+      "[PASS] Disconnected components only visits connected component",
+      "[PASS] Duplicate edges are handled correctly",
+      "[PASS] Nonexistent start vertex returns empty list",
+      "[PASS] Negative vertex numbers work correctly",
+      "[PASS] Large vertex numbers work correctly",
+      "[PASS] Single isolated node",
+      "[PASS] Binary tree structure",
+      "[PASS] Grid graph traversal",
+      "[PASS] Hub and spoke with chains",
+      "[PASS] Multiple parallel edges between same nodes",
+      "[PASS] Order consistency is maintained across runs",
+      "[PASS] Different starting vertices produce valid orderings",
+      "[FAIL] Unordered edge insertion produces correct BFS",
+      "       Expected [1, 4, 2, 3, 5, 6] but got [1, 2, 3, 4, 5, 6]",
+      "[PASS] Performance stress test with large linear graph",
+      "       (Wide graph: center + 5000 neighbors in 19.06 ms)",
+      "[PASS] Performance with wide graph (many neighbors)",
+      "       (Deep graph: depth=10000 in 1593.38 ms)",
+      "[PASS] Performance with deep graph (long chain)",
+      "",
+      "========================================",
+      "Results: 23 passed, 1 failed, 24 total",
+      "========================================",
+      "1 test(s) failed \u2014 benchmarking anyway",
+      "       (BFS complete graph | nodes=2000, undirected edges\u22481,999,000 (directed\u22483,998,000) | mean 24.75 ms/run \u00b1 1.94 SD | median 23.82 ms/run \u00b1 2.87 IQR (n=5))",
+      "[PASS] Performance speed test with complete graph"
+    ],
+    "timestamp": "2026-11-08T11:27:02.966727+00:00"
+  }
+]

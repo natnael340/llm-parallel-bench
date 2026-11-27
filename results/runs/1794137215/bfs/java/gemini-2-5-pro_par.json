@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "algo": "bfs",
+  "lang": "java",
+  "impl": "par",
+  "model": "gemini-2-5-pro",
+  "elapsed_ms": [
+    28.113577049999996,
+    24.7360308,
+    23.81554935,
+    23.7212355,
+    23.3816451
+  ],
+  "mean": 24.75360756,
+  "sd": 1.9440762705903047,
+  "median": 23.81554935,
+  "iqr": 2.8733636249999996,
+  "reps": 5,
+  "iters_per_rep": 20,
+  "params": {
+    "graph_size": 2000,
+    "graph_kind": "complete"
+  },
+  "timestamp": "2026-11-08T11:27:02.812958108Z",
+  "tests_passed": false
+}
